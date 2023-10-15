@@ -2,29 +2,11 @@ import asyncHandler from "express-async-handler";
 import genToken from "../utils/genToken.js";
 import User from "../models/userModels.js";
 
-// @DESCRIPTION Auth and login in existing user/set token
-// @ROUTE       POST /api/users/auth
-// @ACCESS      Public
-const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-
-  const user = await User.findOne({ email });
-  const passwordIsCorrect = await user.matchPassword(password);
-
-  if (user && passwordIsCorrect) {
-    genToken(res, user._id);
-    res.status(201).json({ _id: user._id, name: user.name, email: user.email });
-  } else {
-    res.status(401);
-    throw new Error("Invalid email or password");
-  }
-});
-
 // @DESCRIPTION Register new user
 // @ROUTE       POST /api/users
 // @ACCESS      Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { firstName, lastName, email, password, profile, username } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -33,15 +15,64 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error("User already exists");
   }
 
-  const user = await User.create({ name, email, password });
+  const user = await User.create({
+    firstName,
+    lastName,
+    email,
+    password,
+    profile,
+    username,
+  });
 
   if (user) {
     genToken(res, user._id);
-    res.status(201).json({ _id: user._id, name: user.name, email: user.email });
+    res.status(201).json({
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      username: user.username,
+      profile: user.profile,
+      address: user.address,
+      mobile: user.mobile,
+    });
   } else {
     res.status(400);
     throw new Error("Invalid user data");
   }
+});
+
+// @DESCRIPTION Auth and login in existing user/set token
+// @ROUTE       POST /api/users/auth
+// @ACCESS      Public
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (user && (await user.matchPassword(password))) {
+    genToken(res, user._id);
+    res.status(201).json({
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      username: user.username,
+      profile: user.profile,
+      address: user.address,
+      mobile: user.mobile,
+    });
+  } else {
+    res.status(401);
+    throw new Error("Invalid email or password");
+  }
+});
+
+// @DESCRIPTION Confirm Email of new user
+// @ROUTE       POST /api/users/confirmEmail
+// @ACCESS      Public
+const confirmUserEmail = asyncHandler(async (req, res) => {
+  res.json("Confirm new user's email");
 });
 
 // @DESCRIPTION Logout currently logged in user
@@ -62,8 +93,13 @@ const logoutUser = asyncHandler(async (req, res) => {
 const getUserProfile = asyncHandler(async (req, res) => {
   const user = {
     _id: req.user._id,
-    name: req.user.name,
+    firstName: req.user.firstName,
+    lastName: req.user.lastName,
     email: req.user.email,
+    username: req.user.username,
+    profile: req.user.profile,
+    address: req.user.address,
+    mobile: req.user.mobile,
   };
   res.status(200).json({ user });
 });
@@ -83,8 +119,13 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
-    user.name = req.body.name || user.name;
+    user.firstName = req.body.firstName || user.firstName;
+    user.lastName = req.body.lastName || user.lastName;
     user.email = req.body.email || user.email;
+    user.username = req.body.username || user.username;
+    user.profile = req.body.profile || user.profile;
+    user.address = req.body.address || user.address;
+    user.mobile = req.body.mobile || user.mobile;
 
     if (req.body.password && (await user.matchPassword(req.body.password))) {
       res.status(400);
@@ -97,15 +138,26 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
     res.status(200).json({
       _id: updatedUser._id,
-      name: updatedUser.name,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
       email: updatedUser.email,
+      username: updatedUser.username,
+      profile: updatedUser.profile,
+      address: updatedUser.address,
+      mobile: updatedUser.mobile,
     });
   } else {
     res.status(404);
     throw new Error("User not found");
   }
-
-  res.status(200).json({ Message: "Update User Profile" });
 });
 
-export { loginUser, registerUser, logoutUser, getUserProfile, getUsers, updateUserProfile };
+export {
+  loginUser,
+  registerUser,
+  confirmUserEmail,
+  logoutUser,
+  getUserProfile,
+  getUsers,
+  updateUserProfile,
+};
