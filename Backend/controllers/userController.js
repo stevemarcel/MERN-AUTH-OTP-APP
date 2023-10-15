@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler";
 import genToken from "../utils/genToken.js";
 import User from "../models/userModels.js";
 
-// @DESCRIPTION Auth and login in user/set token
+// @DESCRIPTION Auth and login in existing user/set token
 // @ROUTE       POST /api/users/auth
 // @ACCESS      Public
 const loginUser = asyncHandler(async (req, res) => {
@@ -20,7 +20,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-// @DESCRIPTION Register user
+// @DESCRIPTION Register new user
 // @ROUTE       POST /api/users
 // @ACCESS      Public
 const registerUser = asyncHandler(async (req, res) => {
@@ -44,7 +44,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// @DESCRIPTION Logout user
+// @DESCRIPTION Logout currently logged in user
 // @ROUTE       POST /api/users/logout
 // @ACCESS      Public
 const logoutUser = asyncHandler(async (req, res) => {
@@ -56,7 +56,7 @@ const logoutUser = asyncHandler(async (req, res) => {
   res.status(200).json({ Message: "User Logged Out" });
 });
 
-// @DESCRIPTION Get user Profile
+// @DESCRIPTION Gets logged in user's Profile
 // @ROUTE       GET /api/users/profile
 // @ACCESS      Private
 const getUserProfile = asyncHandler(async (req, res) => {
@@ -68,7 +68,15 @@ const getUserProfile = asyncHandler(async (req, res) => {
   res.status(200).json({ user });
 });
 
-// @DESCRIPTION Update user Profile
+// @DESCRIPTION Gets all users
+// @ROUTE       GET /api/users
+// @ACCESS      Private/Admin
+const getUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({});
+  res.status(200).json({ users });
+});
+
+// @DESCRIPTION Updates logged in user's Profile
 // @ROUTE       PUT /api/users/profile
 // @ACCESS      Private
 const updateUserProfile = asyncHandler(async (req, res) => {
@@ -100,4 +108,4 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   res.status(200).json({ Message: "Update User Profile" });
 });
 
-export { loginUser, registerUser, logoutUser, getUserProfile, updateUserProfile };
+export { loginUser, registerUser, logoutUser, getUserProfile, getUsers, updateUserProfile };
