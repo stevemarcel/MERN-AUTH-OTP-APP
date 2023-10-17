@@ -5,20 +5,20 @@ const userSchema = mongoose.Schema(
   {
     firstName: {
       type: String,
-      required: true,
+      required: [true, "'First Name' field cannot be empty"],
     },
     lastName: {
       type: String,
-      required: true,
+      required: [true, "'Last Name' field cannot be empty"],
     },
     email: {
       type: String,
-      required: true,
+      required: [true, "'Email Address Name' field cannot be empty"],
       unique: true,
     },
     password: {
       type: String,
-      required: true,
+      required: [true, "'Password Name' field cannot be empty"],
     },
     isAdmin: {
       type: Boolean,

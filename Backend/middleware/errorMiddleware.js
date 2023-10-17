@@ -13,6 +13,12 @@ const errorHandler = (err, req, res, next) => {
     message = "Resource not found";
   }
 
+  if (err.name === "ValidationError") {
+    statusCode = 400;
+    const valErrors = Object.values(err.errors).map((error) => error.message);
+    message = `Invalid input: ${valErrors.join(", ")}`;
+  }
+
   res.status(statusCode).json({
     message,
     stack: process.env.NODE_ENV === "production" ? null : err.stack,
