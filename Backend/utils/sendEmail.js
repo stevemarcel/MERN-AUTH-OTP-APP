@@ -9,7 +9,7 @@ const sendEmail = async (email, subject, text) => {
       secure: Boolean(process.env.EMAIL_SECURE),
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        pass: process.env.EMAIL_PASSWORD,
       },
     });
 
