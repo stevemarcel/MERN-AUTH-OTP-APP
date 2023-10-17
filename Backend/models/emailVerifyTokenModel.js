@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const emailVerifyTokenSchema = mongoose.Schema({
   userId: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: "user",
     unique: true,
@@ -14,7 +14,7 @@ const emailVerifyTokenSchema = mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
-    expires: 900, //15 minutes
+    expires: process.env.EMAIL_EXPIRY * 60, //in seconds
   },
 });
 

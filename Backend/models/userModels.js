@@ -18,7 +18,7 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, "'Password Name' field cannot be empty"],
+      required: [true, "'Password' field cannot be empty"],
     },
     isAdmin: {
       type: Boolean,

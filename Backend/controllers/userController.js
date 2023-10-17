@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import genToken from "../utils/genToken.js";
 import sendEmail from "../utils/sendEmail.js";
+import emailBody from "../utils/emailBody.js";
 import User from "../models/userModels.js";
 import EmailVerifyToken from "../models/emailVerifyTokenModel.js";
 import crypto from "crypto";
@@ -33,21 +34,19 @@ const registerUser = asyncHandler(async (req, res) => {
       token: crypto.randomBytes(32).toString("hex"),
     });
 
-    // const emailVerifyToken = await new EmailVerifyToken({
-    //   userId: user.id,
-    //   token: crypto.randomBytes(32).toString("hex"),
-    // }).save()
-
     const url = `${process.env.BASE_URL}users/${user._id}/verifyEmail/${emailVerifyToken.token}`;
+    const userFirstName = user.firstName;
 
-    const sendEmail = await sendEmail(user.email, "Verify Your Email Address", url);
-    if (sendEmail) {
-      res
-        .status(201)
-        .send({
-          message:
-            "A verification link has been sent to your email address which expires in 15 minutes. Please verify immediately.",
-        });
+    const body = emailBody(url, userFirstName);
+    // console.log(body);
+
+    const sendVerificationEmail = await sendEmail(user.email, "Verify Your Email Address", body);
+
+    if (sendVerificationEmail) {
+      res.status(201).json({
+        message:
+          "A verification link has been sent to your email address which expires in 15 minutes. Please verify immediately.",
+      });
     }
 
     genToken(res, user._id);
