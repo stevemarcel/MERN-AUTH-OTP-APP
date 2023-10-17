@@ -29,24 +29,25 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    const emailVerifyToken = await EmailVerifyToken.create({
-      userId: user._id,
-      token: crypto.randomBytes(32).toString("hex"),
-    });
-
-    const url = `${process.env.BASE_URL}users/${user._id}/verifyEmail/${emailVerifyToken.token}`;
-    const userFirstName = user.firstName;
-
-    const body = emailBody(url, userFirstName);
-    // console.log(body);
-
-    const sendVerificationEmail = await sendEmail(user.email, "Verify Your Email Address", body);
-
-    if (sendVerificationEmail) {
-      res.status(201).json({
-        message:
-          "A verification link has been sent to your email address which expires in 15 minutes. Please verify immediately.",
+    if (!user.emailVerified) {
+      const emailVerifyToken = await EmailVerifyToken.create({
+        userId: user._id,
+        token: crypto.randomBytes(32).toString("hex"),
       });
+
+      const url = `${process.env.BASE_URL}/api/users/${user._id}/verifyemail/${emailVerifyToken.token}`;
+      const userFirstName = user.firstName;
+
+      const body = emailBody(url, userFirstName);
+
+      const sendVerificationEmail = await sendEmail(user.email, "Verify Your Email Address", body);
+
+      if (sendVerificationEmail) {
+        res.status(201).json({
+          message:
+            "A verification link has been sent to your email address which expires in 15 minutes. Please verify immediately.",
+        });
+      }
     }
 
     genToken(res, user._id);
@@ -66,6 +67,41 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
+// @DESCRIPTION Verify Email of new user
+// @ROUTE       GET /api/users/:id/verifyemail/:token
+// @ACCESS      Public
+const verifyUserEmail = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.params.id });
+    if (!user) {
+      res.status(400);
+      throw new Error("Invalid Verification Link");
+    }
+
+    const tokenVerified = await EmailVerifyToken.findOne({
+      userId: user._id,
+      token: req.params.token,
+    });
+
+    if (!tokenVerified) {
+      res.status(400);
+      throw new Error("Invalid Verification Link");
+    }
+
+    user.emailVerified = true || user.emailVerified;
+    await user.save();
+
+    res.status(200).json({
+      message: "Email verified",
+    });
+
+    await EmailVerifyToken.deleteOne({ userId: user._id });
+  } catch (error) {
+    res.status(400);
+    throw new Error("Email verification failed");
+  }
+});
+
 // @DESCRIPTION Auth and login in existing user/set token
 // @ROUTE       POST /api/users/auth
 // @ACCESS      Public
@@ -75,6 +111,37 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
+    if (!user.emailVerified) {
+      const tokenVerified = await EmailVerifyToken.findOne({ userId: user._id });
+      if (!tokenVerified) {
+        const emailVerifyToken = await EmailVerifyToken.create({
+          userId: user._id,
+          token: crypto.randomBytes(32).toString("hex"),
+        });
+
+        const url = `${process.env.BASE_URL}/api/users/${user._id}/verifyemail/${emailVerifyToken.token}`;
+        const userFirstName = user.firstName;
+
+        const body = emailBody(url, userFirstName);
+
+        const sendVerificationEmail = await sendEmail(
+          user.email,
+          "Verify Your Email Address",
+          body
+        );
+        if (sendVerificationEmail) {
+          res.status(201).json({
+            message:
+              "A verification link has been sent to your email address which expires in 15 minutes. Please verify immediately.",
+          });
+        }
+      }
+      res.status(400);
+      throw new Error(
+        "A verification link has been sent to your email address which expires in 15 minutes. Please verify immediately."
+      );
+    }
+
     genToken(res, user._id);
     res.status(201).json({
       _id: user._id,
@@ -90,13 +157,6 @@ const loginUser = asyncHandler(async (req, res) => {
     res.status(401);
     throw new Error("Invalid email or password");
   }
-});
-
-// @DESCRIPTION Confirm Email of new user
-// @ROUTE       POST /api/users/confirmEmail
-// @ACCESS      Public
-const confirmUserEmail = asyncHandler(async (req, res) => {
-  res.json("Confirm new user's email");
 });
 
 // @DESCRIPTION Logout currently logged in user
@@ -179,7 +239,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 export {
   loginUser,
   registerUser,
-  confirmUserEmail,
+  verifyUserEmail,
   logoutUser,
   getUserProfile,
   getUsers,

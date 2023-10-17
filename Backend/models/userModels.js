@@ -22,12 +22,10 @@ const userSchema = mongoose.Schema(
     },
     isAdmin: {
       type: Boolean,
-      required: true,
       default: false,
     },
     emailVerified: {
       type: Boolean,
-      required: true,
       default: false,
     },
     username: {
