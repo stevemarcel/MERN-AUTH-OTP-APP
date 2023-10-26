@@ -2,6 +2,12 @@
 
 This project is a comprehensive implementation of user authentication utilizing the MERN (MongoDB, Express, React, Node.js) stack along with various complementary technologies. It is designed to securely manage user registration, email verification, password reset using OTP (One-Time Password), and token-based authentication using JWT (JSON Web Tokens). The use of JWT stored in HTTP-only cookies fortifies the application against common security vulnerabilities like XSS (Cross-Site Scripting) and CSRF (Cross-Site Request Forgery) attacks. This not only simplifies the management of authentication tokens but also ensures automated handling by web browsers, thereby mitigating the risks associated with client-side JavaScript access.
 
+### 🖥️ 📲 Check out the live preview
+
+<!-- [<kbd> <br> MERN AUTH OTP APP <br> </kbd>][Link]
+
+[Link]: https://spring-bud-octopus-shoe.cyclic.app/ 'MERN AUTH OTP APP' -->
+
 ## 🔐 Features
 
 - User Registration: Users can securely register with the application.
@@ -56,9 +62,3 @@ To run the project locally, follow these steps:
 ## 📜 License
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
-
-### 🖥️ 📲 Check out the live preview
-
-<!-- [<kbd> <br> MERN AUTH OTP APP <br> </kbd>][Link]
-
-[Link]: https://spring-bud-octopus-shoe.cyclic.app/ 'MERN AUTH OTP APP' -->
