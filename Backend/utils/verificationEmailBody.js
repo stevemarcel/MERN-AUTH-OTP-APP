@@ -1,4 +1,4 @@
-const emailBody = (url, userFirstName) => {
+const verificationEmailBody = (verification, userFirstName, mode) => {
   const mailExpiry = process.env.EMAIL_EXPIRY;
   const senderEmail = process.env.EMAIL_USER;
   const company = process.env.EMAIL_USERNAME;
@@ -7,6 +7,81 @@ const emailBody = (url, userFirstName) => {
   const instagram = process.env.INSTAGRAM;
   const behance = process.env.BEHANCE;
   const whatsapp = process.env.WHATSAPP;
+
+  let verificationType = mode === "verifyEmail" ? "link" : "OTP code";
+  let greeting = mode === "verifyEmail" ? "Welcome" : "Hello";
+  let msgBody =
+    mode === "verifyEmail"
+      ? `You're receiving this message because you recently signed up for a ${company} account.<br /><br />Confirm your email address by clicking the button below. This step adds extra security to your account.`
+      : `You are receiving this email because a request was made for a one-time code on your ${company} account.
+    <br /><br />Please enter the OTP code below for verification:
+    <br /><br />
+    `;
+
+  let action =
+    mode === "verifyEmail"
+      ? `<span class="es-button-border msohide"
+  style="
+    border-style: solid;
+    border-color: #2cb543;
+    background: #7630f3;
+    border-width: 0px;
+    display: block;
+    border-radius: 30px;
+    width: auto;
+    mso-hide: all;
+    mso-border-alt: 10px;
+  ">
+  <a
+    href="${verification}" class="es-button msohide" target="_blank"
+    style="
+      mso-style-priority: 100 !important;
+      text-decoration: none !important;
+      mso-line-height-rule: exactly;
+      color: #ffffff;
+      font-size: 22px;
+      padding: 15px 20px 15px 20px;
+      display: block;
+      background: #7630f3;
+      border-radius: 30px;
+      font-family: Imprima, Arial, sans-serif;
+      font-weight: bold;
+      font-style: normal;
+      line-height: 26px;
+      width: auto;
+      text-align: center;
+      letter-spacing: 0;
+      mso-padding-alt: 0;
+      mso-border-alt: 10px solid #4114f7;
+      mso-hide: all;
+      padding-left: 5px;
+      padding-right: 5px;
+      border-color: #7630f3;
+    " >
+    Verify your email
+    </a
+  ></span >`
+      : `<span class="es-button-border msohide"
+      style="
+        mso-style-priority: 100 !important;
+        mso-line-height-rule: exactly;
+        font-size: 35px;
+        padding: 15px 20px 15px 20px;
+        color: #7630f3;
+        font-family: Imprima, Arial, sans-serif;
+        font-weight: bold;
+        font-style: normal;
+        line-height: 26px;
+        text-align: center;
+        display: block;
+        width: auto;
+        letter-spacing: 0;
+        mso-padding-alt: 0;
+        mso-hide: all;
+      ">
+      ${verification}
+      </span >
+      <br /><br />If you did not request this change, please change your password, you account may have been compromised`;
 
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
   <html
@@ -506,7 +581,7 @@ const emailBody = (url, userFirstName) => {
                                           color: #2d3142;
                                         "
                                       >
-                                        Welcome,&nbsp;${userFirstName}
+                                        ${greeting},&nbsp;${userFirstName}
                                       </h3>
                                       <p
                                         style="
@@ -532,10 +607,7 @@ const emailBody = (url, userFirstName) => {
                                           font-size: 18px;
                                         "
                                       >
-                                        You're receiving this message because you recently signed up
-                                        for a MERN AUTH OTP APP account.<br /><br />Confirm your email
-                                        address by clicking the button below. This step adds extra
-                                        security to your account.
+                                        ${msgBody}
                                       </p>
                                     </td>
                                   </tr>
@@ -625,50 +697,7 @@ const emailBody = (url, userFirstName) => {
                                 >
                                   <tr>
                                     <td align="center" style="padding: 0; margin: 0">
-                                      <span
-                                        class="es-button-border msohide"
-                                        style="
-                                          border-style: solid;
-                                          border-color: #2cb543;
-                                          background: #7630f3;
-                                          border-width: 0px;
-                                          display: block;
-                                          border-radius: 30px;
-                                          width: auto;
-                                          mso-hide: all;
-                                          mso-border-alt: 10px;
-                                        "
-                                        ><a
-                                          href="${url}"
-                                          class="es-button msohide"
-                                          target="_blank"
-                                          style="
-                                            mso-style-priority: 100 !important;
-                                            text-decoration: none !important;
-                                            mso-line-height-rule: exactly;
-                                            color: #ffffff;
-                                            font-size: 22px;
-                                            padding: 15px 20px 15px 20px;
-                                            display: block;
-                                            background: #7630f3;
-                                            border-radius: 30px;
-                                            font-family: Imprima, Arial, sans-serif;
-                                            font-weight: bold;
-                                            font-style: normal;
-                                            line-height: 26px;
-                                            width: auto;
-                                            text-align: center;
-                                            letter-spacing: 0;
-                                            mso-padding-alt: 0;
-                                            mso-border-alt: 10px solid #4114f7;
-                                            mso-hide: all;
-                                            padding-left: 5px;
-                                            padding-right: 5px;
-                                            border-color: #7630f3;
-                                          "
-                                          >Confirm your email</a
-                                        ></span
-                                      >
+                                      ${action}
                                     </td>
                                   </tr>
                                 </table>
@@ -725,7 +754,7 @@ const emailBody = (url, userFirstName) => {
                                           font-size: 18px;
                                         "
                                       >
-                                        Thanks,<br /><br />${company}
+                                        Thanks,<br /><br />${company} Team.
                                       </p>
                                     </td>
                                   </tr>
@@ -955,7 +984,7 @@ const emailBody = (url, userFirstName) => {
                                                 font-size: 16px;
                                               "
                                             >
-                                              This link expire in ${mailExpiry} minutes. If you have
+                                              This ${verificationType} expires in ${mailExpiry} minutes. If you have
                                               questions,
                                               <a
                                                 target="_blank"
@@ -1291,4 +1320,4 @@ const emailBody = (url, userFirstName) => {
   `;
 };
 
-export default emailBody;
+export default verificationEmailBody;

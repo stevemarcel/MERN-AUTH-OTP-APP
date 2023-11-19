@@ -1,7 +1,7 @@
 import asyncHandler from "express-async-handler";
 import genToken from "../utils/genToken.js";
 import sendEmail from "../utils/sendEmail.js";
-import emailBody from "../utils/emailBody.js";
+import verificationEmailBody from "../utils/verificationEmailBody.js";
 import User from "../models/userModels.js";
 import EmailVerifyToken from "../models/emailVerifyTokenModel.js";
 import crypto from "crypto";
@@ -29,27 +29,6 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    if (!user.emailVerified) {
-      const emailVerifyToken = await EmailVerifyToken.create({
-        userId: user._id,
-        token: crypto.randomBytes(32).toString("hex"),
-      });
-
-      const url = `${process.env.BASE_URL}/api/users/${user._id}/verifyemail/${emailVerifyToken.token}`;
-      const userFirstName = user.firstName;
-
-      const body = emailBody(url, userFirstName);
-
-      const sendVerificationEmail = await sendEmail(user.email, "Verify Your Email Address", body);
-
-      if (sendVerificationEmail) {
-        res.status(201).json({
-          message:
-            "A verification link has been sent to your email address which expires in 15 minutes. Please verify immediately.",
-        });
-      }
-    }
-
     genToken(res, user._id);
     res.status(201).json({
       _id: user._id,
@@ -67,7 +46,40 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// @DESCRIPTION Verify Email of new user
+// @DESCRIPTION Send verification Email with link
+// @ROUTE       POST /api/users/sendverificationemail
+// @ACCESS      Public
+const sendVerificationEmail = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user.emailVerified) {
+    const tokenFound = await EmailVerifyToken.findOne({ userId: user._id });
+    const emailVerifyToken = !tokenFound
+      ? await EmailVerifyToken.create({
+          userId: user._id,
+          token: crypto.randomBytes(32).toString("hex"),
+        })
+      : tokenFound;
+
+    // const url = "5678";
+    const url = `${process.env.BASE_URL}/api/users/${user._id}/verifyemail/${emailVerifyToken.token}`;
+    const userFirstName = user.firstName;
+    // const mode = "OTP";
+    const mode = "verifyEmail";
+
+    const body = verificationEmailBody(url, userFirstName, mode);
+
+    await sendEmail(user.email, "Verify Your Email Address", body);
+    res.status(201).json({
+      message: `A verification link has been sent to your email address which expires in ${process.env.EMAIL_EXPIRY} minutes. Please verify immediately.`,
+    });
+  } else {
+    res.status(200).json({ message: "Email Verified Already" });
+  }
+});
+
+// @DESCRIPTION Verify Email of new user from sent email link
 // @ROUTE       GET /api/users/:id/verifyemail/:token
 // @ACCESS      Public
 const verifyUserEmail = asyncHandler(async (req, res) => {
@@ -78,12 +90,12 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
       throw new Error("Invalid Verification Link");
     }
 
-    const tokenVerified = await EmailVerifyToken.findOne({
+    const findToken = await EmailVerifyToken.findOne({
       userId: user._id,
       token: req.params.token,
     });
 
-    if (!tokenVerified) {
+    if (!findToken) {
       res.status(400);
       throw new Error("Invalid Verification Link");
     }
@@ -103,7 +115,7 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
 });
 
 // @DESCRIPTION Auth and login in existing user/set token
-// @ROUTE       POST /api/users/auth
+// @ROUTE       POST /api/users/login
 // @ACCESS      Public
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -111,37 +123,6 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
-    if (!user.emailVerified) {
-      const tokenVerified = await EmailVerifyToken.findOne({ userId: user._id });
-      if (!tokenVerified) {
-        const emailVerifyToken = await EmailVerifyToken.create({
-          userId: user._id,
-          token: crypto.randomBytes(32).toString("hex"),
-        });
-
-        const url = `${process.env.BASE_URL}/api/users/${user._id}/verifyemail/${emailVerifyToken.token}`;
-        const userFirstName = user.firstName;
-
-        const body = emailBody(url, userFirstName);
-
-        const sendVerificationEmail = await sendEmail(
-          user.email,
-          "Verify Your Email Address",
-          body
-        );
-        if (sendVerificationEmail) {
-          res.status(201).json({
-            message:
-              "A verification link has been sent to your email address which expires in 15 minutes. Please verify immediately.",
-          });
-        }
-      }
-      res.status(400);
-      throw new Error(
-        "A verification link has been sent to your email address which expires in 15 minutes. Please verify immediately."
-      );
-    }
-
     genToken(res, user._id);
     res.status(201).json({
       _id: user._id,
@@ -239,6 +220,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 export {
   loginUser,
   registerUser,
+  sendVerificationEmail,
   verifyUserEmail,
   logoutUser,
   getUserProfile,
