@@ -1,10 +1,8 @@
 import asyncHandler from "express-async-handler";
 import genToken from "../utils/genToken.js";
-import sendEmail from "../utils/sendEmail.js";
-import verificationEmailBody from "../utils/verificationEmailBody.js";
 import User from "../models/userModels.js";
 import EmailVerifyToken from "../models/emailVerifyTokenModel.js";
-import crypto from "crypto";
+import sendEmail from "../utils/sendEmail.js";
 
 // @DESCRIPTION Register new user
 // @ROUTE       POST /api/users
@@ -46,33 +44,39 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// @DESCRIPTION Send verification Email with link
+// @DESCRIPTION Send registration verification Email with link
 // @ROUTE       POST /api/users/sendverificationemail
 // @ACCESS      Public
 const sendVerificationEmail = asyncHandler(async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
+  const mode = "verifyEmail";
+  const message = `A verification link has been sent to your email address which expires in ${process.env.EMAIL_EXPIRY} minutes. Please check your email immediately.`;
 
   if (!user.emailVerified) {
-    const tokenFound = await EmailVerifyToken.findOne({ userId: user._id });
-    const emailVerifyToken = !tokenFound
-      ? await EmailVerifyToken.create({
-          userId: user._id,
-          token: crypto.randomBytes(32).toString("hex"),
-        })
-      : tokenFound;
+    sendEmail(user, mode);
+    // const tokenFound = await EmailVerifyToken.findOne({ userId: user._id });
+    // const emailVerifyToken = !tokenFound
+    //   ? await EmailVerifyToken.create({
+    //       userId: user._id,
+    //       token: crypto.randomBytes(32).toString("hex"),
+    //     })
+    //   : tokenFound;
 
-    // const url = "5678";
-    const url = `${process.env.BASE_URL}/api/users/${user._id}/verifyemail/${emailVerifyToken.token}`;
-    const userFirstName = user.firstName;
-    // const mode = "OTP";
-    const mode = "verifyEmail";
+    // // const OTP = `${emailVerifyToken.token}`;
+    // const url = `${process.env.BASE_URL}/api/users/${user._id}/verifyemail/${emailVerifyToken.token}`;
+    // const userFirstName = user.firstName;
+    // // const mode = "OTP";
+    // const mode = "verifyEmail";
 
-    const body = verificationEmailBody(url, userFirstName, mode);
+    // const body = verificationEmailBody(url, userFirstName, mode);
 
-    await sendEmail(user.email, "Verify Your Email Address", body);
+    // await emailSender(user.email, "Verify Your Email Address", body);
+    // res.status(201).json({
+    //   message: `A verification link has been sent to your email address which expires in ${process.env.EMAIL_EXPIRY} minutes. Please check your email immediately.`,
+    // });
     res.status(201).json({
-      message: `A verification link has been sent to your email address which expires in ${process.env.EMAIL_EXPIRY} minutes. Please verify immediately.`,
+      message,
     });
   } else {
     res.status(200).json({ message: "Email Verified Already" });

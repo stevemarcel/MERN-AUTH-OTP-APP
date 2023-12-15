@@ -1,32 +1,26 @@
-import nodemailer from "nodemailer";
+import asyncHandler from "express-async-handler";
+import emailSender from "../utils/emailSender.js";
+import verificationEmailBody from "../utils/verificationEmailBody.js";
+import EmailVerifyToken from "../models/emailVerifyTokenModel.js";
+import crypto from "crypto";
 
-const sendEmail = async (email, subject, text) => {
-  try {
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      service: process.env.EMAIL_SERVICE,
-      port: Number(process.env.EMAIL_PORT),
-      secure: Boolean(process.env.EMAIL_SECURE),
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
+const sendEmail = asyncHandler(async (user, mode) => {
+  const tokenFound = await EmailVerifyToken.findOne({ userId: user._id });
+  const emailVerifyToken = !tokenFound
+    ? await EmailVerifyToken.create({
+        userId: user._id,
+        token: crypto.randomBytes(32).toString("hex"),
+      })
+    : tokenFound;
 
-    await transporter.sendMail({
-      from: `${process.env.EMAIL_USERNAME} <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject,
-      html: text,
-    });
+  let verification =
+    mode === "verifyEmail"
+      ? `${process.env.BASE_URL}/api/users/${user._id}/verifyemail/${emailVerifyToken.token}`
+      : `${emailVerifyToken.token}`;
+  const userFirstName = user.firstName;
 
-    if (process.env.NODE_ENV === "development") {
-      console.log("Email sent successfully");
-    }
-  } catch (error) {
-    console.log("Email not sent");
-    console.log(error);
-  }
-};
+  const body = verificationEmailBody(verification, userFirstName, mode);
+  await emailSender(user.email, "Verify Your Email Address", body);
+});
 
 export default sendEmail;
