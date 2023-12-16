@@ -29,10 +29,13 @@ const registerUser = asyncHandler(async (req, res) => {
   if (user) {
     genToken(res, user._id);
     res.status(201).json({
+      Message: "User registered successfully",
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      isAdmin: user.isAdmin,
+      emailVerified: user.emailVerified,
       username: user.username,
       profile: user.profile,
       address: user.address,
@@ -51,7 +54,7 @@ const sendVerificationEmail = asyncHandler(async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
   const mode = "verifyEmail";
-  const message = `A verification link has been sent to your email address which expires in ${process.env.EMAIL_EXPIRY} minutes. Please check your email immediately.`;
+  const Message = `Verification is just a click away! We've sent an email to [${email}]: click the verification link in your email to complete your registration. This link expires in ${process.env.EMAIL_EXPIRY} minutes. Do check your email swiftly.`;
 
   if (!user.emailVerified) {
     sendEmail(user, mode);
@@ -76,10 +79,10 @@ const sendVerificationEmail = asyncHandler(async (req, res) => {
     //   message: `A verification link has been sent to your email address which expires in ${process.env.EMAIL_EXPIRY} minutes. Please check your email immediately.`,
     // });
     res.status(201).json({
-      message,
+      Message,
     });
   } else {
-    res.status(200).json({ message: "Email Verified Already" });
+    res.status(200).json({ Message: "Email Verified Already" });
   }
 });
 
@@ -96,25 +99,127 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
 
     const findToken = await EmailVerifyToken.findOne({
       userId: user._id,
-      token: req.params.token,
     });
 
-    if (!findToken) {
+    if (findToken && (await findToken.matchToken(req.params.token))) {
+      user.emailVerified = true || user.emailVerified;
+      await user.save();
+
+      res.status(200).json({
+        Message: "Email verified",
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        emailVerified: user.emailVerified,
+        username: user.username,
+        profile: user.profile,
+        address: user.address,
+        mobile: user.mobile,
+      });
+
+      await EmailVerifyToken.deleteOne({ userId: user._id });
+    } else {
       res.status(400);
       throw new Error("Invalid Verification Link");
     }
-
-    user.emailVerified = true || user.emailVerified;
-    await user.save();
-
-    res.status(200).json({
-      message: "Email verified",
-    });
-
-    await EmailVerifyToken.deleteOne({ userId: user._id });
   } catch (error) {
     res.status(400);
     throw new Error("Email verification failed");
+  }
+});
+
+// @DESCRIPTION Send reset password OTP Email
+// @ROUTE       POST /api/users/sendresetpasswordemail
+// @ACCESS      Public
+const sendResetPasswordOTPEmail = asyncHandler(async (req, res) => {
+  // const { email } = req.body;
+  // const user = await User.findOne({ email });
+  const user = await User.findById(req.user._id);
+  const mode = "OTP";
+  const Message = `Heads up! An email containing your OTP has just landed in your inbox [${email}]. Check it out and enter the code below to make sure it's you.The OTP expires in ${process.env.EMAIL_EXPIRY} minutes. Time is ticking!`;
+
+  if (user) {
+    sendEmail(user, mode);
+    res.status(201).json({
+      email,
+      Message,
+    });
+  } else {
+    res.status(400);
+    throw new Error("User not found");
+  }
+});
+
+// @DESCRIPTION Verify reset password OTP
+// @ROUTE       GET /api/users/verifyresetpasswordotp
+// @ACCESS      Public
+const verifyResetPasswordOTP = asyncHandler(async (req, res) => {
+  try {
+    const { email, OTP } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      res.status(400);
+      throw new Error("User not found");
+    }
+
+    const findToken = await EmailVerifyToken.findOne({
+      userId: user._id,
+    });
+
+    if (findToken && (await findToken.matchToken(OTP))) {
+      res.status(201).json({
+        Message: "OTP verification successful",
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        emailVerified: user.emailVerified,
+        username: user.username,
+        profile: user.profile,
+        address: user.address,
+        mobile: user.mobile,
+      });
+
+      await EmailVerifyToken.deleteOne({ userId: user._id });
+    } else {
+      res.status(400);
+      throw new Error("Invalid OTP");
+    }
+  } catch (error) {
+    res.status(400);
+    throw new Error("OTP verification failed");
+  }
+});
+
+// @DESCRIPTION Reset password of user after verifying OTP
+// @ROUTE       GET /api/users/resetpassword
+// @ACCESS      Public
+const resetPassword = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    if (req.body.password && (await user.matchPassword(req.body.password))) {
+      res.status(400);
+      throw new Error("Can not use old password");
+    } else if (req.body.password) {
+      user.password = req.body.password;
+    }
+
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      _id: updatedUser._id,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      email: updatedUser.email,
+      username: updatedUser.username,
+      profile: updatedUser.profile,
+      address: updatedUser.address,
+      mobile: updatedUser.mobile,
+    });
   }
 });
 
@@ -129,10 +234,13 @@ const loginUser = asyncHandler(async (req, res) => {
   if (user && (await user.matchPassword(password))) {
     genToken(res, user._id);
     res.status(201).json({
+      Message: "Login successful",
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      isAdmin: user.isAdmin,
+      emailVerified: user.emailVerified,
       username: user.username,
       profile: user.profile,
       address: user.address,
@@ -160,17 +268,26 @@ const logoutUser = asyncHandler(async (req, res) => {
 // @ROUTE       GET /api/users/profile
 // @ACCESS      Private
 const getUserProfile = asyncHandler(async (req, res) => {
-  const user = {
-    _id: req.user._id,
-    firstName: req.user.firstName,
-    lastName: req.user.lastName,
-    email: req.user.email,
-    username: req.user.username,
-    profile: req.user.profile,
-    address: req.user.address,
-    mobile: req.user.mobile,
-  };
-  res.status(200).json({ user });
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    res.json({
+      Message: "User details sent",
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      emailVerified: user.emailVerified,
+      username: user.username,
+      profile: user.profile,
+      address: user.address,
+      mobile: user.mobile,
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
 });
 
 // @DESCRIPTION Gets all users
@@ -178,7 +295,10 @@ const getUserProfile = asyncHandler(async (req, res) => {
 // @ACCESS      Private/Admin
 const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find({});
-  res.status(200).json({ users });
+  res.status(200).json({
+    Message: "All users details sent",
+    users,
+  });
 });
 
 // @DESCRIPTION Updates logged in user's Profile
@@ -195,13 +315,6 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     user.profile = req.body.profile || user.profile;
     user.address = req.body.address || user.address;
     user.mobile = req.body.mobile || user.mobile;
-
-    if (req.body.password && (await user.matchPassword(req.body.password))) {
-      res.status(400);
-      throw new Error("Can not use old password");
-    } else if (req.body.password) {
-      user.password = req.body.password;
-    }
 
     const updatedUser = await user.save();
 
@@ -226,6 +339,9 @@ export {
   registerUser,
   sendVerificationEmail,
   verifyUserEmail,
+  sendResetPasswordOTPEmail,
+  verifyResetPasswordOTP,
+  resetPassword,
   logoutUser,
   getUserProfile,
   getUsers,
