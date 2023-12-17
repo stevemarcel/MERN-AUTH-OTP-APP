@@ -3,6 +3,7 @@ import genToken from "../utils/genToken.js";
 import User from "../models/userModels.js";
 import EmailVerifyToken from "../models/emailVerifyTokenModel.js";
 import sendEmail from "../utils/sendEmail.js";
+import bcrypt from "bcryptjs";
 
 // @DESCRIPTION Register new user
 // @ROUTE       POST /api/users
@@ -97,33 +98,34 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
       throw new Error("Invalid Verification Link");
     }
 
-    const findToken = await EmailVerifyToken.findOne({
+    const tokenVerified = await EmailVerifyToken.findOne({
       userId: user._id,
+      token: req.params.token,
     });
 
-    if (findToken && (await findToken.matchToken(req.params.token))) {
-      user.emailVerified = true || user.emailVerified;
-      await user.save();
-
-      res.status(200).json({
-        Message: "Email verified",
-        _id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        emailVerified: user.emailVerified,
-        username: user.username,
-        profile: user.profile,
-        address: user.address,
-        mobile: user.mobile,
-      });
-
-      await EmailVerifyToken.deleteOne({ userId: user._id });
-    } else {
+    if (!tokenVerified) {
       res.status(400);
       throw new Error("Invalid Verification Link");
     }
+
+    user.emailVerified = true || user.emailVerified;
+    await user.save();
+
+    res.status(200).json({
+      Message: "Email verified",
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      emailVerified: user.emailVerified,
+      username: user.username,
+      profile: user.profile,
+      address: user.address,
+      mobile: user.mobile,
+    });
+
+    await EmailVerifyToken.deleteOne({ userId: user._id });
   } catch (error) {
     res.status(400);
     throw new Error("Email verification failed");
@@ -134,16 +136,14 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
 // @ROUTE       POST /api/users/sendresetpasswordemail
 // @ACCESS      Public
 const sendResetPasswordOTPEmail = asyncHandler(async (req, res) => {
-  // const { email } = req.body;
-  // const user = await User.findOne({ email });
   const user = await User.findById(req.user._id);
   const mode = "OTP";
-  const Message = `Heads up! An email containing your OTP has just landed in your inbox [${email}]. Check it out and enter the code below to make sure it's you.The OTP expires in ${process.env.EMAIL_EXPIRY} minutes. Time is ticking!`;
+  const Message = `Heads up! An email containing your OTP has just landed in your inbox [${user.email}]. Check it out and enter the code below to make sure it's you.The OTP expires in ${process.env.EMAIL_EXPIRY} minutes. Time is ticking!`;
 
   if (user) {
     sendEmail(user, mode);
     res.status(201).json({
-      email,
+      email: user.email,
       Message,
     });
   } else {
@@ -168,7 +168,11 @@ const verifyResetPasswordOTP = asyncHandler(async (req, res) => {
       userId: user._id,
     });
 
-    if (findToken && (await findToken.matchToken(OTP))) {
+    const matchOTP = async (OTP) => {
+      return await bcrypt.compare(OTP, findToken.token);
+    };
+
+    if (findToken && matchOTP) {
       res.status(201).json({
         Message: "OTP verification successful",
         _id: user._id,

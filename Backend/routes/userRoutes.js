@@ -19,8 +19,8 @@ router.route("/").post(registerUser).get(protect, isAdmin, getUsers);
 router.route("/sendverificationemail").post(sendVerificationEmail);
 router.route("/:id/verifyemail/:token").get(verifyUserEmail);
 router.route("/login").post(loginUser);
-router.route("/sendresetpasswordemail").post(sendResetPasswordOTPEmail);
-router.route("/verifyresetpasswordotp").get(verifyResetPasswordOTP);
+router.route("/sendresetpasswordemail").post(protect, sendResetPasswordOTPEmail);
+router.route("/verifyresetpasswordotp").get(protect, verifyResetPasswordOTP);
 router
   .route("/profile")
   .get(protect, getUserProfile)
