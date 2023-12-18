@@ -134,7 +134,7 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
 
 // @DESCRIPTION Send reset password OTP Email
 // @ROUTE       POST /api/users/sendresetpasswordemail
-// @ACCESS      Public
+// @ACCESS      Private
 const sendResetPasswordOTPEmail = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   const mode = "OTP";
@@ -154,7 +154,7 @@ const sendResetPasswordOTPEmail = asyncHandler(async (req, res) => {
 
 // @DESCRIPTION Verify reset password OTP
 // @ROUTE       GET /api/users/verifyresetpasswordotp
-// @ACCESS      Public
+// @ACCESS      Private
 const verifyResetPasswordOTP = asyncHandler(async (req, res) => {
   try {
     const { email, OTP } = req.body;
@@ -172,6 +172,9 @@ const verifyResetPasswordOTP = asyncHandler(async (req, res) => {
       return await bcrypt.compare(OTP, findToken.token);
     };
 
+    user.resetSession = true;
+    await user.save();
+
     if (findToken && matchOTP) {
       res.status(201).json({
         Message: "OTP verification successful",
@@ -181,6 +184,7 @@ const verifyResetPasswordOTP = asyncHandler(async (req, res) => {
         email: user.email,
         isAdmin: user.isAdmin,
         emailVerified: user.emailVerified,
+        resetSession: user.resetSession,
         username: user.username,
         profile: user.profile,
         address: user.address,
@@ -199,31 +203,46 @@ const verifyResetPasswordOTP = asyncHandler(async (req, res) => {
 });
 
 // @DESCRIPTION Reset password of user after verifying OTP
-// @ROUTE       GET /api/users/resetpassword
-// @ACCESS      Public
+// @ROUTE       GET /api/users/profile/resetpassword
+// @ACCESS      Private
 const resetPassword = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
+  if (!user.resetSession) {
+    res.status(400);
+    throw new Error("No password reset session");
+  }
+
   if (user) {
+    if (!req.body.password) {
+      res.status(400);
+      throw new Error("Password can not be empty");
+    }
+
     if (req.body.password && (await user.matchPassword(req.body.password))) {
       res.status(400);
       throw new Error("Can not use old password");
     } else if (req.body.password) {
       user.password = req.body.password;
+
+      user.resetSession = false;
+
+      const updatedUser = await user.save();
+
+      res.status(200).json({
+        _id: updatedUser._id,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        email: updatedUser.email,
+        isAdmin: user.isAdmin,
+        emailVerified: user.emailVerified,
+        resetSession: updatedUser.resetSession,
+        username: updatedUser.username,
+        profile: updatedUser.profile,
+        address: updatedUser.address,
+        mobile: updatedUser.mobile,
+      });
     }
-
-    const updatedUser = await user.save();
-
-    res.status(200).json({
-      _id: updatedUser._id,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      email: updatedUser.email,
-      username: updatedUser.username,
-      profile: updatedUser.profile,
-      address: updatedUser.address,
-      mobile: updatedUser.mobile,
-    });
   }
 });
 
@@ -245,6 +264,7 @@ const loginUser = asyncHandler(async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       emailVerified: user.emailVerified,
+      resetSession: user.resetSession,
       username: user.username,
       profile: user.profile,
       address: user.address,
@@ -283,6 +303,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       emailVerified: user.emailVerified,
+      resetSession: user.resetSession,
       username: user.username,
       profile: user.profile,
       address: user.address,
@@ -327,6 +348,9 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       email: updatedUser.email,
+      isAdmin: user.isAdmin,
+      emailVerified: user.emailVerified,
+      resetSession: updatedUser.resetSession,
       username: updatedUser.username,
       profile: updatedUser.profile,
       address: updatedUser.address,

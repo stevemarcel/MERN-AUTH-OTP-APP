@@ -28,13 +28,17 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    resetSession: {
+      type: Boolean,
+      default: false,
+    },
     username: {
       type: String,
       default: "",
     },
     profile: {
       type: String,
-      default: "",
+      default: "/images/sample-profile.png",
     },
     address: {
       type: String,
