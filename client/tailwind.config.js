@@ -20,6 +20,7 @@ export default {
     },
     extend: {
       colors: {
+        light: "#f5f3f2",
         shark: "#213067",
         sharkLight: {
           100: "#d0d3de",
