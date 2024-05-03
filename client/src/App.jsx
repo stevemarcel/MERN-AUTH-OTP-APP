@@ -5,11 +5,11 @@ import Navbar from "./components/Navbar";
 
 const App = () => {
   return (
-    <>
+    <div className=" bg-sharkLight-100">
       <ToastContainer />
       <Navbar />
       <Outlet />
-    </>
+    </div>
   );
 };
 
