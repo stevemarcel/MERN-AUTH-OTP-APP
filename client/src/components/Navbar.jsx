@@ -1,11 +1,19 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaUser, FaLock, FaSignOutAlt, FaUserPlus, FaSignInAlt } from "react-icons/fa";
-import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
+import {
+  FaUser,
+  FaLock,
+  FaSignOutAlt,
+  FaUserPlus,
+  FaSignInAlt,
+  FaBell,
+  FaBars,
+  FaTimes,
+} from "react-icons/fa";
 
 const Navbar = () => {
   // State to manage the navbar's visibility
-  const [nav, setNav] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login state
   const [username, setUsername] = useState(""); // Username for logged in state
   const [showDropdown, setShowDropdown] = useState(false); // Dropdown visibility state
@@ -30,8 +38,9 @@ const Navbar = () => {
   // Array containing profile items when logged in
   const profileItems = [
     { id: 1, text: "Profile", link: "#", icon: <FaUser /> },
-    { id: 2, text: "Admin", link: "#", icon: <FaLock /> },
-    { id: 3, text: "Logout", link: "#", icon: <FaSignOutAlt /> },
+    { id: 2, text: "Notifications", link: "#", icon: <FaBell /> },
+    { id: 3, text: "Admin", link: "#", icon: <FaLock /> },
+    { id: 4, text: "Logout", link: "#", icon: <FaSignOutAlt /> },
   ];
 
   const handleLogin = (name) => {
@@ -50,8 +59,8 @@ const Navbar = () => {
   };
 
   // Toggle function to handle the navbar's display
-  const handleNav = () => {
-    setNav(!nav);
+  const handleMobileNavOpen = () => {
+    setMobileNavOpen(!mobileNavOpen);
   };
 
   // Choose Account menu items depending on if user is logged in or not
@@ -60,8 +69,8 @@ const Navbar = () => {
   };
 
   return (
-    <div className=" bg-sharkLight-100 text-shark">
-      <nav className="container mx-auto p-4 flex justify-between items-center ">
+    <div className=" bg-sharkLight-100 text-shark mb-3">
+      <nav className="container mx-auto p-4 flex justify-between items-center">
         {/* Logo */}
         <div className="logo">
           <Link to="/" className="text-xl font-bold cursor-pointer">
@@ -70,13 +79,10 @@ const Navbar = () => {
         </div>
 
         {/* Nav bar items */}
-        <ul className="flex ">
+        <ul className="md:flex hidden">
           {navItems.map((navItem) => (
             <li key={navItem.id}>
-              <Link
-                to={navItem.link}
-                className="hover:text-sharkLight-100 hover:bg-sharkLight-400 p-4 rounded-sm"
-              >
+              <Link to={navItem.link} className="hover:text-sharkLight-300 p-4 rounded-sm">
                 {navItem.text}
               </Link>
             </li>
@@ -106,7 +112,7 @@ const Navbar = () => {
         {/* Right Button */}
         <div className="flex items-center">
           <button
-            className="flex items-center px-4 py-2 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none relative rounded"
+            className="md:flex hidden items-center px-4 py-2 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none relative rounded"
             onClick={() => {
               toggleDropdown(); // Toggle dropdown on button click
             }}
@@ -142,9 +148,95 @@ const Navbar = () => {
               </ul>
             )}
           </button>
+          {/* Mobile Hamburger Nav */}
+          <button className="md:hidden ml-5 text-3xl" onClick={handleMobileNavOpen}>
+            {mobileNavOpen ? <FaTimes /> : <FaBars />}
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Nav */}
+      <div
+        className={
+          mobileNavOpen
+            ? "fixed h-full w-screen md:hidden bg-sharkDark-300/50 backdrop-blur-sm top-18 border-4 border-t-shark right-0 transition-all duration-500 ease-in"
+            : "absolute top-[-490px] "
+        }
+      >
+        <div className="text-shark bg-sharkLight-100">
+          <ul
+            className="container mx-auto flex md:hidden flex-col p-4"
+            // className={` container mx-auto flex md:hidden flex-col p-4 ${
+            //   mobileNavOpen ? "" : "fixed top-[-490px]"
+            // }`}
+          >
+            <li className="flex items-center p-4 mb-2 cursor-pointer ">
+              <button
+                className="flex md:hidden items-center px-4 py-2 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none relative rounded w-full"
+                onClick={() => {
+                  toggleDropdown(); // Toggle dropdown on button click
+                }}
+              >
+                {isLoggedIn ? (
+                  <div className="flex items-center">
+                    <img
+                      src={profileImage}
+                      alt="Profile Picture"
+                      className="w-6 h-6 mr-2 rounded-full"
+                    />
+                    <span>{username}</span>
+                  </div>
+                ) : (
+                  "Get Started"
+                )}
+                {showDropdown && (
+                  // Render dropdown only if visible
+                  <ul className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2">
+                    {/* <div className="absolute top-0 right-5 w-0 h-0 border-b-8 border-l-8 border-t-0 border-transparent border-b-white"></div>{" "} */}
+                    {/* Chat bubble tail */}
+                    {getDropdownItems().map((item) => (
+                      <li
+                        key={item.id}
+                        className="hover:bg-sharkLight-100 px-4 py-2 text-black flex items-center"
+                      >
+                        {item.icon}
+                        <Link to={item.link} className="block text-left ml-2">
+                          {item.text}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </button>
+            </li>
+            {navItems.map((navItem) => (
+              <li
+                key={navItem.id}
+                className="p-4 hover:bg-shark hover:text-light rounded-md mb-2 cursor-pointer"
+              >
+                <Link to={navItem.link}>{navItem.text}</Link>
+              </li>
+            ))}
+            {/* {isLoggedIn && (
+              <ul>
+                {profileItems.map((item) => (
+                  <li
+                    key={item.id}
+                    className="p-2 hover:bg-sharkLight-200 rounded-md mb-2 cursor-pointer"
+                  >
+                    {item.icon}
+                    <Link to={item.link} className="block text-left ml-2">
+                      {item.text}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )} */}
+          </ul>
+        </div>
+      </div>
     </div>
+
     // <div className="shadow-sm shadow-sharkLight-200/40">
     //   <nav className="container flex justify-between items-center h-24 mx-auto px-4 text-shark">
     //     <h1 className="w-full text-3xl font-bold">MERN-AUTH-OTP</h1>
