@@ -12,7 +12,7 @@ const ErrorPage = () => {
         </div>
 
         {/* Error Text */}
-        <div className="flex flex-col items-center justify-end md:p-6">
+        <div className="text-sharkDark-300 flex flex-col items-center justify-end md:p-6">
           <p className="text-4xl font-bold mb-1">Page Not Found</p>
           <p className="text-base leading-loose mb-3 md:mb-4 text-center">
             Oops! Looks like something went wrong. We are working on it.
