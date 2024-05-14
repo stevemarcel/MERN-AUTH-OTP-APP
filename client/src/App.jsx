@@ -5,7 +5,7 @@ import Navbar from "./components/Navbar";
 
 const App = () => {
   return (
-    <div className="bg-light">
+    <div className="bg-light h-screen">
       <ToastContainer />
       <Navbar />
       <Outlet />

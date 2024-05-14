@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.errorBg {
+  @apply bg-cover bg-no-repeat bg-center overflow-hidden;
+  background-image: url("./assets/errorPageBg.svg");
+}

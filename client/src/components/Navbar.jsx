@@ -23,24 +23,24 @@ const Navbar = () => {
 
   // Array containing navigation items when not logged in
   const navItems = [
-    { id: 1, text: "Home", link: "#" },
-    { id: 2, text: "Services", link: "#" },
-    { id: 3, text: "About", link: "#" },
-    { id: 4, text: "Contact", link: "#" },
+    { id: 1, text: "Home", link: "/" },
+    { id: 2, text: "Services", link: "/services" },
+    { id: 3, text: "About", link: "/about" },
+    { id: 4, text: "Contact", link: "/contact" },
   ];
 
   // Array containing get started items when not logged in
   const getStartedItems = [
-    { id: 1, text: "Register", link: "#", icon: <FaUserPlus /> },
-    { id: 2, text: "Login", link: "#", icon: <FaSignInAlt /> },
+    { id: 1, text: "Register", link: "/register", icon: <FaUserPlus /> },
+    { id: 2, text: "Login", link: "/login", icon: <FaSignInAlt /> },
   ];
 
   // Array containing profile items when logged in
   const profileItems = [
-    { id: 1, text: "Profile", link: "#", icon: <FaUser /> },
-    { id: 2, text: "Notifications", link: "#", icon: <FaBell /> },
-    { id: 3, text: "Admin", link: "#", icon: <FaLock /> },
-    { id: 4, text: "Logout", link: "#", icon: <FaSignOutAlt /> },
+    { id: 1, text: "Profile", link: "/profile", icon: <FaUser /> },
+    { id: 2, text: "Notifications", link: "/notification", icon: <FaBell /> },
+    { id: 3, text: "Admin", link: "/admin", icon: <FaLock /> },
+    { id: 4, text: "Logout", link: "/logout", icon: <FaSignOutAlt /> },
   ];
 
   const handleLogin = (name) => {
@@ -68,9 +68,22 @@ const Navbar = () => {
     return isLoggedIn ? profileItems : getStartedItems;
   };
 
+  const dropdownList = getDropdownItems().map((item) => (
+    <li key={item.id} className="hover:bg-sharkLight-100 px-4 py-2 text-black flex items-center">
+      {item.icon}
+      <Link
+        to={item.link}
+        className="block text-left ml-2"
+        onClick={mobileNavOpen || !isLoggedIn ? handleMobileNavOpen : ""}
+      >
+        {item.text}
+      </Link>
+    </li>
+  ));
+
   return (
-    <div className=" bg-sharkLight-100 text-shark mb-3">
-      <nav className="container mx-auto p-4 flex justify-between items-center">
+    <div className=" bg-sharkLight-100 text-shark sticky top-0">
+      <nav className="mx-auto p-4 flex justify-between items-center">
         {/* Logo */}
         <div className="logo">
           <Link to="/" className="text-xl font-bold cursor-pointer">
@@ -132,26 +145,40 @@ const Navbar = () => {
             {showDropdown && (
               // Render dropdown only if visible
               <ul className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2">
-                {/* <div className="absolute top-0 right-5 w-0 h-0 border-b-8 border-l-8 border-t-0 border-transparent border-b-white"></div>{" "} */}
-                {/* Chat bubble tail */}
-                {getDropdownItems().map((item) => (
-                  <li
-                    key={item.id}
-                    className="hover:bg-sharkLight-100 px-4 py-2 text-black flex items-center"
-                  >
-                    {item.icon}
-                    <Link to={item.link} className="block text-left ml-2">
-                      {item.text}
-                    </Link>
-                  </li>
-                ))}
+                {dropdownList}
               </ul>
             )}
           </button>
-          {/* Mobile Hamburger Nav */}
-          <button className="md:hidden ml-5 text-3xl" onClick={handleMobileNavOpen}>
-            {mobileNavOpen ? <FaTimes /> : <FaBars />}
-          </button>
+
+          {/* Additional right buttons only on small screens */}
+          <div className="md:hidden text-3xl cursor-pointer">
+            {/* User icon button only when user logged in on small screens */}
+            {isLoggedIn ? (
+              <button
+                className="relative rounded-full"
+                onClick={() => {
+                  toggleDropdown(); // Toggle dropdown on button click
+                }}
+              >
+                <div className="flex items-center">
+                  <img src={profileImage} alt="Profile Picture" className="w-8 h-8" />
+                </div>
+                {showDropdown && (
+                  // Render dropdown only if visible
+                  <ul className="absolute text-base top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2">
+                    {dropdownList}
+                  </ul>
+                )}
+              </button>
+            ) : (
+              ""
+            )}
+
+            {/* Mobile Hamburger Nav */}
+            <button className="ml-5 " onClick={handleMobileNavOpen}>
+              {mobileNavOpen ? <FaTimes /> : <FaBars />}
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -159,56 +186,34 @@ const Navbar = () => {
       <div
         className={
           mobileNavOpen
-            ? "fixed h-full w-screen md:hidden bg-sharkDark-300/50 backdrop-blur-sm top-18 border-4 border-t-shark right-0 transition-all duration-500 ease-in"
-            : "absolute top-[-490px] "
+            ? "fixed h-[200%] w-screen md:hidden bg-sharkDark-300/50 backdrop-blur-sm top-16 left-0 transition-all duration-500 ease-in"
+            : "absolute top-[-490px]"
         }
+        onClick={handleMobileNavOpen}
       >
-        <div className="text-shark bg-sharkLight-100">
-          <ul
-            className="container mx-auto flex md:hidden flex-col p-4"
-            // className={` container mx-auto flex md:hidden flex-col p-4 ${
-            //   mobileNavOpen ? "" : "fixed top-[-490px]"
-            // }`}
-          >
-            <li className="flex items-center p-4 mb-2 cursor-pointer ">
-              <button
-                className="flex md:hidden items-center px-4 py-2 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none relative rounded w-full"
-                onClick={() => {
-                  toggleDropdown(); // Toggle dropdown on button click
-                }}
-              >
-                {isLoggedIn ? (
-                  <div className="flex items-center">
-                    <img
-                      src={profileImage}
-                      alt="Profile Picture"
-                      className="w-6 h-6 mr-2 rounded-full"
-                    />
-                    <span>{username}</span>
-                  </div>
-                ) : (
-                  "Get Started"
-                )}
-                {showDropdown && (
-                  // Render dropdown only if visible
-                  <ul className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2">
-                    {/* <div className="absolute top-0 right-5 w-0 h-0 border-b-8 border-l-8 border-t-0 border-transparent border-b-white"></div>{" "} */}
-                    {/* Chat bubble tail */}
-                    {getDropdownItems().map((item) => (
-                      <li
-                        key={item.id}
-                        className="hover:bg-sharkLight-100 px-4 py-2 text-black flex items-center"
-                      >
-                        {item.icon}
-                        <Link to={item.link} className="block text-left ml-2">
-                          {item.text}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </button>
-            </li>
+        <div className={mobileNavOpen ? "text-shark bg-sharkLight-100/70 transition-all" : ""}>
+          <ul className="mx-auto flex flex-col p-4">
+            {isLoggedIn ? (
+              ""
+            ) : (
+              <li className="flex items-center p-4 mb-2 cursor-pointer ">
+                <button
+                  className="flex md:hidden items-center px-4 py-2 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none relative rounded w-full"
+                  onClick={(e) => {
+                    toggleDropdown(); // Toggle dropdown on button click
+                    e.stopPropagation(); // Prevent event bubbling
+                  }}
+                >
+                  Get Started
+                  {showDropdown && (
+                    // Render dropdown only if visible
+                    <ul className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2">
+                      {dropdownList}
+                    </ul>
+                  )}
+                </button>
+              </li>
+            )}
             {navItems.map((navItem) => (
               <li
                 key={navItem.id}
@@ -217,66 +222,10 @@ const Navbar = () => {
                 <Link to={navItem.link}>{navItem.text}</Link>
               </li>
             ))}
-            {/* {isLoggedIn && (
-              <ul>
-                {profileItems.map((item) => (
-                  <li
-                    key={item.id}
-                    className="p-2 hover:bg-sharkLight-200 rounded-md mb-2 cursor-pointer"
-                  >
-                    {item.icon}
-                    <Link to={item.link} className="block text-left ml-2">
-                      {item.text}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )} */}
           </ul>
         </div>
       </div>
     </div>
-
-    // <div className="shadow-sm shadow-sharkLight-200/40">
-    //   <nav className="container flex justify-between items-center h-24 mx-auto px-4 text-shark">
-    //     <h1 className="w-full text-3xl font-bold">MERN-AUTH-OTP</h1>
-
-    //     {/* Desktop Nav */}
-    //     <ul className="hidden md:flex">
-    //       {navItems.map((navItem) => (
-    //         <li
-    //           key={navItem.id}
-    //           className="p-4 hover:bg-shark rounded-xl m-2 cursor-pointer duration-300 hover:text-sharkLight-100"
-    //         >
-    //           {navItem.text}
-    //         </li>
-    //       ))}
-    //     </ul>
-
-    //     {/* Mobile Nav Icon */}
-    //     <div onClick={handleNav} className="block md:hidden">
-    //       {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
-    //     </div>
-
-    //     {/* Mobile Nav */}
-    //     <ul
-    //       className={
-    //         nav
-    //           ? "fixed md:hidden left-0 top-0 w-[60%] h-full border-r border-r-sharkLight-200/40 bg-sharkLight-100 ease-in-out duration-500"
-    //           : "ease-in-out w-[60%] duration-500 fixed top-0 bottom-0 left-[-100%]"
-    //       }
-    //     >
-    //       {navItems.map((navItem) => (
-    //         <li
-    //           key={navItem.id}
-    //           className="p-4 border-b hover:bg-shark duration-300 hover:text-sharkLight-300 cursor-pointer border-sharkLight-200"
-    //         >
-    //           {navItem.text}
-    //         </li>
-    //       ))}
-    //     </ul>
-    //   </nav>
-    // </div>
   );
 };
 
