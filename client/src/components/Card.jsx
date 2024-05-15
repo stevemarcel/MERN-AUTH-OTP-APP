@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 
 const Card = ({ data }) => {
   return (
-    <div className="w-full h-94 md:w-80 rounded-t-lg">
+    <div className="w-full h-94 md:w-80 rounded-t-lg drop-shadow-md">
       <div className="flex justify-center items-center ">
         <img
           src={data.image}
