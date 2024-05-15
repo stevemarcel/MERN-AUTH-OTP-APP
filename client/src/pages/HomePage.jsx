@@ -1,9 +1,11 @@
+import FunctionalitiesSection from "../components/FunctionalitiesSection";
 import Hero from "../components/Hero";
 
 const HomePage = () => {
   return (
-    <div className="p-6">
+    <div className=" text-sharkDark-300">
       <Hero />
+      <FunctionalitiesSection />
     </div>
   );
 };

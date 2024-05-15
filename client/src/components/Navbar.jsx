@@ -82,8 +82,8 @@ const Navbar = () => {
   ));
 
   return (
-    <div className=" bg-sharkLight-100 text-shark sticky top-0">
-      <nav className="mx-auto p-4 flex justify-between items-center">
+    <div className="bg-sharkLight-100 text-shark sticky top-0 z-50">
+      <nav className="md:w-[90%] mx-auto p-4 flex justify-between items-center">
         {/* Logo */}
         <div className="logo">
           <Link to="/" className="text-xl font-bold cursor-pointer">

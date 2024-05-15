@@ -2,7 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-.errorBg {
+.bgFit {
   @apply bg-cover bg-no-repeat bg-center overflow-hidden;
+}
+.errorBg {
+  @apply bgFit;
   background-image: url("./assets/errorPageBg.svg");
+}
+
+.heroBg {
+  @apply bgFit;
+  background-image: url("./assets/hero-bg.jpg");
 }
