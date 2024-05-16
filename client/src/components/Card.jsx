@@ -11,7 +11,7 @@ const Card = ({ data }) => {
         />
       </div>
       <div className="object-cover md:h-32 bg-sharkLight-100 p-4 rounded-b-lg">
-        <h2 className="text-l font-bold">{data.title}</h2>
+        <h2 className="text-lg font-bold">{data.title}</h2>
         <p className="">{data.description}</p>
       </div>
     </div>

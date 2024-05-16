@@ -4,7 +4,7 @@ import { FaArrowLeft } from "react-icons/fa";
 
 const ErrorPage = () => {
   return (
-    <div className="errorBg h-[calc(100vh-4.5rem)] w-full overflow-hidden">
+    <div className="errorBg w-full overflow-hidden">
       <div className="p-8 mx-auto justify-center md:grid md:grid-cols-2 md:place-items-center md:h-full flex flex-col ">
         {/* Error Image */}
         <div className="">
