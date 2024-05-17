@@ -7,7 +7,7 @@ import {
   verifyUserEmail,
   sendResetPasswordOTPEmail,
   verifyResetPasswordOTP,
-  resetPassword,
+  // resetPassword,
   logoutUser,
   getUserProfile,
   getUsers,
@@ -21,8 +21,9 @@ router.route("/:id/verifyemail/:token").get(verifyUserEmail);
 router.route("/login").post(loginUser);
 router.route("/sendresetpasswordemail").post(protect, sendResetPasswordOTPEmail);
 router.route("/verifyresetpasswordotp").get(protect, verifyResetPasswordOTP);
-router.route("/profile/resetpassword").put(protect, resetPassword);
+// router.route("/profile/resetpassword").put(protect, resetPassword);
 router.route("/profile").get(protect, getUserProfile).put(protect, updateUserProfile);
+// .put(protect, resetPassword);
 router.route("/logout").post(logoutUser);
 
 export default router;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaUser,
   FaLock,
@@ -10,16 +10,21 @@ import {
   FaBars,
   FaTimes,
 } from "react-icons/fa";
+import { useSelector, useDispatch } from "react-redux";
+import { useLogoutMutation } from "../slices/usersApiSlice";
+import { deleteCredentials } from "../slices/authSlice";
 
 const Navbar = () => {
-  // State to manage the navbar's visibility
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login state
-  const [username, setUsername] = useState(""); // Username for logged in state
+  const [mobileNavOpen, setMobileNavOpen] = useState(false); // State to manage the navbar's visibility
+  // const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login state
+  // const [username, setUsername] = useState(""); // Username for logged in state
   const [showDropdown, setShowDropdown] = useState(false); // Dropdown visibility state
 
+  //Get user
+  const { userInfo } = useSelector((state) => state.auth);
+
   // Placeholder profile picture
-  const profileImage = "https://avatar.iran.liara.run/public/boy?username=Ash";
+  // const profileImage = "https://avatar.iran.liara.run/public/boy?username=Ash";
 
   // Array containing navigation items when not logged in
   const navItems = [
@@ -40,18 +45,19 @@ const Navbar = () => {
     { id: 1, text: "Profile", link: "/profile", icon: <FaUser /> },
     { id: 2, text: "Notifications", link: "/notification", icon: <FaBell /> },
     { id: 3, text: "Admin", link: "/admin", icon: <FaLock /> },
-    { id: 4, text: "Logout", link: "/logout", icon: <FaSignOutAlt /> },
+    { id: 4, text: "Logout", icon: <FaSignOutAlt /> },
   ];
 
-  const handleLogin = (name) => {
-    setIsLoggedIn(true);
-    setUsername(name); // Set username on login
-  };
+  // For Testing
+  // const handleLogin = (name) => {
+  //   setIsLoggedIn(true);
+  //   setUsername(name); // Set username on login
+  // };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUsername(""); // Clear username on logout
-  };
+  // const handleLogout = () => {
+  //   setIsLoggedIn(false);
+  //   setUsername(""); // Clear username on logout
+  // };
 
   // Toggle function to handle the dropdown display
   const toggleDropdown = () => {
@@ -65,7 +71,22 @@ const Navbar = () => {
 
   // Choose Account menu items depending on if user is logged in or not
   const getDropdownItems = () => {
-    return isLoggedIn ? profileItems : getStartedItems;
+    return userInfo ? profileItems : getStartedItems;
+  };
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [logoutApiCall] = useLogoutMutation();
+
+  const logoutHandler = async () => {
+    try {
+      await logoutApiCall().unwrap();
+      dispatch(deleteCredentials());
+      navigate("/");
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const dropdownList = getDropdownItems().map((item) => (
@@ -74,7 +95,7 @@ const Navbar = () => {
       <Link
         to={item.link}
         className="block text-left ml-2"
-        onClick={mobileNavOpen || !isLoggedIn ? handleMobileNavOpen : ""}
+        onClick={userInfo || item.text === "Logout" ? logoutHandler : ""}
       >
         {item.text}
       </Link>
@@ -103,7 +124,7 @@ const Navbar = () => {
         </ul>
 
         {/* For Testing */}
-        <div className="handleLogs flex mr-4">
+        {/* <div className="handleLogs flex mr-4">
           <button
             className="flex items-center px-4 py-2 bg-gray-700 text-light hover:bg-gray-600"
             onClick={() => {
@@ -120,7 +141,7 @@ const Navbar = () => {
           >
             logout
           </button>
-        </div>
+        </div> */}
 
         {/* Right Button */}
         <div className="flex items-center">
@@ -130,14 +151,14 @@ const Navbar = () => {
               toggleDropdown(); // Toggle dropdown on button click
             }}
           >
-            {isLoggedIn ? (
+            {userInfo ? (
               <div className="flex items-center">
                 <img
-                  src={profileImage}
+                  src={userInfo ? userInfo.profile : ""}
                   alt="Profile Picture"
                   className="w-6 h-6 mr-2 rounded-full"
                 />
-                <span>{username}</span>
+                <span>{userInfo.firstName}</span>
               </div>
             ) : (
               "Get Started"
@@ -153,7 +174,7 @@ const Navbar = () => {
           {/* Additional right buttons only on small screens */}
           <div className="md:hidden text-3xl cursor-pointer">
             {/* User icon button only when user logged in on small screens */}
-            {isLoggedIn ? (
+            {userInfo ? (
               <button
                 className="relative rounded-full"
                 onClick={() => {
@@ -161,7 +182,11 @@ const Navbar = () => {
                 }}
               >
                 <div className="flex items-center">
-                  <img src={profileImage} alt="Profile Picture" className="w-8 h-8" />
+                  <img
+                    src={userInfo ? userInfo.profile : ""}
+                    alt="Profile Picture"
+                    className="w-8 h-8"
+                  />
                 </div>
                 {showDropdown && (
                   // Render dropdown only if visible
@@ -193,7 +218,7 @@ const Navbar = () => {
       >
         <div className={mobileNavOpen ? "text-shark bg-sharkLight-100/70 transition-all" : ""}>
           <ul className="mx-auto flex flex-col p-4">
-            {isLoggedIn ? (
+            {userInfo ? (
               ""
             ) : (
               <li className="flex items-center p-4 mb-2 cursor-pointer ">

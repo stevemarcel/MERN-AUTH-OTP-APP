@@ -9,7 +9,7 @@ import bcrypt from "bcryptjs";
 // @ROUTE       POST /api/users
 // @ACCESS      Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { firstName, lastName, email, password, profile, username } = req.body;
+  const { firstName, lastName, email, password } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -23,7 +23,7 @@ const registerUser = asyncHandler(async (req, res) => {
     lastName,
     email,
     password,
-    profile,
+    profile: "/images/sample-profile.png",
     username,
   });
 
@@ -205,46 +205,46 @@ const verifyResetPasswordOTP = asyncHandler(async (req, res) => {
 // @DESCRIPTION Reset password of user after verifying OTP
 // @ROUTE       GET /api/users/profile/resetpassword
 // @ACCESS      Private
-const resetPassword = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+// const resetPassword = asyncHandler(async (req, res) => {
+//   const user = await User.findById(req.user._id);
 
-  if (!user.resetSession) {
-    res.status(400);
-    throw new Error("No password reset session");
-  }
+//   if (!user.resetSession) {
+//     res.status(400);
+//     throw new Error("No password reset session");
+//   }
 
-  if (user) {
-    if (!req.body.password) {
-      res.status(400);
-      throw new Error("Password can not be empty");
-    }
+//   if (user) {
+//     if (!req.body.password) {
+//       res.status(400);
+//       throw new Error("Password can not be empty");
+//     }
 
-    if (req.body.password && (await user.matchPassword(req.body.password))) {
-      res.status(400);
-      throw new Error("Can not use old password");
-    } else if (req.body.password) {
-      user.password = req.body.password;
+//     if (req.body.password && (await user.matchPassword(req.body.password))) {
+//       res.status(400);
+//       throw new Error("Can not use old password");
+//     } else if (req.body.password) {
+//       user.password = req.body.password;
 
-      user.resetSession = false;
+//       user.resetSession = false;
 
-      const updatedUser = await user.save();
+//       const updatedUser = await user.save();
 
-      res.status(200).json({
-        _id: updatedUser._id,
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
-        email: updatedUser.email,
-        isAdmin: user.isAdmin,
-        emailVerified: user.emailVerified,
-        resetSession: updatedUser.resetSession,
-        username: updatedUser.username,
-        profile: updatedUser.profile,
-        address: updatedUser.address,
-        mobile: updatedUser.mobile,
-      });
-    }
-  }
-});
+//       res.status(200).json({
+//         _id: updatedUser._id,
+//         firstName: updatedUser.firstName,
+//         lastName: updatedUser.lastName,
+//         email: updatedUser.email,
+//         isAdmin: user.isAdmin,
+//         emailVerified: user.emailVerified,
+//         resetSession: updatedUser.resetSession,
+//         username: updatedUser.username,
+//         profile: updatedUser.profile,
+//         address: updatedUser.address,
+//         mobile: updatedUser.mobile,
+//       });
+//     }
+//   }
+// });
 
 // @DESCRIPTION Auth and login in existing user/set token
 // @ROUTE       POST /api/users/login
@@ -333,29 +333,51 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
-    user.firstName = req.body.firstName || user.firstName;
-    user.lastName = req.body.lastName || user.lastName;
-    user.email = req.body.email || user.email;
-    user.username = req.body.username || user.username;
-    user.profile = req.body.profile || user.profile;
-    user.address = req.body.address || user.address;
-    user.mobile = req.body.mobile || user.mobile;
+    if (user.resetSession) {
+      if (!req.body.password) {
+        res.status(400);
+        throw new Error("Password can not be empty");
+      }
 
-    const updatedUser = await user.save();
+      if (req.body.password && (await user.matchPassword(req.body.password))) {
+        res.status(400);
+        throw new Error("Can not use old password");
+      } else if (req.body.password) {
+        user.password = req.body.password;
 
-    res.status(200).json({
-      _id: updatedUser._id,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      email: updatedUser.email,
-      isAdmin: user.isAdmin,
-      emailVerified: user.emailVerified,
-      resetSession: updatedUser.resetSession,
-      username: updatedUser.username,
-      profile: updatedUser.profile,
-      address: updatedUser.address,
-      mobile: updatedUser.mobile,
-    });
+        user.resetSession = false;
+
+        // const updatedUser = await user.save();
+
+        res.status(200).json({
+          Message: "Password updated successfully",
+        });
+      }
+    } else {
+      user.firstName = req.body.firstName || user.firstName;
+      user.lastName = req.body.lastName || user.lastName;
+      user.email = req.body.email || user.email;
+      user.username = req.body.username || user.username;
+      user.profile = req.body.profile || user.profile;
+      user.address = req.body.address || user.address;
+      user.mobile = req.body.mobile || user.mobile;
+
+      const updatedUser = await user.save();
+
+      res.status(200).json({
+        _id: updatedUser._id,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        email: updatedUser.email,
+        isAdmin: user.isAdmin,
+        emailVerified: user.emailVerified,
+        resetSession: updatedUser.resetSession,
+        username: updatedUser.username,
+        profile: updatedUser.profile,
+        address: updatedUser.address,
+        mobile: updatedUser.mobile,
+      });
+    }
   } else {
     res.status(404);
     throw new Error("User not found");
@@ -369,7 +391,7 @@ export {
   verifyUserEmail,
   sendResetPasswordOTPEmail,
   verifyResetPasswordOTP,
-  resetPassword,
+  // resetPassword,
   logoutUser,
   getUserProfile,
   getUsers,
