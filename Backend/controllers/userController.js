@@ -23,8 +23,6 @@ const registerUser = asyncHandler(async (req, res) => {
     lastName,
     email,
     password,
-    profile: "/images/sample-profile.png",
-    username,
   });
 
   if (user) {

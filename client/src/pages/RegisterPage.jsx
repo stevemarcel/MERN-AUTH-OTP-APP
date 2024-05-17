@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { useRegisterMutation, sendVerificationEmail } from "../slices/usersApiSlice";
+import { setCredentials } from "../slices/authSlice";
+import Loader from "../components/Loader";
 
 const RegisterPage = () => {
   const formInputs = [
@@ -21,7 +25,19 @@ const RegisterPage = () => {
     username: "",
   });
 
-  // const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [registerApiCall, { isLoading }] = useRegisterMutation();
+  const [sendVerificationEmailApiCall] = sendVerificationEmail();
+
+  const { userInfo } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (userInfo) {
+      navigate("/");
+    }
+  }, [navigate, userInfo]);
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
@@ -29,25 +45,32 @@ const RegisterPage = () => {
 
   const registerHandler = async (e) => {
     e.preventDefault();
-    // if (formData.password !== formData.confirmPassword) {
-    //   toast.error("Passwords do not match");
-    // } else if (
-    //   formData.firstName === "" ||
-    //   formData.lastName === "" ||
-    //   formData.email === "" ||
-    //   formData.password === "" ||
-    //   formData.confirmPassword === ""
-    // ) {
-    //   toast.error("Invalid Inputs");
-    // } else {
-    //   try {
-    //     // const res = await registerApiCall({ name, email, password }).unwrap();
-    //     // dispatch(setCredentials({ ...res }));
-    //     // navigate("/");
-    //   } catch (err) {
-    //     toast.error(err?.data?.message || err.error);
-    //   }
-    // }
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match");
+    } else if (
+      formData.firstName === "" ||
+      formData.lastName === "" ||
+      formData.email === "" ||
+      formData.password === "" ||
+      formData.confirmPassword === ""
+    ) {
+      toast.error("Invalid Inputs");
+    } else {
+      try {
+        const res = await registerApiCall(formData).unwrap();
+
+        const { status } = res;
+        // Send verification email
+        if (status === 201) {
+          await sendVerificationEmailApiCall(res.email).unwrap();
+        }
+
+        dispatch(setCredentials({ ...res }));
+        navigate("/");
+      } catch (err) {
+        toast.error(err?.data?.message || err.error);
+      }
+    }
   };
 
   return (
@@ -77,7 +100,13 @@ const RegisterPage = () => {
               type="submit"
               className="w-full px-4 py-2 bg-shark ring-sharkLight-400 hover:bg-sharkDark-100 text-white rounded "
             >
-              Register
+              {isLoading ? (
+                <div className="text-3xl">
+                  <Loader />
+                </div>
+              ) : (
+                "Register"
+              )}
             </button>
           </form>
           <div className="mt-5 text-center">

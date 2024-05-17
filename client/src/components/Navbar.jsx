@@ -90,12 +90,19 @@ const Navbar = () => {
   };
 
   const dropdownList = getDropdownItems().map((item) => (
-    <li key={item.id} className="hover:bg-sharkLight-100 px-4 py-2 text-black flex items-center">
+    <li
+      key={item.id}
+      className={`hover:bg-sharkLight-100 px-4 py-2 text-black flex items-center ${
+        userInfo ? (userInfo.isAdmin || item.text !== "Admin" ? "" : "hidden") : ""
+      }
+      
+      `}
+    >
       {item.icon}
       <Link
         to={item.link}
         className="block text-left ml-2"
-        onClick={userInfo || item.text === "Logout" ? logoutHandler : ""}
+        onClick={userInfo && item.text === "Logout" ? logoutHandler : ""}
       >
         {item.text}
       </Link>

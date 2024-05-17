@@ -30,8 +30,6 @@ const LoginPage = () => {
     }
   }, [navigate, userInfo]);
 
-  // const [error, setError] = useState("");
-
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
