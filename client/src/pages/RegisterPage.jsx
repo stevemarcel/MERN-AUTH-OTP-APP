@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { useRegisterMutation, sendVerificationEmail } from "../slices/usersApiSlice";
+import { useRegisterMutation } from "../slices/usersApiSlice";
 import { setCredentials } from "../slices/authSlice";
 import Loader from "../components/Loader";
 
@@ -29,12 +29,11 @@ const RegisterPage = () => {
   const dispatch = useDispatch();
 
   const [registerApiCall, { isLoading }] = useRegisterMutation();
-  const [sendVerificationEmailApiCall] = sendVerificationEmail();
 
   const { userInfo } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (userInfo) {
+    if (userInfo && userInfo.emailVerified) {
       navigate("/");
     }
   }, [navigate, userInfo]);
@@ -59,14 +58,8 @@ const RegisterPage = () => {
       try {
         const res = await registerApiCall(formData).unwrap();
 
-        const { status } = res;
-        // Send verification email
-        if (status === 201) {
-          await sendVerificationEmailApiCall(res.email).unwrap();
-        }
-
         dispatch(setCredentials({ ...res }));
-        navigate("/");
+        navigate(`/confirm-email/${res._id}`);
       } catch (err) {
         toast.error(err?.data?.message || err.error);
       }
@@ -114,7 +107,7 @@ const RegisterPage = () => {
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="text-shark hover:text-sharkLight-400 hover:cursor-pointer"
+                className="text-shark hover:text-sharkLight-400 hover:cursor-pointer hover:underline font-medium"
               >
                 Log in
               </Link>

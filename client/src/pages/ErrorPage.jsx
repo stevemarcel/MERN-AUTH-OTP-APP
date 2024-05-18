@@ -25,11 +25,6 @@ const ErrorPage = () => {
           </Link>
         </div>
       </div>
-
-      <div className="md:w-1/2 p-8 flex flex-col items-center justify-center text-center lg:text-left">
-        {" "}
-        {/* Text section */}
-      </div>
     </div>
   );
 };

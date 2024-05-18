@@ -7,6 +7,9 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
   const instagram = process.env.INSTAGRAM;
   const behance = process.env.BEHANCE;
   const whatsapp = process.env.WHATSAPP;
+  const brandColour = process.env.BRAND;
+  const textColour = process.env.TEXT;
+  const bgColour = process.env.BG;
 
   let verificationType = mode === "verifyEmail" ? "link" : "OTP code";
   let greeting = mode === "verifyEmail" ? "Welcome" : "Hello";
@@ -24,7 +27,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
   style="
     border-style: solid;
     border-color: #2cb543;
-    background: #7630f3;
+    background: #${brandColour};
     border-width: 0px;
     display: block;
     border-radius: 30px;
@@ -42,7 +45,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
       font-size: 22px;
       padding: 15px 20px 15px 20px;
       display: block;
-      background: #7630f3;
+      background: #${brandColour};
       border-radius: 30px;
       font-family: Imprima, Arial, sans-serif;
       font-weight: bold;
@@ -56,7 +59,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
       mso-hide: all;
       padding-left: 5px;
       padding-right: 5px;
-      border-color: #7630f3;
+      border-color: #${brandColour};
     " >
     Verify your email
     </a
@@ -67,7 +70,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
         mso-line-height-rule: exactly;
         font-size: 35px;
         padding: 15px 20px 15px 20px;
-        color: #7630f3;
+        color: #${brandColour};
         font-family: Imprima, Arial, sans-serif;
         font-weight: bold;
         font-style: normal;
@@ -497,7 +500,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                         style="
                                           mso-line-height-rule: exactly;
                                           text-decoration: underline;
-                                          color: #2d3142;
+                                          color: #${textColour};
                                           font-size: 18px;
                                         "
                                         ><img
@@ -555,13 +558,13 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                   cellpadding="0"
                                   cellspacing="0"
                                   width="100%"
-                                  bgcolor="#fafafa"
+                                  bgcolor="#${bgColour}"
                                   style="
                                     mso-table-lspace: 0pt;
                                     mso-table-rspace: 0pt;
                                     border-collapse: separate;
                                     border-spacing: 0px;
-                                    background-color: #fafafa;
+                                    background-color: #${bgColour};
                                     border-radius: 10px;
                                   "
                                   role="presentation"
@@ -578,7 +581,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                           font-style: normal;
                                           font-weight: bold;
                                           line-height: 34px;
-                                          color: #2d3142;
+                                          color: #${textColour};
                                         "
                                       >
                                         ${greeting},&nbsp;${userFirstName}
@@ -590,7 +593,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                           font-family: Imprima, Arial, sans-serif;
                                           line-height: 27px;
                                           letter-spacing: 0;
-                                          color: #2d3142;
+                                          color: #${textColour};
                                           font-size: 18px;
                                         "
                                       >
@@ -603,7 +606,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                           font-family: Imprima, Arial, sans-serif;
                                           line-height: 27px;
                                           letter-spacing: 0;
-                                          color: #2d3142;
+                                          color: #${textColour};
                                           font-size: 18px;
                                         "
                                       >
@@ -750,7 +753,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                           font-family: Imprima, Arial, sans-serif;
                                           line-height: 27px;
                                           letter-spacing: 0;
-                                          color: #2d3142;
+                                          color: #${textColour};
                                           font-size: 18px;
                                         "
                                       >
@@ -914,7 +917,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                               style="
                                                 mso-line-height-rule: exactly;
                                                 text-decoration: underline;
-                                                color: #2d3142;
+                                                color: #${textColour};
                                                 font-size: 18px;
                                               "
                                               ><img
@@ -980,7 +983,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                                 font-family: Imprima, Arial, sans-serif;
                                                 line-height: 24px;
                                                 letter-spacing: 0;
-                                                color: #2d3142;
+                                                color: #${textColour};
                                                 font-size: 16px;
                                               "
                                             >
@@ -991,7 +994,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                                 style="
                                                   mso-line-height-rule: exactly;
                                                   text-decoration: underline;
-                                                  color: #2d3142;
+                                                  color: #${textColour};
                                                   font-size: 16px;
                                                 "
                                                 href="mailto:${senderEmail}"
@@ -1122,7 +1125,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                               style="
                                                 mso-line-height-rule: exactly;
                                                 text-decoration: underline;
-                                                color: #2d3142;
+                                                color: #${textColour};
                                                 font-size: 14px;
                                               "
                                               ><img
@@ -1150,7 +1153,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                               style="
                                                 mso-line-height-rule: exactly;
                                                 text-decoration: underline;
-                                                color: #2d3142;
+                                                color: #${textColour};
                                                 font-size: 14px;
                                               "
                                             >
@@ -1180,7 +1183,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                               style="
                                                 mso-line-height-rule: exactly;
                                                 text-decoration: underline;
-                                                color: #2d3142;
+                                                color: #${textColour};
                                                 font-size: 14px;
                                               "
                                               ><img
@@ -1208,7 +1211,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                               style="
                                                 mso-line-height-rule: exactly;
                                                 text-decoration: underline;
-                                                color: #2d3142;
+                                                color: #${textColour};
                                                 font-size: 14px;
                                               "
                                             >
@@ -1238,7 +1241,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                               style="
                                                 mso-line-height-rule: exactly;
                                                 text-decoration: underline;
-                                                color: #2d3142;
+                                                color: #${textColour};
                                                 font-size: 14px;
                                               "
                                             >
@@ -1274,7 +1277,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                           font-family: Imprima, Arial, sans-serif;
                                           line-height: 21px;
                                           letter-spacing: 0;
-                                          color: #2d3142;
+                                          color: #${textColour};
                                           font-size: 14px;
                                         "
                                       >
@@ -1284,7 +1287,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                           style="
                                             mso-line-height-rule: exactly;
                                             text-decoration: underline;
-                                            color: #2d3142;
+                                            color: #${textColour};
                                             font-size: 14px;
                                           "
                                         ></a
@@ -1294,7 +1297,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                           style="
                                             mso-line-height-rule: exactly;
                                             text-decoration: underline;
-                                            color: #2d3142;
+                                            color: #${textColour};
                                             font-size: 14px;
                                           "
                                         ></a>

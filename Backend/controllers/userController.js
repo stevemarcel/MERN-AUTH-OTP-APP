@@ -53,33 +53,19 @@ const sendVerificationEmail = asyncHandler(async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
   const mode = "verifyEmail";
-  const Message = `Verification is just a click away! We've sent an email to [${email}]: click the verification link in your email to complete your registration. This link expires in ${process.env.EMAIL_EXPIRY} minutes. Do check your email swiftly.`;
+  const message = `Verification is just a click away! We've sent an email to [${email}]. Click the verification link in your email to complete your registration. This link expires in ${process.env.EMAIL_EXPIRY} minutes. Do check your email swiftly.`;
 
   if (!user.emailVerified) {
     sendEmail(user, mode);
-    // const tokenFound = await EmailVerifyToken.findOne({ userId: user._id });
-    // const emailVerifyToken = !tokenFound
-    //   ? await EmailVerifyToken.create({
-    //       userId: user._id,
-    //       token: crypto.randomBytes(32).toString("hex"),
-    //     })
-    //   : tokenFound;
 
-    // // const OTP = `${emailVerifyToken.token}`;
-    // const url = `${process.env.BASE_URL}/api/users/${user._id}/verifyemail/${emailVerifyToken.token}`;
-    // const userFirstName = user.firstName;
-    // // const mode = "OTP";
-    // const mode = "verifyEmail";
-
-    // const body = verificationEmailBody(url, userFirstName, mode);
-
-    // await emailSender(user.email, "Verify Your Email Address", body);
-    // res.status(201).json({
-    //   message: `A verification link has been sent to your email address which expires in ${process.env.EMAIL_EXPIRY} minutes. Please check your email immediately.`,
-    // });
-    res.status(201).json({
-      Message,
-    });
+    if (sendEmail) {
+      res.status(201).json({
+        message,
+      });
+    } else {
+      res.status(400);
+      throw new Error("Email not sent");
+    }
   } else {
     res.status(200).json({ Message: "Email Verified Already" });
   }
@@ -106,8 +92,13 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
       throw new Error("Invalid Verification Link");
     }
 
-    user.emailVerified = true || user.emailVerified;
+    user.emailVerified = true;
+
     await user.save();
+
+    if (process.env.NODE_ENV === "development") {
+      console.log("Email Verified", user.emailVerified);
+    }
 
     res.status(200).json({
       Message: "Email verified",
@@ -117,10 +108,6 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       emailVerified: user.emailVerified,
-      username: user.username,
-      profile: user.profile,
-      address: user.address,
-      mobile: user.mobile,
     });
 
     await EmailVerifyToken.deleteOne({ userId: user._id });
@@ -140,8 +127,10 @@ const sendResetPasswordOTPEmail = asyncHandler(async (req, res) => {
 
   if (user) {
     sendEmail(user, mode);
+    user.resetSession = true;
     res.status(201).json({
       email: user.email,
+      resetSession: user.resetSession,
       Message,
     });
   } else {
@@ -170,7 +159,7 @@ const verifyResetPasswordOTP = asyncHandler(async (req, res) => {
       return await bcrypt.compare(OTP, findToken.token);
     };
 
-    user.resetSession = true;
+    user.resetSession = false;
     await user.save();
 
     if (findToken && matchOTP) {

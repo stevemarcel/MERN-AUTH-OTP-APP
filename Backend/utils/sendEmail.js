@@ -7,28 +7,21 @@ import bcrypt from "bcryptjs";
 
 const sendEmail = asyncHandler(async (user, mode) => {
   async function generateOTP() {
-    // function generateOTP() {
     // Generate 4 bytes of random data
     const randomBytes = crypto.randomBytes(4);
 
     // Convert each byte to an integer between 0 and 9
     const digits = randomBytes.map((byte) => byte % 10);
 
-    // Check for invalid OTPs (leading zeros or consecutive digits) and re-generate if needed
-    // while (digits[0] === 0 || digits.some((digit, i) => digit === digits[i - 1])) {
-    //   generateOTP(); // Recursive call to re-generate
-    // }
-
     // Concatenate the digits into a string
     const OTPCode = digits.join("");
     // const OTPCode = parseInt(digits.join(""), 10);
 
-    // Return the hashedOTP
-    // return hashedOTP;
+    // Return the OTP
     return OTPCode;
   }
 
-  //Generate OTP
+  // Call generate OTP function and save the result
   const OTP = await generateOTP();
 
   // Hash the generated OTP with bcrypt
@@ -46,7 +39,7 @@ const sendEmail = asyncHandler(async (user, mode) => {
 
   let verification =
     mode === "verifyEmail"
-      ? `${process.env.BASE_URL}/api/users/${user._id}/verifyemail/${emailVerifyToken.token}`
+      ? `${process.env.BASE_URL}/${user._id}/verifyemail/${emailVerifyToken.token}`
       : `${OTP}`;
 
   const userFirstName = user.firstName;

@@ -10,6 +10,9 @@ import {
 import store from "./store.js";
 import { Provider } from "react-redux";
 
+// import { ApiProvider } from "@reduxjs/toolkit/query/react";
+// import { apiSlice } from "./slices/apiSlice.js";
+
 // App Related Import
 import App from "./App.jsx";
 import "./index.css";
@@ -19,6 +22,8 @@ import HomePage from "./pages/HomePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import ErrorPage from "./pages/ErrorPage.jsx";
+import ConfirmEmailPage from "./pages/ConfirmEmailPage.jsx";
+import VerifyEmail from "./pages/VerifyEmail.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -26,6 +31,8 @@ const router = createBrowserRouter(
       <Route index={true} path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/confirm-email/:id" element={<ConfirmEmailPage />} />
+      <Route path="/:id/verifyemail/:token" element={<VerifyEmail />} />
       <Route path="*" element={<ErrorPage />} />
 
       {/* Private Routes */}
@@ -39,7 +46,9 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <React.StrictMode>
+      {/* <ApiProvider api={apiSlice}> */}
       <RouterProvider router={router} />
+      {/* </ApiProvider> */}
     </React.StrictMode>
   </Provider>
 );

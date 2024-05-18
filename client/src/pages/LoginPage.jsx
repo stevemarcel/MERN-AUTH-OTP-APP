@@ -87,7 +87,7 @@ const LoginPage = () => {
               New here?{" "}
               <Link
                 to="/register"
-                className="text-shark hover:text-sharkLight-400 hover:cursor-pointer"
+                className="text-shark hover:text-sharkLight-400 hover:cursor-pointer hover:underline font-medium"
               >
                 Get Started
               </Link>

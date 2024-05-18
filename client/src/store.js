@@ -1,4 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
+import { setupListeners } from "@reduxjs/toolkit/query";
 import authReducer from "./slices/authSlice";
 import { apiSlice } from "./slices/apiSlice";
 
@@ -12,3 +13,5 @@ const store = configureStore({
 });
 
 export default store;
+
+setupListeners(store.dispatch);

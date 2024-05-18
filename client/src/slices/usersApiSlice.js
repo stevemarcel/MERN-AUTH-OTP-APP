@@ -24,6 +24,27 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
+    // // Verify email request endpoint.
+    // verifyUserEmail: builder.query({
+    //   query: ({ id, token }) => ({
+    //     url: `${USERS_URL}/${id}/verifyemail/${token}`,
+    //     method: "GET",
+    //     body: null,
+    //     // No body data needed (verification happens with id and token)
+    //   }),
+    // }),
+    // Verify email request endpoint.
+    verifyUserEmail: builder.query({
+      query: ({ id, token }) => ({ url: `${USERS_URL}/${id}/verifyemail/${token}` }),
+    }),
+
+    // verifyUserEmail: builder.query({
+    //   query: () => ({
+    //     url: `${USERS_URL}/verifyemail`,
+    //     method: "GET",
+    //   }),
+    // }),
+
     // Send reset password email request endpoint.
     sendResetPasswordEmail: builder.mutation({
       query: (data) => ({
@@ -53,19 +74,17 @@ export const usersApiSlice = apiSlice.injectEndpoints({
 
     // Get User profile request endpoint.
     getUserProfile: builder.query({
-      query: (data) => ({
+      query: () => ({
         url: `${USERS_URL}/profile`,
         method: "GET",
-        body: data,
       }),
     }),
 
     // Get all Users request endpoint.
     getUsers: builder.query({
-      query: (data) => ({
-        url: `${USERS_URL}/profile`,
+      query: () => ({
+        url: `${USERS_URL}/`,
         method: "GET",
-        body: data,
       }),
     }),
 
@@ -91,6 +110,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
 export const {
   useRegisterMutation,
   useSendVerificationEmailMutation,
+  useVerifyUserEmailQuery,
   useSendResetPasswordEmailMutation,
   useLoginMutation,
   useGetUserProfileQuery,
