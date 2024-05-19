@@ -24,34 +24,9 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
-    // // Verify email request endpoint.
-    // verifyUserEmail: builder.query({
-    //   query: ({ id, token }) => ({
-    //     url: `${USERS_URL}/${id}/verifyemail/${token}`,
-    //     method: "GET",
-    //     body: null,
-    //     // No body data needed (verification happens with id and token)
-    //   }),
-    // }),
     // Verify email request endpoint.
     verifyUserEmail: builder.query({
       query: ({ id, token }) => ({ url: `${USERS_URL}/${id}/verifyemail/${token}` }),
-    }),
-
-    // verifyUserEmail: builder.query({
-    //   query: () => ({
-    //     url: `${USERS_URL}/verifyemail`,
-    //     method: "GET",
-    //   }),
-    // }),
-
-    // Send reset password email request endpoint.
-    sendResetPasswordEmail: builder.mutation({
-      query: (data) => ({
-        url: `${USERS_URL}/sendresetpasswordemail`,
-        method: "POST",
-        body: data,
-      }),
     }),
 
     // Login request endpoint.
@@ -63,14 +38,19 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
+    // Send reset password email request endpoint.
+    sendResetPasswordEmail: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/sendresetpasswordemail`,
+        method: "POST",
+        body: data,
+      }),
+    }),
+
     // Reset User password request endpoint.
-    // resetUserPassword: builder.mutation({
-    //   query: (data) => ({
-    //     url: `${USERS_URL}/profile`,
-    //     method: "PUT",
-    //     body: data,
-    //   }),
-    // }),
+    verifyResetPasswordOTP: builder.query({
+      query: (id) => ({ url: `${USERS_URL}/${id}` }),
+    }),
 
     // Get User profile request endpoint.
     getUserProfile: builder.query({

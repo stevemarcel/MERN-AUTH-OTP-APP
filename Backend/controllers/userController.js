@@ -117,6 +117,118 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
   }
 });
 
+// @DESCRIPTION Auth and login in existing user/set token
+// @ROUTE       POST /api/users/login
+// @ACCESS      Public
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (user && (await user.matchPassword(password))) {
+    genToken(res, user._id);
+    res.status(201).json({
+      Message: "Login successful",
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      emailVerified: user.emailVerified,
+      resetSession: user.resetSession,
+      username: user.username,
+      profile: user.profile,
+      address: user.address,
+      mobile: user.mobile,
+    });
+  } else {
+    res.status(401);
+    throw new Error("Invalid email or password");
+  }
+});
+
+// @DESCRIPTION Reset password of user after verifying OTP
+// @ROUTE       GET /api/users/profile/resetpassword
+// @ACCESS      Private
+// const resetPassword = asyncHandler(async (req, res) => {
+//   const user = await User.findById(req.user._id);
+
+//   if (!user.resetSession) {
+//     res.status(400);
+//     throw new Error("No password reset session");
+//   }
+
+//   if (user) {
+//     if (!req.body.password) {
+//       res.status(400);
+//       throw new Error("Password can not be empty");
+//     }
+
+//     if (req.body.password && (await user.matchPassword(req.body.password))) {
+//       res.status(400);
+//       throw new Error("Can not use old password");
+//     } else if (req.body.password) {
+//       user.password = req.body.password;
+
+//       user.resetSession = false;
+
+//       const updatedUser = await user.save();
+
+//       res.status(200).json({
+//         _id: updatedUser._id,
+//         firstName: updatedUser.firstName,
+//         lastName: updatedUser.lastName,
+//         email: updatedUser.email,
+//         isAdmin: user.isAdmin,
+//         emailVerified: user.emailVerified,
+//         resetSession: updatedUser.resetSession,
+//         username: updatedUser.username,
+//         profile: updatedUser.profile,
+//         address: updatedUser.address,
+//         mobile: updatedUser.mobile,
+//       });
+//     }
+//   }
+// });
+
+// @DESCRIPTION Gets all users
+// @ROUTE       GET /api/users
+// @ACCESS      Private/Admin
+const getUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({});
+  res.status(200).json({
+    Message: "All users details sent",
+    users,
+  });
+});
+
+// @DESCRIPTION Gets logged in user's Profile
+// @ROUTE       GET /api/users/profile
+// @ACCESS      Private
+const getUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    res.json({
+      Message: "User details sent",
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      emailVerified: user.emailVerified,
+      resetSession: user.resetSession,
+      username: user.username,
+      profile: user.profile,
+      address: user.address,
+      mobile: user.mobile,
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
+});
+
 // @DESCRIPTION Send reset password OTP Email
 // @ROUTE       POST /api/users/sendresetpasswordemail
 // @ACCESS      Private
@@ -189,130 +301,6 @@ const verifyResetPasswordOTP = asyncHandler(async (req, res) => {
   }
 });
 
-// @DESCRIPTION Reset password of user after verifying OTP
-// @ROUTE       GET /api/users/profile/resetpassword
-// @ACCESS      Private
-// const resetPassword = asyncHandler(async (req, res) => {
-//   const user = await User.findById(req.user._id);
-
-//   if (!user.resetSession) {
-//     res.status(400);
-//     throw new Error("No password reset session");
-//   }
-
-//   if (user) {
-//     if (!req.body.password) {
-//       res.status(400);
-//       throw new Error("Password can not be empty");
-//     }
-
-//     if (req.body.password && (await user.matchPassword(req.body.password))) {
-//       res.status(400);
-//       throw new Error("Can not use old password");
-//     } else if (req.body.password) {
-//       user.password = req.body.password;
-
-//       user.resetSession = false;
-
-//       const updatedUser = await user.save();
-
-//       res.status(200).json({
-//         _id: updatedUser._id,
-//         firstName: updatedUser.firstName,
-//         lastName: updatedUser.lastName,
-//         email: updatedUser.email,
-//         isAdmin: user.isAdmin,
-//         emailVerified: user.emailVerified,
-//         resetSession: updatedUser.resetSession,
-//         username: updatedUser.username,
-//         profile: updatedUser.profile,
-//         address: updatedUser.address,
-//         mobile: updatedUser.mobile,
-//       });
-//     }
-//   }
-// });
-
-// @DESCRIPTION Auth and login in existing user/set token
-// @ROUTE       POST /api/users/login
-// @ACCESS      Public
-const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-
-  const user = await User.findOne({ email });
-
-  if (user && (await user.matchPassword(password))) {
-    genToken(res, user._id);
-    res.status(201).json({
-      Message: "Login successful",
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      emailVerified: user.emailVerified,
-      resetSession: user.resetSession,
-      username: user.username,
-      profile: user.profile,
-      address: user.address,
-      mobile: user.mobile,
-    });
-  } else {
-    res.status(401);
-    throw new Error("Invalid email or password");
-  }
-});
-
-// @DESCRIPTION Logout currently logged in user
-// @ROUTE       POST /api/users/logout
-// @ACCESS      Public
-const logoutUser = asyncHandler(async (req, res) => {
-  res.cookie("jwt", "", {
-    httpOnly: true,
-    expires: new Date(0),
-  });
-
-  res.status(200).json({ Message: "User Logged Out" });
-});
-
-// @DESCRIPTION Gets logged in user's Profile
-// @ROUTE       GET /api/users/profile
-// @ACCESS      Private
-const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-
-  if (user) {
-    res.json({
-      Message: "User details sent",
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      emailVerified: user.emailVerified,
-      resetSession: user.resetSession,
-      username: user.username,
-      profile: user.profile,
-      address: user.address,
-      mobile: user.mobile,
-    });
-  } else {
-    res.status(404);
-    throw new Error("User not found");
-  }
-});
-
-// @DESCRIPTION Gets all users
-// @ROUTE       GET /api/users
-// @ACCESS      Private/Admin
-const getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({});
-  res.status(200).json({
-    Message: "All users details sent",
-    users,
-  });
-});
-
 // @DESCRIPTION Updates logged in user's Profile
 // @ROUTE       PUT /api/users/profile
 // @ACCESS      Private
@@ -371,16 +359,28 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+// @DESCRIPTION Logout currently logged in user
+// @ROUTE       POST /api/users/logout
+// @ACCESS      Public
+const logoutUser = asyncHandler(async (req, res) => {
+  res.cookie("jwt", "", {
+    httpOnly: true,
+    expires: new Date(0),
+  });
+
+  res.status(200).json({ Message: "User Logged Out" });
+});
+
 export {
-  loginUser,
   registerUser,
   sendVerificationEmail,
   verifyUserEmail,
+  loginUser,
+  // resetPassword,
+  getUsers,
+  getUserProfile,
   sendResetPasswordOTPEmail,
   verifyResetPasswordOTP,
-  // resetPassword,
-  logoutUser,
-  getUserProfile,
-  getUsers,
   updateUserProfile,
+  logoutUser,
 };

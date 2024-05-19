@@ -15,16 +15,29 @@ import { useLogoutMutation } from "../slices/usersApiSlice";
 import { deleteCredentials } from "../slices/authSlice";
 
 const Navbar = () => {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false); // State to manage the navbar's visibility
+  //? For testing
   // const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login state
   // const [username, setUsername] = useState(""); // Username for logged in state
+
+  // Placeholder profile picture
+  // const profileImage = "https://avatar.iran.liara.run/public/boy?username=Ash";
+
+  //  const handleLogin = (name) => {
+  //   setIsLoggedIn(true);
+  //   setUsername(name); // Set username on login
+  // };
+
+  // const handleLogout = () => {
+  //   setIsLoggedIn(false);
+  //   setUsername(""); // Clear username on logout
+  // };
+  //?
+
+  const [mobileNavOpen, setMobileNavOpen] = useState(false); // State to manage the navbar's visibility
   const [showDropdown, setShowDropdown] = useState(false); // Dropdown visibility state
 
   //Get user
   const { userInfo } = useSelector((state) => state.auth);
-
-  // Placeholder profile picture
-  // const profileImage = "https://avatar.iran.liara.run/public/boy?username=Ash";
 
   // Array containing navigation items when not logged in
   const navItems = [
@@ -47,17 +60,6 @@ const Navbar = () => {
     { id: 3, text: "Admin", link: "/admin", icon: <FaLock /> },
     { id: 4, text: "Logout", icon: <FaSignOutAlt /> },
   ];
-
-  // For Testing
-  // const handleLogin = (name) => {
-  //   setIsLoggedIn(true);
-  //   setUsername(name); // Set username on login
-  // };
-
-  // const handleLogout = () => {
-  //   setIsLoggedIn(false);
-  //   setUsername(""); // Clear username on logout
-  // };
 
   // Toggle function to handle the dropdown display
   const toggleDropdown = () => {

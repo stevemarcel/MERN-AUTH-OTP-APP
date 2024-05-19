@@ -62,7 +62,7 @@ const LoginPage = () => {
                   name={input.name}
                   id={input.name}
                   placeholder={input.placeholder}
-                  className="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring focus:ring-sharkLight-400 focus:ring-opacity-50"
+                  className="w-full px-3 py-2 rounded-md border border-sharkLight-100 focus:outline-none focus:ring focus:ring-sharkLight-400 focus:ring-opacity-50"
                   value={formData[input.name]}
                   onChange={handleChange}
                 />

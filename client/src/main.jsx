@@ -10,9 +10,6 @@ import {
 import store from "./store.js";
 import { Provider } from "react-redux";
 
-// import { ApiProvider } from "@reduxjs/toolkit/query/react";
-// import { apiSlice } from "./slices/apiSlice.js";
-
 // App Related Import
 import App from "./App.jsx";
 import "./index.css";
@@ -46,9 +43,7 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <React.StrictMode>
-      {/* <ApiProvider api={apiSlice}> */}
       <RouterProvider router={router} />
-      {/* </ApiProvider> */}
     </React.StrictMode>
   </Provider>
 );
