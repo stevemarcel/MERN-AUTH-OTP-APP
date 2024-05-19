@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   FaUser,
   FaLock,
@@ -126,9 +126,16 @@ const Navbar = () => {
         <ul className="md:flex hidden">
           {navItems.map((navItem) => (
             <li key={navItem.id}>
-              <Link to={navItem.link} className="hover:text-sharkLight-300 p-4 rounded-sm">
+              <NavLink
+                to={navItem.link}
+                className={({ isActive }) => {
+                  return isActive
+                    ? "font-bold hover:text-sharkDark-300 underline underline-offset-4"
+                    : "hover:text-sharkLight-300 p-4 rounded-sm";
+                }}
+              >
                 {navItem.text}
-              </Link>
+              </NavLink>
             </li>
           ))}
         </ul>
@@ -250,12 +257,15 @@ const Navbar = () => {
               </li>
             )}
             {navItems.map((navItem) => (
-              <li
+              <NavLink
+                to={navItem.link}
                 key={navItem.id}
-                className="p-4 hover:bg-shark hover:text-light rounded-md mb-2 cursor-pointer"
+                className={({ isActive }) => {
+                  return isActive ? "bg-shark text-light p-4 mb-2" : "p-4 mb-2 cursor-pointer";
+                }}
               >
-                <Link to={navItem.link}>{navItem.text}</Link>
-              </li>
+                <li>{navItem.text}</li>
+              </NavLink>
             ))}
           </ul>
         </div>
