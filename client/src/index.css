@@ -7,18 +7,18 @@
 }
 .errorBg {
   @apply bgFit;
-  background-image: url("./assets/errorPageBg.svg");
+  background-image: url("./assets/svg/errorPageBg.svg");
 }
 
 .heroBg {
   @apply bgFit;
-  background-image: url("./assets/hero-bg.jpg");
+  background-image: url("./assets/img/hero-bg.jpg");
 }
 .loginBg {
   @apply bgFit;
-  background-image: url("./assets/loginBg.jpg");
+  background-image: url("./assets/img/loginBg.jpg");
 }
 .regBg {
   @apply bgFit;
-  background-image: url("./assets/regBg.jpg");
+  background-image: url("./assets/img/regBg.jpg");
 }

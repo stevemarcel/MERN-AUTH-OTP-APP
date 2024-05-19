@@ -1,9 +1,9 @@
 const Hero = () => {
   return (
-    <section className="heroBg h-96 mb-10  flex items-center text-sharkLight-100">
-      <div className="absolute top-18 left-0 right-0 h-96 bg-sharkDark-400 bg-opacity-90 z-10"></div>{" "}
+    <section className="heroBg h-[80vh] lg:h-96 mb-10 flex items-center text-sharkLight-100">
+      <div className="absolute top-18 left-0 right-0 h-[80vh] lg:h-96 bg-sharkDark-400 bg-opacity-90 z-10"></div>{" "}
       {/* Overlay element */}
-      <div className="p-6 relative z-20 md:w-[70%] mx-auto text-justify space-y-2">
+      <div className="p-6 relative z-20 w-[90%] lg:w-[70%] mx-auto text-justify space-y-2">
         <h2 className=" text-4xl font-bold text-center">MERN AUTHENTICATION OTP SYSTEM</h2>
         <p className=" ">
           This project is a comprehensive implementation of user authentication utilizing the MERN

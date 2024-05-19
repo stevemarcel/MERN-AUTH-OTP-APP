@@ -18,7 +18,7 @@ const FooterForm = ({ placeholder }) => {
       <input
         type="email"
         name="email"
-        id="email"
+        id="formEmail"
         placeholder="Enter email"
         className="mb-1 px-3 py-2 border border-sharkLight-100 focus:outline-none focus:ring focus:ring-sharkLight-400 focus:ring-opacity-50"
         value={email}

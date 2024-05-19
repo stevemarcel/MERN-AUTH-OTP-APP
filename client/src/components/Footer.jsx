@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import SharkLogo from "../assets/Shark-Colours-Logo-Inverse.png";
+import SharkLogo from "../assets/img/sharkColoursLogoInverse.png";
 import FooterForm from "./FooterForm";
 
 // Array containing navigation items when not logged in

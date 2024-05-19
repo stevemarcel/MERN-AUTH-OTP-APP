@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   FaUser,
@@ -75,6 +75,22 @@ const Navbar = () => {
   const getDropdownItems = () => {
     return userInfo ? profileItems : getStartedItems;
   };
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    // Add event listener on component mount
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".rightNavButton")) {
+        // Check if clicked outside the button
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    // Cleanup function to remove listener on unmount
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -163,7 +179,7 @@ const Navbar = () => {
         {/* Right Button */}
         <div className="flex items-center">
           <button
-            className="md:flex hidden items-center px-4 py-2 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none relative rounded"
+            className="rightNavButton md:flex hidden items-center px-4 py-2 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none relative rounded"
             onClick={() => {
               toggleDropdown(); // Toggle dropdown on button click
             }}
@@ -193,7 +209,7 @@ const Navbar = () => {
             {/* User icon button only when user logged in on small screens */}
             {userInfo ? (
               <button
-                className="relative rounded-full"
+                className="rightNavButton relative rounded-full"
                 onClick={() => {
                   toggleDropdown(); // Toggle dropdown on button click
                 }}
@@ -238,9 +254,9 @@ const Navbar = () => {
             {userInfo ? (
               ""
             ) : (
-              <li className="flex items-center p-4 mb-2 cursor-pointer ">
+              <li className="flex items-center my-2 cursor-pointer justify-end">
                 <button
-                  className="flex md:hidden items-center px-4 py-2 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none relative rounded w-full"
+                  className=" flex md:hidden items-center justify-center px-6 py-3 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none relative rounded"
                   onClick={(e) => {
                     toggleDropdown(); // Toggle dropdown on button click
                     e.stopPropagation(); // Prevent event bubbling

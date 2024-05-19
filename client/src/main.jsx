@@ -15,6 +15,7 @@ import App from "./App.jsx";
 import "./index.css";
 
 // Pages Import
+//? import RegisterPage from "./assets/test/RegisterPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";

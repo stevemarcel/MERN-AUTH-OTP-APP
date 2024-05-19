@@ -53,18 +53,27 @@ const sendVerificationEmail = asyncHandler(async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
   const mode = "verifyEmail";
-  const message = `Verification is just a click away! We've sent an email to [${email}]. Click the verification link in your email to complete your registration. This link expires in ${process.env.EMAIL_EXPIRY} minutes. Do check your email swiftly.`;
+  const expiry = process.env.EMAIL_EXPIRY;
+  const verificationEmail = req.body.email;
+  // const message = `Verification is just a click away! We've sent an email to [${email}]. Click the verification link in your email to complete your registration. This link expires in ${process.env.EMAIL_EXPIRY} minutes. Do check your email swiftly.`;
 
   if (!user.emailVerified) {
-    sendEmail(user, mode);
+    // sendEmail(user, mode);
 
-    if (sendEmail) {
-      res.status(201).json({
-        message,
-      });
-    } else {
-      res.status(400);
-      throw new Error("Email not sent");
+    // if (sendEmail) {
+    //   res.status(201).json({
+    //     message,
+    //   });
+    // } else {
+    //   res.status(400);
+    //   throw new Error("Email not sent");
+    // }
+    try {
+      await sendEmail(user, mode); // Await the sendEmail function
+      res.status(201).json({ verificationEmail, expiry });
+    } catch (err) {
+      console.error(err); // Log the error for debugging
+      res.status(400).json({ message: "Email not sent" });
     }
   } else {
     res.status(200).json({ Message: "Email Verified Already" });

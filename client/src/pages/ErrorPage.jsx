@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import ErrorPageImg from "../assets/errorPageImg.svg";
+import ErrorPageImg from "../assets/svg/errorPageImg.svg";
 import { FaArrowLeft } from "react-icons/fa";
 
 const ErrorPage = () => {
