@@ -22,6 +22,10 @@ import RegisterPage from "./pages/RegisterPage.jsx";
 import ErrorPage from "./pages/ErrorPage.jsx";
 import ConfirmEmailPage from "./pages/ConfirmEmailPage.jsx";
 import VerifyEmail from "./pages/VerifyEmail.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
+import PrivateRoute from "./components/PrivateRoute.jsx";
+import AdminPage from "./pages/AdminPage.jsx";
+import AdminRoute from "./components/AdminRoute.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -34,9 +38,12 @@ const router = createBrowserRouter(
       <Route path="*" element={<ErrorPage />} />
 
       {/* Private Routes */}
-      {/* <Route path="" element={<PrivateRoute />}>
+      <Route path="" element={<PrivateRoute />}>
         <Route path="/profile" element={<ProfilePage />} />
-      </Route> */}
+        <Route path="" element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminPage />} />
+        </Route>
+      </Route>
     </Route>
   )
 );
