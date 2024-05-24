@@ -23,8 +23,9 @@ import ErrorPage from "./pages/ErrorPage.jsx";
 import ConfirmEmailPage from "./pages/ConfirmEmailPage.jsx";
 import VerifyEmail from "./pages/VerifyEmail.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
-import PrivateRoute from "./components/PrivateRoute.jsx";
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
+import PrivateRoute from "./components/PrivateRoute.jsx";
 import AdminRoute from "./components/AdminRoute.jsx";
 
 const router = createBrowserRouter(
@@ -40,6 +41,7 @@ const router = createBrowserRouter(
       {/* Private Routes */}
       <Route path="" element={<PrivateRoute />}>
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/resetPassword" element={<ResetPasswordPage />} />
         <Route path="" element={<AdminRoute />}>
           <Route path="/admin" element={<AdminPage />} />
         </Route>

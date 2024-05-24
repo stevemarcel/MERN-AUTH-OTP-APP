@@ -584,7 +584,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                           color: #${textColour};
                                         "
                                       >
-                                        ${greeting},&nbsp;${userFirstName}
+                                        ${greeting}&nbsp;${userFirstName},
                                       </h3>
                                       <p
                                         style="

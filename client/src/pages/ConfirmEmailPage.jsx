@@ -38,7 +38,7 @@ const ConfirmEmailPage = () => {
         <div className="">
           <img
             src={ConfirmEmailPageImg}
-            alt="Error Image"
+            alt="Confirm Email Image"
             className=" w-full mx-auto h-[400px] mb-8 "
           />
         </div>
@@ -49,7 +49,7 @@ const ConfirmEmailPage = () => {
             {!emailExpiry ? "Almost There! Verify Your Email" : "Check your inbox, please!"}
           </p>
 
-          <div className={!emailExpiry ? "hidden" : "text-base mb-3 md:mb-4 text-center"}>
+          <div className={!emailExpiry ? "hidden" : "text-base mb-3 md:mb-4  text-center"}>
             {/* {verifyMessage} */}
             <p>
               Verification is just a click away! We&apos;ve sent an email to{" "}

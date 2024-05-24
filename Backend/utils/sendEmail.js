@@ -21,35 +21,33 @@ const sendEmail = asyncHandler(async (user, mode) => {
     return OTPCode;
   }
 
-  // Call generate OTP function and save the result
+  // Generate OTP or client token depending on request
   const OTP = await generateOTP();
+  const clientToken = crypto.randomBytes(32).toString("hex");
 
-  // Hash the generated OTP with bcrypt
-  const salt = await bcrypt.genSalt(Number(process.env.SALT));
-  const hashedOTP = bcrypt.hash(OTP, salt);
-
+  // Find the token
   const tokenFound = await EmailVerifyToken.findOne({ userId: user._id });
 
-  const emailVerifyToken = !tokenFound
+  // Generate the token if it doesn't exist
+  !tokenFound
     ? await EmailVerifyToken.create({
         userId: user._id,
-        token: mode === "verifyEmail" ? crypto.randomBytes(32).toString("hex") : await hashedOTP,
+        token: mode === "verifyEmail" ? clientToken : OTP,
       })
     : tokenFound;
 
   let verification =
     mode === "verifyEmail"
-      ? `${process.env.BASE_URL}/${user._id}/verifyemail/${emailVerifyToken.token}`
+      ? `${process.env.BASE_URL}/${user._id}/verifyemail/${clientToken}`
       : `${OTP}`;
 
+  // Create parameters for the email
   const userFirstName = user.firstName;
-
   const body = verificationEmailBody(verification, userFirstName, mode);
-
   const subject =
     mode === "verifyEmail"
       ? "Verify Your Email Address"
-      : `Don't Wait! Reset Your [${process.env.EMAIL_USERNAME}] Password`;
+      : `Don't Wait! Reset Your ${process.env.EMAIL_USERNAME} Account Password`;
 
   //Send Email
   await emailSender(user.email, subject, body);

@@ -23,8 +23,8 @@ const AuthPagesLayout = ({
     username: "",
   });
 
-  const handleInputChange = (event) => {
-    setFormData({ ...formData, [event.target.name]: event.target.value });
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
@@ -52,7 +52,6 @@ const AuthPagesLayout = ({
               e.preventDefault();
               submitHandler(formData);
             }}
-            // onSubmit={submitHandler(formData)}
           >
             {formInputs.map((input) => (
               <div className="mb-4" key={input.id}>

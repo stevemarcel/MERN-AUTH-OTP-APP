@@ -28,13 +28,14 @@ const registerUser = asyncHandler(async (req, res) => {
   if (user) {
     genToken(res, user._id);
     res.status(201).json({
-      Message: "User registered successfully",
+      message: "User registered successfully",
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
       isAdmin: user.isAdmin,
       emailVerified: user.emailVerified,
+      resetSession: user.resetSession,
       username: user.username,
       profile: user.profile,
       address: user.address,
@@ -76,7 +77,7 @@ const sendVerificationEmail = asyncHandler(async (req, res) => {
       res.status(400).json({ message: "Email not sent" });
     }
   } else {
-    res.status(200).json({ Message: "Email Verified Already" });
+    res.status(200).json({ message: "Email Verified Already" });
   }
 });
 
@@ -91,14 +92,17 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
       throw new Error("Invalid Verification Link");
     }
 
-    const tokenVerified = await EmailVerifyToken.findOne({
+    const clientToken = req.params.token;
+
+    const findToken = await EmailVerifyToken.findOne({
       userId: user._id,
-      token: req.params.token,
     });
 
-    if (!tokenVerified) {
-      res.status(400);
-      throw new Error("Invalid Verification Link");
+    // Match client Token with EmailVerify token
+    const clientTokenVerified = await findToken.matchToken(clientToken);
+
+    if (clientTokenVerified) {
+      await EmailVerifyToken.deleteOne({ userId: user._id });
     }
 
     user.emailVerified = true;
@@ -110,7 +114,7 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
     }
 
     res.status(200).json({
-      Message: "Email verified",
+      message: "Email Verified",
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
@@ -119,7 +123,7 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
       emailVerified: user.emailVerified,
     });
 
-    await EmailVerifyToken.deleteOne({ userId: user._id });
+    // await EmailVerifyToken.deleteOne({ userId: user._id });
   } catch (error) {
     res.status(400);
     throw new Error("Email verification failed");
@@ -137,7 +141,7 @@ const loginUser = asyncHandler(async (req, res) => {
   if (user && (await user.matchPassword(password))) {
     genToken(res, user._id);
     res.status(201).json({
-      Message: "Login successful",
+      message: "Login successful",
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
@@ -156,57 +160,13 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-// @DESCRIPTION Reset password of user after verifying OTP
-// @ROUTE       GET /api/users/profile/resetpassword
-// @ACCESS      Private
-// const resetPassword = asyncHandler(async (req, res) => {
-//   const user = await User.findById(req.user._id);
-
-//   if (!user.resetSession) {
-//     res.status(400);
-//     throw new Error("No password reset session");
-//   }
-
-//   if (user) {
-//     if (!req.body.password) {
-//       res.status(400);
-//       throw new Error("Password can not be empty");
-//     }
-
-//     if (req.body.password && (await user.matchPassword(req.body.password))) {
-//       res.status(400);
-//       throw new Error("Can not use old password");
-//     } else if (req.body.password) {
-//       user.password = req.body.password;
-
-//       user.resetSession = false;
-
-//       const updatedUser = await user.save();
-
-//       res.status(200).json({
-//         _id: updatedUser._id,
-//         firstName: updatedUser.firstName,
-//         lastName: updatedUser.lastName,
-//         email: updatedUser.email,
-//         isAdmin: user.isAdmin,
-//         emailVerified: user.emailVerified,
-//         resetSession: updatedUser.resetSession,
-//         username: updatedUser.username,
-//         profile: updatedUser.profile,
-//         address: updatedUser.address,
-//         mobile: updatedUser.mobile,
-//       });
-//     }
-//   }
-// });
-
 // @DESCRIPTION Gets all users
 // @ROUTE       GET /api/users
 // @ACCESS      Private/Admin
 const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find({});
   res.status(200).json({
-    Message: "All users details sent",
+    message: "All users details sent",
     users,
   });
 });
@@ -219,7 +179,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
 
   if (user) {
     res.json({
-      Message: "User details sent",
+      message: "User details sent",
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
@@ -244,19 +204,26 @@ const getUserProfile = asyncHandler(async (req, res) => {
 const sendResetPasswordOTPEmail = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   const mode = "OTP";
-  const Message = `Heads up! An email containing your OTP has just landed in your inbox [${user.email}]. Check it out and enter the code below to make sure it's you.The OTP expires in ${process.env.EMAIL_EXPIRY} minutes. Time is ticking!`;
+  const expiry = process.env.EMAIL_EXPIRY;
+  // const Message = `Heads up! An email containing your OTP has just landed in your inbox [${user.email}]. Check it out and enter the code below to make sure it's you.The OTP expires in ${process.env.EMAIL_EXPIRY} minutes. Time is ticking!`;
 
-  if (user) {
-    sendEmail(user, mode);
-    user.resetSession = true;
-    res.status(201).json({
-      email: user.email,
-      resetSession: user.resetSession,
-      Message,
-    });
-  } else {
-    res.status(400);
-    throw new Error("User not found");
+  const findToken = await EmailVerifyToken.findOne({
+    userId: user._id,
+  });
+
+  if (findToken) {
+    await EmailVerifyToken.deleteOne({ userId: user._id });
+  }
+
+  try {
+    user.resetSession = false;
+
+    await user.save();
+    await sendEmail(user, mode);
+    res.status(201).json({ verificationEmail: user.email, expiry });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: "Email not sent" });
   }
 });
 
@@ -264,46 +231,42 @@ const sendResetPasswordOTPEmail = asyncHandler(async (req, res) => {
 // @ROUTE       GET /api/users/verifyresetpasswordotp
 // @ACCESS      Private
 const verifyResetPasswordOTP = asyncHandler(async (req, res) => {
+  // try {
+  const { email, OTP } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    res.status(400);
+    throw new Error("User not found");
+  }
+
+  const findToken = await EmailVerifyToken.findOne({
+    userId: user._id,
+  });
+
+  // Match OTP with EmailVerify token
+  const OTPVerified = await findToken.matchToken(OTP);
+
+  if (!OTPVerified) {
+    res.status(400);
+    throw new Error("The entered OTP code is invalid");
+    // .json({ message: "The entered OTP code is invalid" });
+  }
+  // else {
   try {
-    const { email, OTP } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-      res.status(400);
-      throw new Error("User not found");
-    }
+    await EmailVerifyToken.deleteOne({ userId: user._id });
+    user.resetSession = true;
 
-    const findToken = await EmailVerifyToken.findOne({
-      userId: user._id,
-    });
-
-    const matchOTP = async (OTP) => {
-      return await bcrypt.compare(OTP, findToken.token);
-    };
-
-    user.resetSession = false;
     await user.save();
 
-    if (findToken && matchOTP) {
-      res.status(201).json({
-        Message: "OTP verification successful",
-        _id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        emailVerified: user.emailVerified,
-        resetSession: user.resetSession,
-        username: user.username,
-        profile: user.profile,
-        address: user.address,
-        mobile: user.mobile,
-      });
-
-      await EmailVerifyToken.deleteOne({ userId: user._id });
-    } else {
-      res.status(400);
-      throw new Error("Invalid OTP");
+    res.status(200).json({
+      message: "OTP Confirmed",
+    });
+    if (process.env.NODE_ENV === "development") {
+      console.log(`OTP Deleted, Verification: ${OTPVerified}`);
     }
+    // }
   } catch (error) {
     res.status(400);
     throw new Error("OTP verification failed");
@@ -323,18 +286,29 @@ const updateUserProfile = asyncHandler(async (req, res) => {
         throw new Error("Password can not be empty");
       }
 
-      if (req.body.password && (await user.matchPassword(req.body.password))) {
+      if (await user.matchPassword(req.body.password)) {
         res.status(400);
         throw new Error("Can not use old password");
-      } else if (req.body.password) {
+      }
+      if (req.body.password) {
         user.password = req.body.password;
-
         user.resetSession = false;
 
-        // const updatedUser = await user.save();
+        await user.save();
 
         res.status(200).json({
-          Message: "Password updated successfully",
+          message: "Password updated successfully",
+          _id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          emailVerified: user.emailVerified,
+          resetSession: user.resetSession,
+          username: user.username,
+          profile: user.profile,
+          address: user.address,
+          mobile: user.mobile,
         });
       }
     } else {
@@ -350,6 +324,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
       res.status(200).json({
         _id: updatedUser._id,
+        message: "Profile updated successfully",
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
         email: updatedUser.email,
@@ -377,7 +352,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     expires: new Date(0),
   });
 
-  res.status(200).json({ Message: "User Logged Out" });
+  res.status(200).json({ message: "User Logged Out" });
 });
 
 export {
@@ -385,7 +360,6 @@ export {
   sendVerificationEmail,
   verifyUserEmail,
   loginUser,
-  // resetPassword,
   getUsers,
   getUserProfile,
   sendResetPasswordOTPEmail,

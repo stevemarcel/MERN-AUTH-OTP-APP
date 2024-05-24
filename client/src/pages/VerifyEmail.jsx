@@ -53,7 +53,7 @@ const VerifyEmail = () => {
               />
             </div>
             <div className="text-sharkDark-300 flex flex-col items-center justify-end md:p-6">
-              <p className="text-4xl font-bold mb-5 text-center">{res.data.Message}</p>
+              <p className="text-4xl font-bold mb-5 text-center">{res.data.message}</p>
               <Link
                 to="/"
                 className="bg-shark text-light px-4 py-2 w-full rounded hover:bg-sharkDark-100 focus:outline-none flex flex-row items-center justify-center"

@@ -18,14 +18,27 @@ const authSlice = createSlice({
       state.userInfo = action.payload;
       localStorage.setItem("userInfo", JSON.stringify(action.payload));
     },
+
     // Function to delete user information from local storage on logout. This is an ACTION.
     deleteCredentials: (state) => {
       state.userInfo = null;
       localStorage.removeItem("userInfo");
     },
+
+    // Function to set OTP information to local storage. This is an ACTION.
+    setOTPData: (state, action) => {
+      state.otpData = action.payload;
+      localStorage.setItem("otpData", JSON.stringify(action.payload));
+    },
+
+    // Function to delete user information from local storage on logout. This is an ACTION.
+    deleteOTPData: (state) => {
+      state.otpData = null;
+      localStorage.removeItem("otpData");
+    },
   },
 });
 
-export const { setCredentials, deleteCredentials } = authSlice.actions;
+export const { setCredentials, deleteCredentials, setOTPData, deleteOTPData } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -48,8 +48,12 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
 
     // Reset User password request endpoint.
-    verifyResetPasswordOTP: builder.query({
-      query: (id) => ({ url: `${USERS_URL}/${id}` }),
+    verifyResetPasswordOTP: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/verifyresetpasswordotp`,
+        method: "POST",
+        body: data,
+      }),
     }),
 
     // Get User profile request endpoint.
@@ -92,6 +96,7 @@ export const {
   useSendVerificationEmailMutation,
   useVerifyUserEmailQuery,
   useSendResetPasswordEmailMutation,
+  useVerifyResetPasswordOTPMutation,
   useLoginMutation,
   useGetUserProfileQuery,
   useGetUsersQuery,

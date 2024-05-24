@@ -9,6 +9,7 @@ import {
   FaBell,
   FaBars,
   FaTimes,
+  FaCaretDown,
 } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { useLogoutMutation } from "../slices/usersApiSlice";
@@ -49,8 +50,8 @@ const Navbar = () => {
 
   // Array containing get started items when not logged in
   const getStartedItems = [
-    { id: 1, text: "Register", link: "/register", icon: <FaUserPlus /> },
-    { id: 2, text: "Login", link: "/login", icon: <FaSignInAlt /> },
+    { id: 1, type: "Auth", text: "Register", link: "/register", icon: <FaUserPlus /> },
+    { id: 2, type: "Auth", text: "Login", link: "/login", icon: <FaSignInAlt /> },
   ];
 
   // Array containing profile items when logged in
@@ -101,7 +102,7 @@ const Navbar = () => {
     try {
       await logoutApiCall().unwrap();
       dispatch(deleteCredentials());
-      navigate("/");
+      navigate("/login");
     } catch (err) {
       console.log(err);
     }
@@ -111,7 +112,14 @@ const Navbar = () => {
     <Link
       to={item.link}
       key={item.id}
-      onClick={userInfo && item.text === "Logout" ? logoutHandler : handleMobileNavOpen}
+      // onClick={userInfo && item.text === "Logout" && logoutHandler}
+      onClick={
+        userInfo && item.text === "Logout"
+          ? logoutHandler
+          : mobileNavOpen
+          ? handleMobileNavOpen
+          : null
+      }
     >
       <li
         className={`hover:bg-sharkLight-100 px-4 py-2 text-black flex items-center ${
@@ -196,6 +204,9 @@ const Navbar = () => {
             ) : (
               "Get Started"
             )}
+            <div className="ml-1">
+              <FaCaretDown />
+            </div>
             {showDropdown && (
               // Render dropdown only if visible
               <ul className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2">
@@ -263,6 +274,9 @@ const Navbar = () => {
                   }}
                 >
                   Get Started
+                  <div className="ml-2">
+                    <FaCaretDown />
+                  </div>
                   {showDropdown && (
                     // Render dropdown only if visible
                     <ul className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2">
