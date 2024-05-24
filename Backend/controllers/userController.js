@@ -56,24 +56,21 @@ const sendVerificationEmail = asyncHandler(async (req, res) => {
   const mode = "verifyEmail";
   const expiry = process.env.EMAIL_EXPIRY;
   const verificationEmail = req.body.email;
-  // const message = `Verification is just a click away! We've sent an email to [${email}]. Click the verification link in your email to complete your registration. This link expires in ${process.env.EMAIL_EXPIRY} minutes. Do check your email swiftly.`;
+
+  const findToken = await EmailVerifyToken.findOne({
+    userId: user._id,
+  });
+
+  if (findToken) {
+    await EmailVerifyToken.deleteOne({ userId: user._id });
+  }
 
   if (!user.emailVerified) {
-    // sendEmail(user, mode);
-
-    // if (sendEmail) {
-    //   res.status(201).json({
-    //     message,
-    //   });
-    // } else {
-    //   res.status(400);
-    //   throw new Error("Email not sent");
-    // }
     try {
-      await sendEmail(user, mode); // Await the sendEmail function
+      await sendEmail(user, mode);
       res.status(201).json({ verificationEmail, expiry });
     } catch (err) {
-      console.error(err); // Log the error for debugging
+      console.error(err);
       res.status(400).json({ message: "Email not sent" });
     }
   } else {
@@ -205,7 +202,6 @@ const sendResetPasswordOTPEmail = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   const mode = "OTP";
   const expiry = process.env.EMAIL_EXPIRY;
-  // const Message = `Heads up! An email containing your OTP has just landed in your inbox [${user.email}]. Check it out and enter the code below to make sure it's you.The OTP expires in ${process.env.EMAIL_EXPIRY} minutes. Time is ticking!`;
 
   const findToken = await EmailVerifyToken.findOne({
     userId: user._id,

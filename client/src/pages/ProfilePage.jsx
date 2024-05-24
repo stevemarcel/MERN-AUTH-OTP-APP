@@ -109,7 +109,7 @@ const ProfilePage = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 className={`p-2 w-full rounded border italic ${
                   mode === "view"
-                    ? "focus:none bg-light font-mono border-none bg-transparent"
+                    ? "focus:none font-mono border-none bg-transparent"
                     : "focus:outline-none focus:ring focus:ring-sharkLight-400 focus:ring-opacity-50"
                 }`}
                 disabled={mode === "view"}

@@ -7,6 +7,7 @@ import Loader from "../components/Loader";
 import ConfirmEmailPageImg from "../assets/svg/confirmEmailPageImg.svg";
 import { FaCheckCircle, FaLock } from "react-icons/fa";
 import { toast } from "react-toastify";
+import CountdownTimer from "../components/CountdownTimer";
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
@@ -30,30 +31,8 @@ const ResetPasswordPage = () => {
     }
   }, [navigate, otpData]);
 
-  // const email = "email@example.com";
   const email = otpData?.verificationEmail;
   const emailExpiry = otpData?.expiry;
-
-  const [remainingTime, setRemainingTime] = useState(emailExpiry * 60);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      if (remainingTime > 0) {
-        setRemainingTime((prevTime) => prevTime - 1);
-      } else {
-        clearInterval(intervalId);
-      }
-    }, 1000); // Update every second
-
-    return () => clearInterval(intervalId); // Cleanup function to clear interval on unmount
-  }, [emailExpiry, setRemainingTime, remainingTime]); // Dependency array ensures effect runs only when duration changes
-
-  const minutes = Math.floor(remainingTime / 60);
-  const seconds = remainingTime % 60;
-
-  const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds
-    .toString()
-    .padStart(2, "0")}`;
 
   const [verifyResetPasswordOTPApiCall, { isLoading: isUpdatingProfile }] =
     useVerifyResetPasswordOTPMutation();
@@ -128,7 +107,10 @@ const ResetPasswordPage = () => {
 
         {/* Reset Password Text */}
         <div className="text-sharkDark-300 flex flex-col items-center justify-end md:p-6">
-          <p className="text-4xl font-bold mb-5 text-center">Reset Password</p>
+          <p className="text-4xl font-bold mb-5 text-center">
+            {/* Reset Password */}
+            {mode === "resetSession" ? "Create New Password" : "Confirm OTP"}
+          </p>
 
           {mode === "resetSession" ? (
             <div className="flex flex-col w-full">
@@ -165,7 +147,10 @@ const ResetPasswordPage = () => {
                   Heads up! An email containing your <span className="font-bold">OTP</span> has just
                   landed in your inbox <span className="font-bold">[{email}]</span>. Check it out
                   and enter the code below to make sure it&apos;s you. The OTP expires in{" "}
-                  <span className="font-bold">{formattedTime} minutes</span> . Time is ticking!
+                  <span className="font-bold">
+                    {<CountdownTimer duration={emailExpiry} />} minutes
+                  </span>{" "}
+                  . Time is ticking!
                 </p>
               </div>
               <div className="flex justify-center">

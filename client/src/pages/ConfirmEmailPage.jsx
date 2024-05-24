@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useSendVerificationEmailMutation } from "../slices/usersApiSlice";
 import ConfirmEmailPageImg from "../assets/svg/confirmEmailPageImg.svg";
-import { FaCheckCircle, FaEnvelope } from "react-icons/fa";
+import { FaPaperPlane } from "react-icons/fa";
 import Loader from "../components/Loader";
+import CountdownTimer from "../components/CountdownTimer";
 
 const ConfirmEmailPage = () => {
   const [verifyEmail, setVerifyEmail] = useState("");
@@ -49,36 +50,37 @@ const ConfirmEmailPage = () => {
             {!emailExpiry ? "Almost There! Verify Your Email" : "Check your inbox, please!"}
           </p>
 
-          <div className={!emailExpiry ? "hidden" : "text-base mb-3 md:mb-4  text-center"}>
-            {/* {verifyMessage} */}
-            <p>
-              Verification is just a click away! We&apos;ve sent an email to{" "}
-              <span className="font-bold">[{verifyEmail}]</span>. Click the verification link in
-              your email to complete your registration. This link expires in{" "}
-              <span className="font-bold">{emailExpiry} minutes</span> . Do check your email
-              swiftly.
-            </p>
-          </div>
-          <Link
-            className="bg-shark text-light px-4 py-2 w-full rounded hover:bg-sharkDark-100 focus:outline-none flex flex-row items-center justify-center"
-            onClick={sendVerificationEmail}
-          >
-            {isLoading ? (
-              <div className="text-3xl">
-                <Loader />
-              </div>
-            ) : emailExpiry ? (
-              <div className="flex flex-row items-center justify-center">
-                <FaCheckCircle className="mr-2" />
-                Verification Email Sent
-              </div>
-            ) : (
-              <div className="flex flex-row items-center justify-center">
-                <FaEnvelope className="mr-2" />
-                Send Verification Email
-              </div>
-            )}
-          </Link>
+          {emailExpiry && (
+            <div className="text-base mb-3 md:mb-4  text-center">
+              {/* {verifyMessage} */}
+              <p>
+                Verification is just a click away! We&apos;ve sent an email to{" "}
+                <span className="font-bold">[{verifyEmail}]</span>. Click the verification link in
+                your email to complete your registration. This link expires in{" "}
+                <span className="font-bold">
+                  {<CountdownTimer duration={emailExpiry} />} minutes
+                </span>{" "}
+                . Do check your email swiftly.
+              </p>
+            </div>
+          )}
+          {!emailExpiry && (
+            <Link
+              className="bg-shark text-light px-4 py-2 w-full rounded hover:bg-sharkDark-100 focus:outline-none flex flex-row items-center justify-center"
+              onClick={sendVerificationEmail}
+            >
+              {isLoading ? (
+                <div className="text-3xl">
+                  <Loader />
+                </div>
+              ) : (
+                <div className="flex flex-row items-center justify-center">
+                  <FaPaperPlane className="mr-2" />
+                  Send Verification Email
+                </div>
+              )}
+            </Link>
+          )}
         </div>
       </div>
     </div>
