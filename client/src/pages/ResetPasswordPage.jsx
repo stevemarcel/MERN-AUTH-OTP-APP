@@ -123,7 +123,7 @@ const ResetPasswordPage = () => {
                   name="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 rounded-md border border-sharkLight-100 focus:outline-none focus:ring focus:ring-sharkLight-400 focus:ring-opacity-50"
+                  className="w-full px-3 py-2 rounded-md border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                 />
               </div>
 
@@ -136,7 +136,7 @@ const ResetPasswordPage = () => {
                   name="confirmPassword"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-3 py-2 rounded-md border border-sharkLight-100 focus:outline-none focus:ring focus:ring-sharkLight-400 focus:ring-opacity-50"
+                  className="w-full px-3 py-2 rounded-md border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                 />
               </div>
             </div>
@@ -161,7 +161,7 @@ const ResetPasswordPage = () => {
                     value={OTP}
                     placeholder="Enter 4 digit OTP"
                     onChange={(e) => setOTP(e.target.value)}
-                    className="max-w-48 px-3 py-2 rounded-md bg-sharkLight-100/50 border border-sharkLight-100 focus:outline-none focus:ring focus:ring-sharkLight-400 focus:ring-opacity-50"
+                    className="max-w-48 px-3 py-2 rounded-md bg-sharkLight-100/50 border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                   />
                 </div>
               </div>

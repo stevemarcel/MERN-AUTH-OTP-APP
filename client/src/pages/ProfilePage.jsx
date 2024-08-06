@@ -5,12 +5,14 @@ import { toast } from "react-toastify";
 import { useSendResetPasswordEmailMutation, useUpdateUserMutation } from "../slices/usersApiSlice";
 import { setCredentials, setOTPData } from "../slices/authSlice";
 import { FaCamera, FaCheckCircle, FaLock, FaPaperPlane, FaUserEdit } from "react-icons/fa";
+import { MdVerified } from "react-icons/md";
 import Loader from "../components/Loader";
 const ProfilePage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
   const [username, setUsername] = useState("");
   const [profile, setProfile] = useState("");
   const [address, setAddress] = useState("");
@@ -37,6 +39,7 @@ const ProfilePage = () => {
     setLastName(userInfo.lastName);
     setEmail(userInfo.email);
     setIsAdmin(userInfo.isAdmin);
+    setEmailVerified(userInfo.emailVerified);
     setUsername(userInfo.username);
     setProfile(userInfo.profile);
     setAddress(userInfo.address);
@@ -110,13 +113,13 @@ const ProfilePage = () => {
                 className={`p-2 w-full rounded border italic ${
                   mode === "view"
                     ? "focus:none font-mono border-none bg-transparent"
-                    : "focus:outline-none focus:ring focus:ring-sharkLight-400 focus:ring-opacity-50"
+                    : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                 }`}
                 disabled={mode === "view"}
               />
             </div>
             {isAdmin && (
-              <div className="flex justify-center items-center p-4 mt-2 w-full bg-light">
+              <div className="flex justify-center items-center py-2 px-5 rounded-full mt-2 bg-light cursor-default text-xs">
                 <div className="mr-2">
                   <FaLock />
                 </div>{" "}
@@ -143,7 +146,7 @@ const ProfilePage = () => {
                     className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
                       mode === "view"
                         ? "focus:none bg-light"
-                        : "focus:outline-none focus:ring focus:ring-sharkLight-400 focus:ring-opacity-50"
+                        : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                     }`}
                     disabled={mode === "view"}
                   />
@@ -161,7 +164,7 @@ const ProfilePage = () => {
                     className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
                       mode === "view"
                         ? "focus:none bg-light"
-                        : "focus:outline-none focus:ring focus:ring-sharkLight-400 focus:ring-opacity-50"
+                        : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                     }`}
                     disabled={mode === "view"}
                   />
@@ -170,8 +173,13 @@ const ProfilePage = () => {
 
               <div className=" flex flex-col md:flex-row md:gap-1">
                 <div className=" flex flex-col gap-1 mb-2 md:mb-3 md:w-[70%]">
-                  <label htmlFor="email" className="font-medium text-xs">
+                  <label htmlFor="email" className="flex items-center font-medium text-xs">
                     Email
+                    {emailVerified && (
+                      <div className="ml-1">
+                        <MdVerified />
+                      </div>
+                    )}
                   </label>
                   <input
                     type="email"
@@ -181,7 +189,7 @@ const ProfilePage = () => {
                     className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
                       mode === "view"
                         ? "focus:none bg-light"
-                        : "focus:outline-none focus:ring focus:ring-sharkLight-400 focus:ring-opacity-50"
+                        : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                     }`}
                     disabled={mode === "view"}
                   />
@@ -199,7 +207,7 @@ const ProfilePage = () => {
                     className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
                       mode === "view"
                         ? "focus:none bg-light"
-                        : "focus:outline-none focus:ring focus:ring-sharkLight-400 focus:ring-opacity-50"
+                        : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                     }`}
                     disabled={mode === "view"}
                   />
@@ -218,7 +226,7 @@ const ProfilePage = () => {
                   className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
                     mode === "view"
                       ? "focus:none bg-light"
-                      : "focus:outline-none focus:ring focus:ring-sharkLight-400 focus:ring-opacity-50"
+                      : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                   }`}
                   disabled={mode === "view"}
                 />

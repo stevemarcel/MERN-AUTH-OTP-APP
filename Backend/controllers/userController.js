@@ -168,27 +168,14 @@ const getUsers = asyncHandler(async (req, res) => {
   });
 });
 
-// @DESCRIPTION Gets logged in user's Profile
-// @ROUTE       GET /api/users/profile
-// @ACCESS      Private
-const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+// @DESCRIPTION Get User by ID
+// @ROUTE       GET /api/users/:id
+// @ACCESS      Private/Admin
+const getUserById = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id).select("-password");
 
   if (user) {
-    res.json({
-      message: "User details sent",
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      emailVerified: user.emailVerified,
-      resetSession: user.resetSession,
-      username: user.username,
-      profile: user.profile,
-      address: user.address,
-      mobile: user.mobile,
-    });
+    res.json(user);
   } else {
     res.status(404);
     throw new Error("User not found");
@@ -339,6 +326,58 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+// @DESCRIPTION Updates logged in user's Profile
+// @ROUTE       PUT /api/users/:id
+// @ACCESS      Private/Admin
+const updateUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.firstName = req.body.firstName || user.firstName;
+    user.lastName = req.body.lastName || user.lastName;
+    user.email = req.body.email || user.email;
+    user.isAdmin = req.body.isAdmin;
+    user.username = req.body.username || user.username;
+    user.profile = req.body.profile || user.profile;
+    user.address = req.body.address || user.address;
+    user.mobile = req.body.mobile || user.mobile;
+
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      _id: updatedUser._id,
+      message: "Profile updated successfully",
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      email: updatedUser.email,
+      isAdmin: updatedUser.isAdmin,
+      emailVerified: user.emailVerified,
+      resetSession: updatedUser.resetSession,
+      username: updatedUser.username,
+      profile: updatedUser.profile,
+      address: updatedUser.address,
+      mobile: updatedUser.mobile,
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
+});
+
+// @DESCRIPTION Delete user
+// @ROUTE       DELETE /api/users/:id
+// @ACCESS      Private/Admin
+const deleteUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (user) {
+    await user.remove();
+    res.json({ message: "User deleted" });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
+});
+
 // @DESCRIPTION Logout currently logged in user
 // @ROUTE       POST /api/users/logout
 // @ACCESS      Public
@@ -357,9 +396,11 @@ export {
   verifyUserEmail,
   loginUser,
   getUsers,
-  getUserProfile,
+  getUserById,
   sendResetPasswordOTPEmail,
   verifyResetPasswordOTP,
   updateUserProfile,
+  updateUser,
+  deleteUser,
   logoutUser,
 };

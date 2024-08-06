@@ -64,14 +64,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
-    // Get all Users request endpoint.
-    getUsers: builder.query({
-      query: () => ({
-        url: `${USERS_URL}/`,
-        method: "GET",
-      }),
-    }),
-
     // Update User request endpoint.
     updateUser: builder.mutation({
       query: (data) => ({
@@ -88,6 +80,31 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         method: "POST",
       }),
     }),
+
+    //* ADMIN ONLY
+    // Get User profile by ID request endpoint.
+    getUserById: builder.query({
+      query: (id) => ({
+        url: `${USERS_URL}/${id}`,
+        method: "GET",
+      }),
+    }),
+
+    // Get all Users request endpoint.
+    getUsers: builder.query({
+      query: () => ({
+        url: `${USERS_URL}/`,
+        method: "GET",
+      }),
+    }),
+
+    // Delete User request endpoint.
+    deleteUser: builder.mutation({
+      query: (id) => ({
+        url: `${USERS_URL}/${id}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -99,7 +116,9 @@ export const {
   useVerifyResetPasswordOTPMutation,
   useLoginMutation,
   useGetUserProfileQuery,
-  useGetUsersQuery,
   useUpdateUserMutation,
   useLogoutMutation,
+  useGetUsersQuery,
+  useGetUserByIdQuery,
+  useDeleteUserMutation,
 } = usersApiSlice;
