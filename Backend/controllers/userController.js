@@ -380,7 +380,8 @@ const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
   if (user) {
     await user.deleteOne();
-    res.json({ message: "User deleted" });
+    // res.json({ message: "User deleted" });
+    res.json({ message: `${user.firstName}'s profile deleted` });
   } else {
     res.status(404);
     throw new Error("User not found");
