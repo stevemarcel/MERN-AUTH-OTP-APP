@@ -5,24 +5,21 @@ import {
   FaCheckCircle,
   FaChevronLeft,
   FaChevronRight,
-  FaEye,
+  FaUserPlus,
+  FaUsersSlash,
+  FaSearch,
   FaTimesCircle,
 } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+import { IoIosEye } from "react-icons/io";
 import Loader from "../components/Loader";
-import { FaPlus, FaTrash, FaSearch } from "react-icons/fa";
 // import UserTable from "../components/UserTable";
 import { useDeleteUserMutation, useGetUsersQuery } from "../slices/usersApiSlice";
 import { toast } from "react-toastify";
 
 const UserListPage = () => {
   const { data, isLoading: isGettingUsers, refetch } = useGetUsersQuery();
-  const [
-    deleteUserApiCall,
-    {
-      isLoading: isDeletingUser,
-      // isSuccess: deletedUser
-    },
-  ] = useDeleteUserMutation();
+  const [deleteUserApiCall, { isLoading: isDeletingUser }] = useDeleteUserMutation();
 
   const [filteredUsers, setFilteredUsers] = useState([]);
 
@@ -42,10 +39,11 @@ const UserListPage = () => {
 
   // To prevent multiple or delayed fetch from API
   useEffect(() => {
+    refetch();
     if (data) {
       setFilteredUsers(data.users);
     }
-  }, [data]);
+  }, [data, refetch]);
 
   // Pagination Logic
   const usersToDisplay = filteredUsers.slice(
@@ -184,7 +182,7 @@ const UserListPage = () => {
             onClick={addUserHandler}
           >
             <div className="mr-2">
-              <FaPlus />
+              <FaUserPlus />
             </div>
             Add User
           </button>
@@ -194,7 +192,7 @@ const UserListPage = () => {
             onClick={deleteUsersHandler}
           >
             <div className="mr-2">
-              <FaTrash />
+              <FaUsersSlash />
             </div>
             Delete Users
           </button>
@@ -279,10 +277,9 @@ const UserListPage = () => {
                       <Link
                         to={`/admin/user/${user._id}/edit`}
                         className="relative flex col-span-2 items-center justify-center p-2 bg-shark hover:bg-sharkDark-300  text-white rounded"
-                        // onClick={() => viewUserHandler(user)}
                         title={`View ${user.firstName}`}
                       >
-                        <FaEye />
+                        <IoIosEye />
                         {/* <span className="absolute bottom-0 left-3 px-2 py-1 text-xs bg-shark rounded opacity-0 hover:opacity-100 whitespace-nowrap">
                             {`View ${user.firstName}`}
                           </span> */}
@@ -298,7 +295,7 @@ const UserListPage = () => {
                             <Loader />
                           </div>
                         ) : (
-                          <FaTrash />
+                          <MdDelete />
                         )}
                       </button>
                     </div>
@@ -327,7 +324,7 @@ const UserListPage = () => {
                     onClick={deleteUserByIdHandler}
                   >
                     <div className="mr-2">
-                      <FaTrash />
+                      <MdDelete />
                     </div>
                     Confirm
                   </button>

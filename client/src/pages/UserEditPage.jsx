@@ -2,7 +2,16 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGetUserByIdQuery, useUpdateUserByAdminMutation } from "../slices/usersApiSlice";
-import { FaCamera, FaCaretLeft, FaCheckCircle, FaLock, FaUserEdit } from "react-icons/fa";
+import {
+  FaCamera,
+  FaCaretLeft,
+  FaCheckCircle,
+  FaUserLock,
+  FaUserAlt,
+  FaUserEdit,
+} from "react-icons/fa";
+import { MdVerified } from "react-icons/md";
+import { PiSealWarningFill } from "react-icons/pi";
 import Loader from "../components/Loader";
 
 const UserEditPage = () => {
@@ -122,14 +131,6 @@ const UserEditPage = () => {
                     disabled={mode === "view"}
                   />
                 </div>
-                {isAdmin && (
-                  <div className="flex justify-center items-center p-4 mt-2 w-full bg-light">
-                    <div className="mr-2">
-                      <FaLock />
-                    </div>{" "}
-                    Admin User
-                  </div>
-                )}
               </div>
               <div id="userInformation" className="">
                 <form
@@ -231,32 +232,21 @@ const UserEditPage = () => {
                     />
                   </div>
 
-                  <div className=" flex flex-row justify-between">
+                  <div className=" flex flex-row justify-between px-1">
                     <div className="flex items-center mt-1">
-                      <label htmlFor="emailVerified" className="font-medium text-sm mr-2">
-                        Email Verified
-                      </label>
-
-                      <input
-                        type="checkbox"
-                        id="emailVerified"
-                        name="emailVerified"
-                        checked={emailVerified}
-                        onChange={(e) => setEmailVerified(e.target.checked)}
-                        // className="disabled:bg-green-800 disabled:cursor-not-allowed"
-
-                        className={`h-4 w-4 p-3 rounded text-xs ${
-                          emailVerified
-                            ? "accent-green-800 disabled:accent-green-800"
-                            : "border border-sharkLight-100"
-                        }`}
-                        disabled={mode === "view"}
-                      />
-                    </div>
-
-                    <div className="flex items-center mt-1">
-                      <label htmlFor="isAdmin" className="font-medium text-sm mr-2">
-                        Is an Admin
+                      {/* Admin Level Icons */}
+                      {mode === "view" &&
+                        (isAdmin ? (
+                          <div className="mr-2">
+                            <FaUserLock />
+                          </div>
+                        ) : (
+                          <div className="mr-2 text-sm">
+                            <FaUserAlt />
+                          </div>
+                        ))}
+                      <label htmlFor="isAdmin" className="font-medium text-sm">
+                        {isAdmin ? "Admin User" : "Regular User"}
                       </label>
                       <input
                         type="checkbox"
@@ -264,8 +254,38 @@ const UserEditPage = () => {
                         name="isAdmin"
                         checked={isAdmin}
                         onChange={(e) => setIsAdmin(e.target.checked)}
-                        disabled={mode === "view"}
+                        className={`h-4 w-4 p-3 ml-2 rounded text-xs accent-green-600 ${
+                          mode === "edit" ? "flex" : "hidden"
+                        }`}
                       />
+                    </div>
+
+                    <div className="flex items-center mt-1">
+                      <label htmlFor="emailVerified" className="font-medium text-sm ">
+                        Email Verified
+                      </label>
+                      <input
+                        type="checkbox"
+                        id="emailVerified"
+                        name="emailVerified"
+                        checked={emailVerified}
+                        onChange={(e) => setEmailVerified(e.target.checked)}
+                        className={`h-4 w-4 p-3 ml-2 rounded text-xs accent-green-600 ${
+                          mode === "edit" ? "flex" : "hidden"
+                        }`}
+                      />
+
+                      {/* Verification Icons */}
+                      {mode === "view" &&
+                        (emailVerified ? (
+                          <div className="ml-1 text-green-600">
+                            <MdVerified />
+                          </div>
+                        ) : (
+                          <div className="ml-1 text-red-600">
+                            <PiSealWarningFill />
+                          </div>
+                        ))}
                     </div>
                   </div>
 
