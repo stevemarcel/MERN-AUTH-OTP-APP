@@ -26,6 +26,10 @@ const UserListPage = () => {
 
   const [filteredUsers, setFilteredUsers] = useState([]);
 
+  // For deleting user
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+
   // For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
@@ -130,17 +134,30 @@ const UserListPage = () => {
   //Delete Selected Users
   const deleteUsersHandler = async () => {};
 
+  // Delete User By ID Confirmation Popup logic
+  const deleteUserPopup = async (id) => {
+    setIsConfirmOpen(true);
+    setDeleteId(id);
+  };
+
   // Delete User By ID
-  const deleteUserByIdHandler = async (id) => {
-    if (id) {
+  const deleteUserByIdHandler = async () => {
+    if (deleteId) {
       try {
-        const delUserRes = await deleteUserApiCall(id).unwrap();
+        const delUserRes = await deleteUserApiCall(deleteId).unwrap();
         toast.success(delUserRes.message);
         refetch();
+        setIsConfirmOpen(false);
       } catch (err) {
         toast.error(err?.data?.message || err.error);
+        setIsConfirmOpen(false);
       }
     }
+  };
+
+  // Cancel Delete User By ID
+  const handleCancelDelete = () => {
+    setIsConfirmOpen(false);
   };
 
   return (
@@ -273,7 +290,7 @@ const UserListPage = () => {
                       <button
                         type="submit"
                         className="flex col-span-2 items-center justify-center p-2 bg-red-800 hover:bg-red-900 text-white rounded"
-                        onClick={() => deleteUserByIdHandler(user._id)}
+                        onClick={() => deleteUserPopup(user._id)}
                         title={`Delete ${user.firstName}`}
                       >
                         {isDeletingUser ? (
@@ -291,9 +308,37 @@ const UserListPage = () => {
             </tbody>
           </table>
           {renderPagination()}
+
+          {/* Loader */}
           {isGettingUsers && (
             <div className="flex justify-center p-8 text-9xl">
               <Loader />
+            </div>
+          )}
+
+          {/* Delete User By ID Confirmation Popup */}
+          {isConfirmOpen && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-50 bg-sharkDark-500">
+              <div className="bg-white p-8 pb-5 rounded-md">
+                <p>Are you sure you want to delete this user?</p>
+                <div className="mt-4 flex justify-end">
+                  <button
+                    className="flex col-span-2 items-center justify-center mr-4 px-3 py-2 bg-red-800 hover:bg-red-900 text-white rounded w-auto"
+                    onClick={deleteUserByIdHandler}
+                  >
+                    <div className="mr-2">
+                      <FaTrash />
+                    </div>
+                    Confirm
+                  </button>
+                  <button
+                    className="items-center justify-center px-3 py-2 bg-sharkLight-100 hover:bg-sharkLight-200 rounded w-auto"
+                    onClick={handleCancelDelete}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
