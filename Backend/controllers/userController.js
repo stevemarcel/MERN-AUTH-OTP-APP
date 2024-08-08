@@ -330,14 +330,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 // @ROUTE       PUT /api/users/:id
 // @ACCESS      Private/Admin
 const updateUser = asyncHandler(async (req, res) => {
-  const updatedByAdmin = await req.user.updatedByAdmin;
-  const user = await User.findById(req.user._id);
-
-  // if (!updatedByAdmin) {
-  //   res.status(404);
-  //   throw new Error("Not Authorized");
-  // }
-  console.log(user);
+  const user = await User.findById(req.params.id);
 
   if (user) {
     user.firstName = req.body.firstName || user.firstName;
@@ -351,11 +344,9 @@ const updateUser = asyncHandler(async (req, res) => {
 
     const updatedUser = await user.save();
 
-    console.log(updatedUser);
-
     res.status(200).json({
       _id: updatedUser._id,
-      message: "Profile updated successfully",
+      message: `${updatedUser.firstName}'s Profile updated successfully`,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       email: updatedUser.email,

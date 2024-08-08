@@ -4,21 +4,16 @@ import {
   // useNavigate,
   useParams,
 } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+// import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import {
-  useGetUserByIdQuery,
-  useUpdateUserByAdminMutation,
-  // useUpdateUserMutation,
-} from "../slices/usersApiSlice";
-import { setCredentials } from "../slices/authSlice";
+import { useGetUserByIdQuery, useUpdateUserByAdminMutation } from "../slices/usersApiSlice";
+// import { setCredentials } from "../slices/authSlice";
 import { FaCamera, FaCaretLeft, FaCheckCircle, FaLock, FaUserEdit } from "react-icons/fa";
 import Loader from "../components/Loader";
-// import { toast } from "react-toastify";
 
 const UserEditPage = () => {
   const { userId } = useParams();
-  const { data, isLoading: isGettingUser } = useGetUserByIdQuery(userId);
+  const { data, isLoading: isGettingUser, refetch } = useGetUserByIdQuery(userId);
 
   const [user, setUser] = useState({});
 
@@ -33,17 +28,16 @@ const UserEditPage = () => {
 
   const [mode, setMode] = useState("view");
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   // const navigate = useNavigate();
 
   const handleEditClick = () => {
     setMode(mode === "view" ? "edit" : "view");
   };
 
-  const { userInfo } = useSelector((state) => state.auth);
+  // const { userInfo } = useSelector((state) => state.auth);
 
   const [updateUserApiCall, { isLoading: isUpdatingProfile }] = useUpdateUserByAdminMutation();
-  // const [updateUserApiCall, { isLoading: isUpdatingProfile }] = useUpdateUserMutation();
 
   useEffect(() => {
     if (data) {
@@ -75,7 +69,8 @@ const UserEditPage = () => {
         mobile,
       }).unwrap();
 
-      dispatch(setCredentials({ ...res }));
+      // dispatch(setCredentials({ ...res }));
+      refetch();
       toast.success(res.message);
 
       // TODO: Remove console log
@@ -266,7 +261,7 @@ const UserEditPage = () => {
                         <div className="mr-2">
                           <FaCheckCircle />
                         </div>
-                        Save Changes
+                        Update User
                       </>
                     )}
                   </button>
