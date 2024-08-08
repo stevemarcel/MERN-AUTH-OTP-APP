@@ -82,14 +82,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
 
     //* ADMIN ONLY
-    // Get User profile by ID request endpoint.
-    getUserById: builder.query({
-      query: (id) => ({
-        url: `${USERS_URL}/${id}`,
-        method: "GET",
-      }),
-    }),
-
     // Get all Users request endpoint.
     getUsers: builder.query({
       query: () => ({
@@ -98,7 +90,25 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
-    // Delete User request endpoint.
+    // Get a User profile by ID request endpoint.
+    getUserById: builder.query({
+      query: (id) => ({
+        url: `${USERS_URL}/${id}`,
+        method: "GET",
+      }),
+    }),
+
+    // Update User request endpoint.
+    updateUserByAdmin: builder.mutation({
+      query: (data) => ({
+        // url: `${USERS_URL}/profile`,
+        url: `${USERS_URL}/${data._id}`,
+        method: "PUT",
+        body: data,
+      }),
+    }),
+
+    // Delete a User by ID request endpoint.
     deleteUser: builder.mutation({
       query: (id) => ({
         url: `${USERS_URL}/${id}`,
@@ -120,5 +130,6 @@ export const {
   useLogoutMutation,
   useGetUsersQuery,
   useGetUserByIdQuery,
+  useUpdateUserByAdminMutation,
   useDeleteUserMutation,
 } = usersApiSlice;

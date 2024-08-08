@@ -23,6 +23,7 @@ router.route("/login").post(loginUser);
 router.route("/sendresetpasswordemail").post(protect, sendResetPasswordOTPEmail);
 router.route("/verifyresetpasswordotp").post(protect, verifyResetPasswordOTP);
 router.route("/profile").put(protect, updateUserProfile);
+// .put(protect, isAdmin, updateUser);
 router
   .route("/:id")
   .delete(protect, isAdmin, deleteUser)

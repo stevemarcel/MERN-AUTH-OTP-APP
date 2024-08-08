@@ -29,7 +29,7 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import AdminRoute from "./components/AdminRoute.jsx";
 import UserListPage from "./pages/UserListPage.jsx";
 import ProductListPage from "./pages/ProductListPage.jsx";
-import UserPage from "./pages/UserPage.jsx";
+import UserEditPage from "./pages/UserEditPage.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -48,7 +48,7 @@ const router = createBrowserRouter(
         <Route path="" element={<AdminRoute />}>
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/admin/users" element={<UserListPage />} />
-          <Route path="/admin/users/:userId" element={<UserPage />} />
+          <Route path="/admin/user/:userId/edit" element={<UserEditPage />} />
           <Route path="/admin/products" element={<ProductListPage />} />
         </Route>
       </Route>

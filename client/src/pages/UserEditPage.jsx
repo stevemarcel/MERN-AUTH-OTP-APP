@@ -4,18 +4,19 @@ import {
   // useNavigate,
   useParams,
 } from "react-router-dom";
-import {
-  useDispatch,
-  // useSelector
-} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { useGetUserByIdQuery, useUpdateUserMutation } from "../slices/usersApiSlice";
+import {
+  useGetUserByIdQuery,
+  useUpdateUserByAdminMutation,
+  // useUpdateUserMutation,
+} from "../slices/usersApiSlice";
 import { setCredentials } from "../slices/authSlice";
 import { FaCamera, FaCaretLeft, FaCheckCircle, FaLock, FaUserEdit } from "react-icons/fa";
 import Loader from "../components/Loader";
 // import { toast } from "react-toastify";
 
-const UserPage = () => {
+const UserEditPage = () => {
   const { userId } = useParams();
   const { data, isLoading: isGettingUser } = useGetUserByIdQuery(userId);
 
@@ -39,9 +40,10 @@ const UserPage = () => {
     setMode(mode === "view" ? "edit" : "view");
   };
 
-  // const { userInfo } = useSelector((state) => state.auth);
+  const { userInfo } = useSelector((state) => state.auth);
 
-  const [updateProfileApiCall, { isLoading: isUpdatingProfile }] = useUpdateUserMutation();
+  const [updateUserApiCall, { isLoading: isUpdatingProfile }] = useUpdateUserByAdminMutation();
+  // const [updateUserApiCall, { isLoading: isUpdatingProfile }] = useUpdateUserMutation();
 
   useEffect(() => {
     if (data) {
@@ -61,7 +63,8 @@ const UserPage = () => {
     e.preventDefault();
 
     try {
-      const res = await updateProfileApiCall({
+      const res = await updateUserApiCall({
+        // updatedByAdmin: userInfo.isAdmin,
         _id: user._id,
         firstName,
         lastName,
@@ -103,7 +106,7 @@ const UserPage = () => {
               Back
             </Link>
             <div className="text-2xl font-bold text-shark">
-              {firstName} {lastName} User Page
+              {user.firstName} {user.lastName} User Page
             </div>
           </div>
           <div className="flex mx-auto justify-center text-shark">
@@ -277,4 +280,4 @@ const UserPage = () => {
   );
 };
 
-export default UserPage;
+export default UserEditPage;

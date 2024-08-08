@@ -15,7 +15,14 @@ import { useDeleteUserMutation, useGetUsersQuery } from "../slices/usersApiSlice
 import { toast } from "react-toastify";
 
 const UserListPage = () => {
-  const { data, isLoading: isGettingUsers } = useGetUsersQuery();
+  const { data, isLoading: isGettingUsers, refetch } = useGetUsersQuery();
+  const [
+    deleteUserApiCall,
+    {
+      isLoading: isDeletingUser,
+      // isSuccess: deletedUser
+    },
+  ] = useDeleteUserMutation();
 
   const [filteredUsers, setFilteredUsers] = useState([]);
 
@@ -117,15 +124,19 @@ const UserListPage = () => {
     console.log(filteredUsers);
   };
 
-  const [deleteUserApiCall, { isLoading: isDeletingUser }] = useDeleteUserMutation();
-
+  // Add a new user
   const addUserHandler = async () => {};
+
+  //Delete Selected Users
   const deleteUsersHandler = async () => {};
+
+  // Delete User By ID
   const deleteUserByIdHandler = async (id) => {
     if (id) {
       try {
-        await deleteUserApiCall(id).unwrap();
-        console.log(id);
+        const delUserRes = await deleteUserApiCall(id).unwrap();
+        toast.success(delUserRes.message);
+        refetch();
       } catch (err) {
         toast.error(err?.data?.message || err.error);
       }
@@ -147,6 +158,8 @@ const UserListPage = () => {
           </Link>
           <h2 className="text-2xl font-bold md:mb-0 text-shark">All Users</h2>
         </div>
+
+        {/* Add and Delete Users Button */}
         <div className="flex gap-2 w-full md:w-2/5 text-sm">
           <button
             type="submit"
@@ -170,6 +183,8 @@ const UserListPage = () => {
           </button>
         </div>
       </div>
+
+      {/* Search Bar */}
       <div className="flex flex-col mb-4 md:flex-row items-center">
         <div className="relative flex items-center w-full mb-4 md:mb-0">
           <input
@@ -184,6 +199,8 @@ const UserListPage = () => {
           </span>
         </div>
       </div>
+
+      {/* Users Table */}
       <div className="text-shark">
         {/* <UserTable allUsers={allUsers} /> */}
         <div className="overflow-x-auto p-4 bg-sharkLight-100/30 shadow-md rounded">
@@ -226,7 +243,9 @@ const UserListPage = () => {
                       </div>
                     }
                   </td>
-                  <td className="p-2 md:table-cell hidden">{user.email}</td>
+                  <td className="p-2 md:table-cell hidden">
+                    <a href={`mailto:${user.email}`}>{user.email}</a>
+                  </td>
                   <td className="p-2 md:table-cell hidden">{user.createdAt.split("T")[0]}</td>
                   {/* <td className="p-2 md:table-cell hidden">{user.isAdmin ? "Yes" : "No"}</td> */}
                   <td className="p-2 md:table-cell hidden">
@@ -241,7 +260,7 @@ const UserListPage = () => {
                   <td className="p-2">
                     <div className="flex gap-2 ">
                       <Link
-                        to={`/admin/users/${user._id}`}
+                        to={`/admin/user/${user._id}/edit`}
                         className="relative flex col-span-2 items-center justify-center p-2 bg-shark hover:bg-sharkDark-300  text-white rounded"
                         // onClick={() => viewUserHandler(user)}
                         title={`View ${user.firstName}`}
