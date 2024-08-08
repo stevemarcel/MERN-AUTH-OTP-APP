@@ -336,6 +336,7 @@ const updateUser = asyncHandler(async (req, res) => {
     user.firstName = req.body.firstName || user.firstName;
     user.lastName = req.body.lastName || user.lastName;
     user.email = req.body.email || user.email;
+    user.emailVerified = req.body.emailVerified;
     user.isAdmin = req.body.isAdmin;
     user.username = req.body.username || user.username;
     user.profile = req.body.profile || user.profile;

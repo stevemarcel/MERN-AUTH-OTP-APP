@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
-import {
-  Link,
-  // useNavigate,
-  useParams,
-} from "react-router-dom";
-// import { useDispatch, useSelector } from "react-redux";
+import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGetUserByIdQuery, useUpdateUserByAdminMutation } from "../slices/usersApiSlice";
-// import { setCredentials } from "../slices/authSlice";
 import { FaCamera, FaCaretLeft, FaCheckCircle, FaLock, FaUserEdit } from "react-icons/fa";
 import Loader from "../components/Loader";
 
@@ -20,6 +14,7 @@ const UserEditPage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [emailVerified, setEmailVerified] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState("");
   const [profile, setProfile] = useState("");
@@ -28,14 +23,9 @@ const UserEditPage = () => {
 
   const [mode, setMode] = useState("view");
 
-  // const dispatch = useDispatch();
-  // const navigate = useNavigate();
-
   const handleEditClick = () => {
     setMode(mode === "view" ? "edit" : "view");
   };
-
-  // const { userInfo } = useSelector((state) => state.auth);
 
   const [updateUserApiCall, { isLoading: isUpdatingProfile }] = useUpdateUserByAdminMutation();
 
@@ -45,6 +35,7 @@ const UserEditPage = () => {
       setFirstName(data.firstName);
       setLastName(data.lastName);
       setEmail(data.email);
+      setEmailVerified(data.emailVerified);
       setIsAdmin(data.isAdmin);
       setUsername(data.username);
       setProfile(data.profile);
@@ -58,18 +49,18 @@ const UserEditPage = () => {
 
     try {
       const res = await updateUserApiCall({
-        // updatedByAdmin: userInfo.isAdmin,
         _id: user._id,
         firstName,
         lastName,
         email,
+        emailVerified,
+        isAdmin,
         username,
         profile,
         address,
         mobile,
       }).unwrap();
 
-      // dispatch(setCredentials({ ...res }));
       refetch();
       toast.success(res.message);
 
@@ -238,6 +229,44 @@ const UserEditPage = () => {
                       }`}
                       disabled={mode === "view"}
                     />
+                  </div>
+
+                  <div className=" flex flex-row justify-between">
+                    <div className="flex items-center mt-1">
+                      <label htmlFor="emailVerified" className="font-medium text-sm mr-2">
+                        Email Verified
+                      </label>
+
+                      <input
+                        type="checkbox"
+                        id="emailVerified"
+                        name="emailVerified"
+                        checked={emailVerified}
+                        onChange={(e) => setEmailVerified(e.target.checked)}
+                        // className="disabled:bg-green-800 disabled:cursor-not-allowed"
+
+                        className={`h-4 w-4 p-3 rounded text-xs ${
+                          emailVerified
+                            ? "accent-green-800 disabled:accent-green-800"
+                            : "border border-sharkLight-100"
+                        }`}
+                        disabled={mode === "view"}
+                      />
+                    </div>
+
+                    <div className="flex items-center mt-1">
+                      <label htmlFor="isAdmin" className="font-medium text-sm mr-2">
+                        Is an Admin
+                      </label>
+                      <input
+                        type="checkbox"
+                        id="isAdmin"
+                        name="isAdmin"
+                        checked={isAdmin}
+                        onChange={(e) => setIsAdmin(e.target.checked)}
+                        disabled={mode === "view"}
+                      />
+                    </div>
                   </div>
 
                   <button
