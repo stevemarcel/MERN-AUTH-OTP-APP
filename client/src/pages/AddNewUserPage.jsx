@@ -1,10 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import {
-  useGetUserByIdQuery,
-  useUpdateUserByAdminMutation,
-} from "../slices/usersApiSlice";
+import { useAddNewUserByAdminMutation } from "../slices/usersApiSlice";
 import {
   FaCamera,
   FaCaretLeft,
@@ -17,15 +14,8 @@ import { MdVerified } from "react-icons/md";
 import { PiSealWarningFill } from "react-icons/pi";
 import Loader from "../components/Loader";
 
-const UserEditPage = () => {
-  const { userId } = useParams();
-  const {
-    data,
-    isLoading: isGettingUser,
-    refetch,
-  } = useGetUserByIdQuery(userId);
-
-  const [user, setUser] = useState({});
+const AddNewUserPage = () => {
+  // const [user, setUser] = useState({});
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -33,40 +23,17 @@ const UserEditPage = () => {
   const [emailVerified, setEmailVerified] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState("");
-  const [profile, setProfile] = useState("");
+  const profile = "/images/sample-profile.png";
   const [address, setAddress] = useState("");
   const [mobile, setMobile] = useState("");
 
-  const [mode, setMode] = useState("view");
+  const [addNewUserApiCall, { isLoading }] = useAddNewUserByAdminMutation();
 
-  const handleEditClick = () => {
-    setMode(mode === "view" ? "edit" : "view");
-  };
-
-  const [updateUserByAdminApiCall, { isLoading: isUpdatingProfile }] =
-    useUpdateUserByAdminMutation();
-
-  useEffect(() => {
-    if (data) {
-      setUser(data);
-      setFirstName(data.firstName);
-      setLastName(data.lastName);
-      setEmail(data.email);
-      setEmailVerified(data.emailVerified);
-      setIsAdmin(data.isAdmin);
-      setUsername(data.username);
-      setProfile(data.profile);
-      setAddress(data.address);
-      setMobile(data.mobile);
-    }
-  }, [data]);
-
-  const updateUserHandler = async (e) => {
+  const addNewUserHandler = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await updateUserByAdminApiCall({
-        _id: user._id,
+      const res = await addNewUserApiCall({
         firstName,
         lastName,
         email,
@@ -78,25 +45,18 @@ const UserEditPage = () => {
         mobile,
       }).unwrap();
 
-      refetch();
       toast.success(res.message);
 
       // TODO: Remove console log
       // console.log(res.message);
-
-      setMode("view");
     } catch (err) {
       toast.error(err?.data?.message || err.error);
     }
   };
 
   return (
-    <div className="p-6 mb-10 min-h-[80vh] w-[90%] mx-auto">
-      {isGettingUser ? (
-        <div className="flex justify-center p-8 text-9xl">
-          <Loader />
-        </div>
-      ) : (
+    <div>
+      <div className="p-6 mb-10 min-h-[80vh] w-[90%] mx-auto">
         <div>
           <div className="flex items-center mb-4">
             <Link
@@ -108,54 +68,29 @@ const UserEditPage = () => {
               </div>
               Back
             </Link>
-            <div
-              className={`text-2xl font-bold uppercase items-center flex justify-center w-full ${
-                mode === "edit" ? "text-green-700" : "text-shark"
-              }`}
-            >
-              {mode === "view" ? (
-                ""
-              ) : (
-                <div className="mr-3">
-                  <FaUserEdit />
-                </div>
-              )}{" "}
-              {user.firstName} {user.lastName}{" "}
-              {mode === "view" ? "User" : "Edit"} Page
-            </div>
+            <div className="text-2xl font-bold text-shark">Create New User</div>
           </div>
           <div className="flex mx-auto justify-center text-shark">
             <div className="flex flex-col md:flex-row bg-sharkLight-100/50 p-10 rounded-lg gap-8">
               <div className="flex flex-col items-center">
-                <div
-                  id="profileImg"
-                  className="relative rounded-full overflow-hidden w-60"
-                >
-                  <img
-                    src={profile}
-                    alt="Profile Picture"
-                    className="size-auto rounded"
-                  />
-                  {mode === "edit" && (
-                    <div className="absolute inset-x-0 bottom-0 h-3/10 bg-shark/50 flex justify-center items-center p-5">
-                      <FaCamera className="text-light text-2xl" />
-                    </div>
-                  )}
+                <div id="profileImg" className="relative rounded-full overflow-hidden w-60">
+                  <img src={profile} alt="Profile Picture" className="size-auto rounded" />
+
+                  <div className="absolute inset-x-0 bottom-0 h-3/10 bg-shark/50 flex justify-center items-center p-5">
+                    <FaCamera className="text-light text-2xl" />
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 mt-2 md:my-3">
+                <div className=" flex items-center gap-1 mt-2 md:my-3">
                   <label htmlFor="username" className="font-medium text-xs">
                     Username:
                   </label>
                   <input
                     name="username"
-                    value={username}
+                    id="username"
+                    value="Username"
                     onChange={(e) => setUsername(e.target.value)}
-                    className={`p-2 w-full rounded border italic ${
-                      mode === "view"
-                        ? "focus:none font-mono border-none bg-transparent"
-                        : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-shark"
-                    }`}
-                    disabled={mode === "view"}
+                    className="p-2 w-full rounded border italic
+                       focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                   />
                 </div>
               </div>
@@ -167,23 +102,16 @@ const UserEditPage = () => {
                 >
                   <div className=" flex flex-col md:flex-row md:gap-1">
                     <div className=" flex flex-col gap-1 mb-2 md:mb-3">
-                      <label
-                        htmlFor="firstName"
-                        className="font-medium text-xs"
-                      >
+                      <label htmlFor="firstName" className="font-medium text-xs">
                         First Name
                       </label>
                       <input
                         type="text"
                         name="firstName"
-                        value={firstName}
+                        id="firstName"
+                        value="Sample"
                         onChange={(e) => setFirstName(e.target.value)}
-                        className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
-                          mode === "view"
-                            ? "focus:none bg-light"
-                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-300"
-                        }`}
-                        disabled={mode === "view"}
+                        className="w-full px-3 py-2 rounded border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                       />
                     </div>
 
@@ -194,14 +122,10 @@ const UserEditPage = () => {
                       <input
                         type="text"
                         name="lastName"
-                        value={lastName}
+                        id="lastName"
+                        value="User"
                         onChange={(e) => setLastName(e.target.value)}
-                        className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
-                          mode === "view"
-                            ? "focus:none bg-light"
-                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-300"
-                        }`}
-                        disabled={mode === "view"}
+                        className="w-full px-3 py-2 rounded border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                       />
                     </div>
                   </div>
@@ -214,12 +138,13 @@ const UserEditPage = () => {
                       <input
                         type="email"
                         name="email"
-                        value={email}
+                        id="email"
+                        value="email@email.com"
                         onChange={(e) => setEmail(e.target.value)}
                         className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
                           mode === "view"
                             ? "focus:none bg-light"
-                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-300"
+                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                         }`}
                         disabled={mode === "view"}
                       />
@@ -237,7 +162,7 @@ const UserEditPage = () => {
                         className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
                           mode === "view"
                             ? "focus:none bg-light"
-                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-300"
+                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                         }`}
                         disabled={mode === "view"}
                       />
@@ -256,7 +181,7 @@ const UserEditPage = () => {
                       className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
                         mode === "view"
                           ? "focus:none bg-light"
-                          : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-300"
+                          : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
                       }`}
                       disabled={mode === "view"}
                     />
@@ -265,16 +190,16 @@ const UserEditPage = () => {
                   <div className=" flex flex-row justify-between px-1">
                     <div className="flex items-center mt-1">
                       {/* Admin Level Icons */}
-                      {isAdmin ? (
-                        <div className="mr-2">
-                          <FaUserLock />
-                        </div>
-                      ) : (
-                        <div className="mr-2 text-sm">
-                          <FaUserAlt />
-                        </div>
-                      )}
-
+                      {mode === "view" &&
+                        (isAdmin ? (
+                          <div className="mr-2">
+                            <FaUserLock />
+                          </div>
+                        ) : (
+                          <div className="mr-2 text-sm">
+                            <FaUserAlt />
+                          </div>
+                        ))}
                       <label htmlFor="isAdmin" className="font-medium text-sm">
                         {isAdmin ? "Admin User" : "Regular User"}
                       </label>
@@ -291,24 +216,8 @@ const UserEditPage = () => {
                     </div>
 
                     <div className="flex items-center mt-1">
-                      {/* Verification Icons */}
-                      {emailVerified ? (
-                        <div className="mr-1 text-green-600">
-                          <MdVerified />
-                        </div>
-                      ) : (
-                        <div className="mr-1 text-red-600">
-                          <PiSealWarningFill />
-                        </div>
-                      )}
-
-                      <label
-                        htmlFor="emailVerified"
-                        className="font-medium text-sm "
-                      >
-                        {emailVerified
-                          ? "Email Verified"
-                          : "Email Not Verified"}
+                      <label htmlFor="emailVerified" className="font-medium text-sm ">
+                        Email Verified
                       </label>
                       <input
                         type="checkbox"
@@ -320,19 +229,25 @@ const UserEditPage = () => {
                           mode === "edit" ? "flex" : "hidden"
                         }`}
                       />
+
+                      {/* Verification Icons */}
+                      {mode === "view" &&
+                        (emailVerified ? (
+                          <div className="ml-1 text-green-600">
+                            <MdVerified />
+                          </div>
+                        ) : (
+                          <div className="ml-1 text-red-600">
+                            <PiSealWarningFill />
+                          </div>
+                        ))}
                     </div>
                   </div>
 
                   <button
                     type={mode === "edit" ? "submit" : "button"} // Submit button in edit mode
-                    className={`flex items-center justify-center w-full mt-5 px-4 py-2  text-white rounded ${
-                      mode === "edit"
-                        ? "bg-green-800 hover:bg-green-900"
-                        : "bg-shark hover:bg-sharkDark-100"
-                    }`}
-                    onClick={
-                      mode === "edit" ? updateUserHandler : handleEditClick
-                    }
+                    className="flex items-center justify-center w-full mt-5 px-4 py-2 bg-shark hover:bg-sharkDark-100 text-white rounded"
+                    onClick={mode === "edit" ? updateUserHandler : handleEditClick}
                   >
                     {isUpdatingProfile ? (
                       <div className="text-3xl">
@@ -359,9 +274,9 @@ const UserEditPage = () => {
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-export default UserEditPage;
+export default AddNewUserPage;

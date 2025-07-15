@@ -57,12 +57,12 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
 
     // Get User profile request endpoint.
-    getUserProfile: builder.query({
-      query: () => ({
-        url: `${USERS_URL}/profile`,
-        method: "GET",
-      }),
-    }),
+    // getUserProfile: builder.query({
+    //   query: () => ({
+    //     url: `${USERS_URL}/profile`,
+    //     method: "GET",
+    //   }),
+    // }),
 
     // Update User request endpoint.
     updateUser: builder.mutation({
@@ -125,7 +125,7 @@ export const {
   useSendResetPasswordEmailMutation,
   useVerifyResetPasswordOTPMutation,
   useLoginMutation,
-  useGetUserProfileQuery,
+  // useGetUserProfileQuery,
   useUpdateUserMutation,
   useLogoutMutation,
   useGetUsersQuery,

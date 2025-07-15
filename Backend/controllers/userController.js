@@ -9,7 +9,8 @@ import bcrypt from "bcryptjs";
 // @ROUTE       POST /api/users
 // @ACCESS      Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
+  const { firstName, lastName, email, password, isAdminCreatingUser } =
+    req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -23,17 +24,32 @@ const registerUser = asyncHandler(async (req, res) => {
     lastName,
     email,
     password,
+    isAdminCreatingUser,
   });
 
   if (user) {
-    genToken(res, user._id);
+    const isAdminCreatingUser = user.isAdminCreatingUser;
+    let message;
+
+    if (isAdminCreatingUser) {
+      // Admin is creating a user
+      message = "Sample user generated";
+      // console.log("Admin Reg");
+    } else {
+      // User is self-registering
+      genToken(res, user._id);
+      // console.log("User Reg");
+      message = "User registered successfully";
+    }
+
     res.status(201).json({
-      message: "User registered successfully",
+      message,
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
       isAdmin: user.isAdmin,
+      isAdminCreatingUser: user.isAdminCreatingUser,
       emailVerified: user.emailVerified,
       resetSession: user.resetSession,
       username: user.username,
@@ -326,10 +342,10 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-// @DESCRIPTION Updates a user's Profile
+// @DESCRIPTION Updates a user's Profile as ADMIN
 // @ROUTE       PUT /api/users/:id
 // @ACCESS      Private/Admin
-const updateUser = asyncHandler(async (req, res) => {
+const updateUserByAdmin = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
   if (user) {
@@ -337,6 +353,7 @@ const updateUser = asyncHandler(async (req, res) => {
     user.lastName = req.body.lastName || user.lastName;
     user.email = req.body.email || user.email;
     user.emailVerified = req.body.emailVerified;
+    user.isAdminCreatingUser = req.body.isAdminCreatingUser;
     user.isAdmin = req.body.isAdmin;
     user.username = req.body.username || user.username;
     user.profile = req.body.profile || user.profile;
@@ -345,12 +362,24 @@ const updateUser = asyncHandler(async (req, res) => {
 
     const updatedUser = await user.save();
 
+    const isAdminCreatingUser = updatedUser.isAdminCreatingUser;
+    let message;
+
+    if (isAdminCreatingUser) {
+      // Admin is creating a user
+      message = `${updatedUser.firstName}'s Profile Created Successfully`;
+    } else {
+      // Admin is updating a user
+      message = `${updatedUser.firstName}'s Profile Updated Successfully`;
+    }
+
     res.status(200).json({
       _id: updatedUser._id,
-      message: `${updatedUser.firstName}'s Profile updated successfully`,
+      message,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       email: updatedUser.email,
+      isAdminCreatingUser: updatedUser.isAdminCreatingUser,
       isAdmin: updatedUser.isAdmin,
       emailVerified: user.emailVerified,
       resetSession: updatedUser.resetSession,
@@ -365,10 +394,10 @@ const updateUser = asyncHandler(async (req, res) => {
   }
 });
 
-// @DESCRIPTION Delete user
+// @DESCRIPTION Delete user as ADMIN
 // @ROUTE       DELETE /api/users/:id
 // @ACCESS      Private/Admin
-const deleteUser = asyncHandler(async (req, res) => {
+const deleteUserByAdmin = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
   if (user) {
     await user.deleteOne();
@@ -402,7 +431,7 @@ export {
   sendResetPasswordOTPEmail,
   verifyResetPasswordOTP,
   updateUserProfile,
-  updateUser,
-  deleteUser,
+  updateUserByAdmin,
+  deleteUserByAdmin,
   logoutUser,
 };

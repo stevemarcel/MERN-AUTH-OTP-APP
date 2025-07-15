@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+// import { useDispatch } from "react-redux";
 import {
   FaCaretLeft,
   FaCheckCircle,
@@ -14,12 +15,18 @@ import { MdDelete } from "react-icons/md";
 import { IoIosEye } from "react-icons/io";
 import Loader from "../components/Loader";
 // import UserTable from "../components/UserTable";
-import { useDeleteUserMutation, useGetUsersQuery } from "../slices/usersApiSlice";
+import {
+  useDeleteUserMutation,
+  useGetUsersQuery,
+  useRegisterMutation,
+} from "../slices/usersApiSlice";
 import { toast } from "react-toastify";
+// import { getCredentials } from "../slices/authSlice";
 
 const UserListPage = () => {
   const { data, isLoading: isGettingUsers, refetch } = useGetUsersQuery();
-  const [deleteUserApiCall, { isLoading: isDeletingUser }] = useDeleteUserMutation();
+  const [deleteUserApiCall, { isLoading: isDeletingUser }] =
+    useDeleteUserMutation();
 
   const [filteredUsers, setFilteredUsers] = useState([]);
 
@@ -119,15 +126,44 @@ const UserListPage = () => {
     console.log(keyword);
 
     const filtered = data.users.filter((user) =>
-      Object.values(user).some((value) => value.toLowerCase().includes(enteredText.toLowerCase()))
+      Object.values(user).some((value) =>
+        value.toLowerCase().includes(enteredText.toLowerCase())
+      )
     );
 
     setFilteredUsers(filtered);
     console.log(filteredUsers);
   };
 
+  // For Add new user
+  const navigate = useNavigate();
+  // const dispatch = useDispatch();
+  const [registerApiCall, { isLoading: isRegisteringUser }] =
+    useRegisterMutation();
+
   // Add a new user
-  const addUserHandler = async () => {};
+  const addUserHandler = async () => {
+    const newUserData = {
+      firstName: "Sample",
+      lastName: "User",
+      email: "sampleuser@example.com",
+      password: "sample12345",
+      isAdminCreatingUser: true,
+      // Additional fields for register (optional)
+      confirmPassword: "sample12345",
+    };
+    try {
+      const addUserRes = await registerApiCall(newUserData).unwrap();
+      // TODO: Remove console log
+      // console.log(addUserRes);
+      navigate(`/admin/user/${addUserRes._id}/create`);
+      refetch();
+    } catch (err) {
+      toast.error(err?.data?.message || err.error);
+    }
+
+    // navigate("/admin/user/:userId/create");
+  };
 
   //Delete Selected Users
   const deleteUsersHandler = async () => {};
@@ -181,10 +217,18 @@ const UserListPage = () => {
             className="flex col-span-2 w-full items-center justify-center px-3 py-2 bg-green-800 hover:bg-green-900 text-white rounded"
             onClick={addUserHandler}
           >
-            <div className="mr-2">
-              <FaUserPlus />
-            </div>
-            Add User
+            {isRegisteringUser ? (
+              <div className="text-3xl">
+                <Loader />
+              </div>
+            ) : (
+              <>
+                <div className="mr-2">
+                  <FaUserPlus />
+                </div>
+                Add User
+              </>
+            )}
           </button>
           <button
             type="submit"
@@ -236,11 +280,16 @@ const UserListPage = () => {
 
             <tbody>
               {usersToDisplay.map((user, index) => (
-                <tr key={user._id} className="text-left border-b border-gray-200">
+                <tr
+                  key={user._id}
+                  className="text-left border-b border-gray-200"
+                >
                   <td className="p-2">
                     <input type="checkbox" />
                   </td>
-                  <td className="p-2">{index + 1 + (currentPage - 1) * usersPerPage}</td>
+                  <td className="p-2">
+                    {index + 1 + (currentPage - 1) * usersPerPage}
+                  </td>
                   <td className="p-2">
                     {
                       <div className="flex gap-2 items-end">
@@ -261,7 +310,9 @@ const UserListPage = () => {
                   <td className="p-2 md:table-cell hidden">
                     <a href={`mailto:${user.email}`}>{user.email}</a>
                   </td>
-                  <td className="p-2 md:table-cell hidden">{user.createdAt.split("T")[0]}</td>
+                  <td className="p-2 md:table-cell hidden">
+                    {user.createdAt.split("T")[0]}
+                  </td>
                   {/* <td className="p-2 md:table-cell hidden">{user.isAdmin ? "Yes" : "No"}</td> */}
                   <td className="p-2 md:table-cell hidden">
                     <div

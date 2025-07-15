@@ -41,6 +41,7 @@ const RegisterPage = () => {
       formData.lastName === "" ||
       formData.email === "" ||
       formData.password === "" ||
+      formData.isAdminCreatingUser === "" ||
       formData.confirmPassword === ""
     ) {
       toast.error("Invalid Input(s)");

@@ -10,13 +10,14 @@ import {
   sendResetPasswordOTPEmail,
   verifyResetPasswordOTP,
   updateUserProfile,
-  updateUser,
-  deleteUser,
+  updateUserByAdmin,
+  deleteUserByAdmin,
   logoutUser,
 } from "../controllers/userController.js";
 import { protect, isAdmin } from "../middleware/authMiddleware.js";
 
-router.route("/").post(registerUser).get(protect, isAdmin, getUsers);
+router.route("/").post(registerUser).get(protect, isAdmin, getUsers)
+// .post(protect, isAdmin, createUser);
 router.route("/sendverificationemail").post(sendVerificationEmail);
 router.route("/:id/verifyemail/:token").get(verifyUserEmail);
 router.route("/login").post(loginUser);
@@ -26,9 +27,9 @@ router.route("/profile").put(protect, updateUserProfile);
 // .put(protect, isAdmin, updateUser);
 router
   .route("/:id")
-  .delete(protect, isAdmin, deleteUser)
+  .delete(protect, isAdmin, deleteUserByAdmin)
   .get(protect, isAdmin, getUserById)
-  .put(protect, isAdmin, updateUser);
+  .put(protect, isAdmin, updateUserByAdmin);
 router.route("/logout").post(logoutUser);
 
 export default router;

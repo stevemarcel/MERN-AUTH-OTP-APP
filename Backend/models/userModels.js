@@ -24,6 +24,10 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isAdminCreatingUser: {
+      type: Boolean,
+      default: false,
+    },
     emailVerified: {
       type: Boolean,
       default: false,
@@ -34,7 +38,7 @@ const userSchema = mongoose.Schema(
     },
     username: {
       type: String,
-      default: "",
+      default: "sample",
     },
     profile: {
       type: String,
@@ -42,11 +46,11 @@ const userSchema = mongoose.Schema(
     },
     address: {
       type: String,
-      default: "",
+      default: "1196B Awolowo Rd, Ikoyi, Lagos.",
     },
     mobile: {
       type: Number,
-      default: null,
+      default: 8011111111,
     },
   },
   {

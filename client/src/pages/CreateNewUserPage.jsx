@@ -8,28 +8,28 @@ import {
 import {
   FaCamera,
   FaCaretLeft,
-  FaCheckCircle,
   FaUserLock,
   FaUserAlt,
-  FaUserEdit,
+  FaUserPlus,
 } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import { PiSealWarningFill } from "react-icons/pi";
 import Loader from "../components/Loader";
 
-const UserEditPage = () => {
+const CreateNewUserPage = () => {
   const { userId } = useParams();
   const {
-    data,
+    data: createdUserData,
     isLoading: isGettingUser,
     refetch,
   } = useGetUserByIdQuery(userId);
 
-  const [user, setUser] = useState({});
+  const [createdUser, setCreatedUser] = useState({});
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [isAdminCreatingUser, setIsAdminCreatingUser] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState("");
@@ -37,39 +37,38 @@ const UserEditPage = () => {
   const [address, setAddress] = useState("");
   const [mobile, setMobile] = useState("");
 
-  const [mode, setMode] = useState("view");
+  const [mode, setMode] = useState("edit");
 
-  const handleEditClick = () => {
-    setMode(mode === "view" ? "edit" : "view");
-  };
-
-  const [updateUserByAdminApiCall, { isLoading: isUpdatingProfile }] =
+  const [updateUserApiCall, { isLoading: isUpdatingProfile }] =
     useUpdateUserByAdminMutation();
 
   useEffect(() => {
-    if (data) {
-      setUser(data);
-      setFirstName(data.firstName);
-      setLastName(data.lastName);
-      setEmail(data.email);
-      setEmailVerified(data.emailVerified);
-      setIsAdmin(data.isAdmin);
-      setUsername(data.username);
-      setProfile(data.profile);
-      setAddress(data.address);
-      setMobile(data.mobile);
+    if (createdUserData) {
+      setCreatedUser(createdUserData);
+      setFirstName(createdUserData.firstName);
+      setLastName(createdUserData.lastName);
+      setEmail(createdUserData.email);
+      // setIsAdminCreatingUser(false);
+      setIsAdminCreatingUser(createdUserData.isAdminCreatingUser);
+      setEmailVerified(createdUserData.emailVerified);
+      setIsAdmin(createdUserData.isAdmin);
+      setUsername(createdUserData.username);
+      setProfile(createdUserData.profile);
+      setAddress(createdUserData.address);
+      setMobile(createdUserData.mobile);
     }
-  }, [data]);
+  }, [createdUserData]);
 
   const updateUserHandler = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await updateUserByAdminApiCall({
-        _id: user._id,
+      const res = await updateUserApiCall({
+        _id: createdUser._id,
         firstName,
         lastName,
         email,
+        isAdminCreatingUser,
         emailVerified,
         isAdmin,
         username,
@@ -82,11 +81,12 @@ const UserEditPage = () => {
       toast.success(res.message);
 
       // TODO: Remove console log
+      // console.log(res.isAdminCreatingUser);
       // console.log(res.message);
 
       setMode("view");
     } catch (err) {
-      toast.error(err?.data?.message || err.error);
+      toast.error(err?.createdUserData?.message || err.error);
     }
   };
 
@@ -108,21 +108,7 @@ const UserEditPage = () => {
               </div>
               Back
             </Link>
-            <div
-              className={`text-2xl font-bold uppercase items-center flex justify-center w-full ${
-                mode === "edit" ? "text-green-700" : "text-shark"
-              }`}
-            >
-              {mode === "view" ? (
-                ""
-              ) : (
-                <div className="mr-3">
-                  <FaUserEdit />
-                </div>
-              )}{" "}
-              {user.firstName} {user.lastName}{" "}
-              {mode === "view" ? "User" : "Edit"} Page
-            </div>
+            <div className="text-2xl font-bold text-shark">Create New User</div>
           </div>
           <div className="flex mx-auto justify-center text-shark">
             <div className="flex flex-col md:flex-row bg-sharkLight-100/50 p-10 rounded-lg gap-8">
@@ -141,22 +127,6 @@ const UserEditPage = () => {
                       <FaCamera className="text-light text-2xl" />
                     </div>
                   )}
-                </div>
-                <div className="flex items-center gap-1 mt-2 md:my-3">
-                  <label htmlFor="username" className="font-medium text-xs">
-                    Username:
-                  </label>
-                  <input
-                    name="username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className={`p-2 w-full rounded border italic ${
-                      mode === "view"
-                        ? "focus:none font-mono border-none bg-transparent"
-                        : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-shark"
-                    }`}
-                    disabled={mode === "view"}
-                  />
                 </div>
               </div>
               <div id="userInformation" className="">
@@ -178,10 +148,11 @@ const UserEditPage = () => {
                         name="firstName"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
+                        onFocus={(e) => e.target.select()}
                         className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
                           mode === "view"
                             ? "focus:none bg-light"
-                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-300"
+                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-100"
                         }`}
                         disabled={mode === "view"}
                       />
@@ -196,10 +167,11 @@ const UserEditPage = () => {
                         name="lastName"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
+                        onFocus={(e) => e.target.select()}
                         className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
                           mode === "view"
                             ? "focus:none bg-light"
-                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-300"
+                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-100"
                         }`}
                         disabled={mode === "view"}
                       />
@@ -216,10 +188,11 @@ const UserEditPage = () => {
                         name="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        onFocus={(e) => e.target.select()}
                         className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
                           mode === "view"
                             ? "focus:none bg-light"
-                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-300"
+                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-100"
                         }`}
                         disabled={mode === "view"}
                       />
@@ -234,10 +207,11 @@ const UserEditPage = () => {
                         name="mobile"
                         value={mobile}
                         onChange={(e) => setMobile(e.target.value)}
+                        onFocus={(e) => e.target.select()}
                         className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
                           mode === "view"
                             ? "focus:none bg-light"
-                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-300"
+                            : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-100"
                         }`}
                         disabled={mode === "view"}
                       />
@@ -253,10 +227,29 @@ const UserEditPage = () => {
                       name="address"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
+                      onFocus={(e) => e.target.select()}
                       className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
                         mode === "view"
                           ? "focus:none bg-light"
-                          : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-300"
+                          : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-100"
+                      }`}
+                      disabled={mode === "view"}
+                    />
+                  </div>
+                  <div className=" flex flex-col gap-1 mb-2 md:mb-3">
+                    <label htmlFor="address" className="font-medium text-xs">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      onFocus={(e) => e.target.select()}
+                      className={`w-full px-3 py-2 rounded border border-sharkLight-100 ${
+                        mode === "view"
+                          ? "focus:none bg-light"
+                          : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50 text-sharkLight-100"
                       }`}
                       disabled={mode === "view"}
                     />
@@ -284,7 +277,7 @@ const UserEditPage = () => {
                         name="isAdmin"
                         checked={isAdmin}
                         onChange={(e) => setIsAdmin(e.target.checked)}
-                        className={`h-4 w-4 p-3 ml-2 rounded text-xs accent-green-600 ${
+                        className={`h-4 w-4 p-3 ml-2 rounded text-xs accent-green-700 ${
                           mode === "edit" ? "flex" : "hidden"
                         }`}
                       />
@@ -323,34 +316,42 @@ const UserEditPage = () => {
                     </div>
                   </div>
 
+                  {/* <div className=" flex gap-1 mt-2 md:mt-3 justify-center w-full">
+                    <div className="flex items-center mt-1">
+                      <input
+                        type="checkbox"
+                        id="isAdminCreatingUser"
+                        name="isAdminCreatingUser"
+                        checked={!isAdminCreatingUser}
+                        onChange={(e) =>
+                          setIsAdminCreatingUser(e.target.checked)
+                        }
+                        className={`h-4 w-4 p-3 mr-2 rounded text-xs accent-green-700 ${
+                          mode === "edit" ? "flex" : "hidden"
+                        }`}
+                      />
+                      <label htmlFor="isAdmin" className="font-medium text-sm">
+                        By clicking this button, you are authorizing the
+                        creation of a new user.
+                      </label>
+                    </div>
+                  </div> */}
+
                   <button
                     type={mode === "edit" ? "submit" : "button"} // Submit button in edit mode
-                    className={`flex items-center justify-center w-full mt-5 px-4 py-2  text-white rounded ${
-                      mode === "edit"
-                        ? "bg-green-800 hover:bg-green-900"
-                        : "bg-shark hover:bg-sharkDark-100"
-                    }`}
-                    onClick={
-                      mode === "edit" ? updateUserHandler : handleEditClick
-                    }
+                    className="flex items-center justify-center w-full mt-5 px-4 py-2 bg-green-800 hover:bg-green-900 text-white rounded"
+                    onClick={updateUserHandler}
                   >
                     {isUpdatingProfile ? (
                       <div className="text-3xl">
                         <Loader />
                       </div>
-                    ) : mode === "view" ? (
-                      <>
-                        <div className="mr-2">
-                          <FaUserEdit />
-                        </div>
-                        Edit User
-                      </>
                     ) : (
                       <>
                         <div className="mr-2">
-                          <FaCheckCircle />
+                          <FaUserPlus />
                         </div>
-                        Update User
+                        Create User
                       </>
                     )}
                   </button>
@@ -364,4 +365,4 @@ const UserEditPage = () => {
   );
 };
 
-export default UserEditPage;
+export default CreateNewUserPage;

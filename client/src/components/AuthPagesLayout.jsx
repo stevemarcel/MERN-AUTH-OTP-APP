@@ -19,8 +19,7 @@ const AuthPagesLayout = ({
     firstName: "",
     lastName: "",
     confirmPassword: "",
-    profile: "/images/sample-profile.png",
-    username: "",
+    isAdminCreatingUser: false,
   });
 
   const handleInputChange = (e) => {
