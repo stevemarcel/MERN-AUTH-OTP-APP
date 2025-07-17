@@ -1,13 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-// import { useDispatch } from "react-redux";
 import {
   FaCheckCircle,
   FaChevronLeft,
   FaChevronRight,
   FaUserPlus,
   FaUsersSlash,
-  FaSearch,
+  // FaSearch,
   FaTimesCircle,
 } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
@@ -21,36 +20,105 @@ import {
 } from "../slices/usersApiSlice";
 import { toast } from "react-toastify";
 import BackButton from "../components/BackButton";
-// import { getCredentials } from "../slices/authSlice";
 
 const UserListPage = () => {
   const { data, isLoading: isGettingUsers, refetch } = useGetUsersQuery();
   const [deleteUserApiCall, { isLoading: isDeletingUser }] = useDeleteUserMutation();
 
+  //! STATE STORES
+  // Users States
+  const [allUsersData, setAllUsersData] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
 
-  // For deleting user
+  // State Store for deleting user
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
-  // For Pagination
+  // State Store for Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
 
-  // For Search
-  const [keyword, setKeyword] = useState("");
+  // State Store for Search
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchFilter, setSearchFilter] = useState("name");
+  // const [keyword, setKeyword] = useState("");
 
   // For Selecting User(s)
   // const [isChecked, setIsChecked] = useState([]);
 
-  // To prevent multiple or delayed fetch from API
+  //! To prevent multiple or delayed fetch from API
   useEffect(() => {
     refetch();
     if (data) {
+      setAllUsersData(data.users);
       setFilteredUsers(data.users);
+      setCurrentPage(1); // Good practice to reset pagination after new data fetch
     }
   }, [data, refetch]);
 
+  //! Search Filtering Logic
+  useEffect(() => {
+    let currentFilteredUsers = allUsersData;
+
+    if (searchTerm) {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
+      // Helper array for month names (0-indexed for Date.getMonth())
+      const monthNames = [
+        "january",
+        "february",
+        "march",
+        "april",
+        "may",
+        "june",
+        "july",
+        "august",
+        "september",
+        "october",
+        "november",
+        "december",
+      ];
+
+      currentFilteredUsers = allUsersData.filter((user) => {
+        if (searchFilter === "name") {
+          const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+          return fullName.includes(lowerCaseSearchTerm);
+        } else if (searchFilter === "username") {
+          return user.username && user.username.toLowerCase().includes(lowerCaseSearchTerm);
+        } else if (searchFilter === "email") {
+          return user.email && user.email.toLowerCase().includes(lowerCaseSearchTerm);
+        }
+        // else if (searchFilter === "memberSince") {
+        //   // For 'Member Since', we compare the date string.
+        //   // The `user.createdAt` is "YYYY-MM-DDTHH:MM:SS.sssZ", so we extract "YYYY-MM-DD"
+        //   const createdAtDate = user.createdAt ? user.createdAt.split("T")[0] : "";
+        //   return createdAtDate.includes(lowerCaseSearchTerm);
+        // }
+        else if (searchFilter === "memberSinceMonth") {
+          if (!user.createdAt) return false; // Skip if no creation date
+          const date = new Date(user.createdAt);
+          const monthNumber = (date.getMonth() + 1).toString(); // "1" for Jan, "10" for Oct
+          const monthName = monthNames[date.getMonth()]; // "january", "october"
+
+          // Check if the search term matches the month number OR the month name
+          return (
+            monthNumber.includes(lowerCaseSearchTerm) || monthName.includes(lowerCaseSearchTerm)
+          );
+        } else if (searchFilter === "memberSinceYear") {
+          if (!user.createdAt) return false; // Skip if no creation date
+          const date = new Date(user.createdAt);
+          const year = date.getFullYear().toString();
+          return year.includes(lowerCaseSearchTerm);
+        }
+        return false; // Fallback, though ideally all filter options are handled
+      });
+    }
+
+    setFilteredUsers(currentFilteredUsers);
+    setCurrentPage(1); // IMPORTANT: Always reset to the first page when search/filter changes
+  }, [searchTerm, searchFilter, allUsersData]);
+
+  //! PAGE FUNCTIONS
   // Pagination Logic
   const usersToDisplay = filteredUsers.slice(
     (currentPage - 1) * usersPerPage,
@@ -82,7 +150,7 @@ const UserListPage = () => {
     return (
       <div className="flex justify-end gap-1 items-center mt-4">
         <button
-          className="disabled:opacity-40 hover:bg-sharkLight-100/60  hover:text-sharkLight-500 bg-sharkLight-100 px-2 py-1 rounded text-sm"
+          className="disabled:opacity-30 disabled:hover:font-normal hover:font-medium bg-sharkLight-100 px-2 py-1 rounded text-sm"
           disabled={currentPage === 1}
           onClick={() => handlePageChange(currentPage - 1)}
         >
@@ -94,9 +162,9 @@ const UserListPage = () => {
         {pageNumbers.map((pageNumber) => (
           <button
             key={pageNumber}
-            className={`px-2 py-1 rounded w-8 text-sm ${
+            className={`px-2 py-1 rounded w-8 text-sm hover:font-semibold ${
               currentPage === pageNumber
-                ? "bg-sharkLight-500 text-light font-bold"
+                ? "bg-shark text-light font-bold hover:font-bold"
                 : "bg-sharkLight-100"
             }`}
             onClick={() => handlePageChange(pageNumber)}
@@ -105,7 +173,7 @@ const UserListPage = () => {
           </button>
         ))}
         <button
-          className="disabled:opacity-40 hover:bg-sharkLight-100/60  hover:text-sharkLight-500 bg-sharkLight-100 px-2 py-1 rounded text-sm"
+          className="disabled:opacity-30 disabled:hover:font-normal hover:font-medium bg-sharkLight-100 px-2 py-1 rounded text-sm"
           disabled={currentPage === totalPages}
           onClick={() => handlePageChange(currentPage + 1)}
         >
@@ -118,23 +186,9 @@ const UserListPage = () => {
     );
   };
 
-  // Search Handler
-  const searchHandler = (e) => {
-    const enteredText = e.target.value;
-    setKeyword(enteredText);
-    console.log(keyword);
-
-    const filtered = data.users.filter((user) =>
-      Object.values(user).some((value) => value.toLowerCase().includes(enteredText.toLowerCase()))
-    );
-
-    setFilteredUsers(filtered);
-    console.log(filteredUsers);
-  };
-
+  // ! ADD NEW USER FUNCTIONS
   // For Add new user
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
   const [registerApiCall, { isLoading: isRegisteringUser }] = useRegisterMutation();
 
   // Add a new user
@@ -145,7 +199,6 @@ const UserListPage = () => {
       email: "sampleuser@example.com",
       password: "sample12345",
       isAdminCreatingUser: true,
-      // Additional fields for register (optional)
       confirmPassword: "sample12345",
     };
     try {
@@ -159,6 +212,7 @@ const UserListPage = () => {
     }
   };
 
+  // ! DELETE USER FUNCTIONS
   //Delete Selected Users
   const deleteUsersHandler = async () => {};
 
@@ -183,7 +237,7 @@ const UserListPage = () => {
     }
   };
 
-  // Cancel Delete User By ID
+  // Cancel Delete User By ID Pop-up
   const handleCancelDelete = () => {
     setIsConfirmOpen(false);
   };
@@ -232,7 +286,32 @@ const UserListPage = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="flex flex-col mb-4 md:flex-row items-center">
+      <div className="flex gap-1 mb-4 items-center">
+        {/* Filter Dropdown */}
+        <select
+          value={searchFilter}
+          onChange={(e) => setSearchFilter(e.target.value)}
+          className="px-3 py-2 rounded border text-shark border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400"
+        >
+          <option value="name">Name</option>
+          <option value="username">Username</option>
+          <option value="email">Email</option>
+          {/* <option value="memberSince">Member Since</option> */}
+          <option value="memberSinceMonth">Month Joined</option>
+          <option value="memberSinceYear">Year Joined</option>
+        </select>
+
+        {/* Search Input */}
+        <input
+          type="text"
+          placeholder="Search users..."
+          // placeholder={`Search user by "${searchFilter}"`}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="px-3 py-2 rounded border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400 flex-grow"
+        />
+      </div>
+      {/* <div className="flex flex-col mb-4 md:flex-row items-center">
         <div className="relative flex items-center w-full mb-4 md:mb-0">
           <input
             type="text"
@@ -245,7 +324,7 @@ const UserListPage = () => {
             <FaSearch />
           </span>
         </div>
-      </div>
+      </div> */}
 
       {/* Users Table */}
       <div className="text-shark">

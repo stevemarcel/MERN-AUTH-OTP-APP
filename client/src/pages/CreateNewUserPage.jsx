@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import {
-  useGetUserByIdQuery,
-  useUpdateUserByAdminMutation,
-} from "../slices/usersApiSlice";
+import { useGetUserByIdQuery, useUpdateUserByAdminMutation } from "../slices/usersApiSlice";
 import { FaCamera, FaUserLock, FaUserAlt, FaUserPlus } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import { PiSealWarningFill } from "react-icons/pi";
@@ -13,11 +10,7 @@ import BackButton from "../components/BackButton";
 
 const CreateNewUserPage = () => {
   const { userId } = useParams();
-  const {
-    data: createdUserData,
-    isLoading: isGettingUser,
-    refetch,
-  } = useGetUserByIdQuery(userId);
+  const { data: createdUserData, isLoading: isGettingUser, refetch } = useGetUserByIdQuery(userId);
 
   const [createdUser, setCreatedUser] = useState({});
 
@@ -34,8 +27,9 @@ const CreateNewUserPage = () => {
 
   const [mode, setMode] = useState("edit");
 
-  const [updateUserApiCall, { isLoading: isUpdatingProfile }] =
-    useUpdateUserByAdminMutation();
+  const navigate = useNavigate();
+
+  const [updateUserApiCall, { isLoading: isUpdatingProfile }] = useUpdateUserByAdminMutation();
 
   useEffect(() => {
     if (createdUserData) {
@@ -80,6 +74,7 @@ const CreateNewUserPage = () => {
       // console.log(res.message);
 
       setMode("view");
+      navigate(-1);
     } catch (err) {
       toast.error(err?.createdUserData?.message || err.error);
     }
@@ -102,15 +97,8 @@ const CreateNewUserPage = () => {
           <div className="flex mx-auto justify-center text-shark">
             <div className="flex flex-col md:flex-row bg-sharkLight-100/50 p-10 rounded-lg gap-8">
               <div className="flex flex-col items-center">
-                <div
-                  id="profileImg"
-                  className="relative rounded-full overflow-hidden w-60"
-                >
-                  <img
-                    src={profile}
-                    alt="Profile Picture"
-                    className="size-auto rounded"
-                  />
+                <div id="profileImg" className="relative rounded-full overflow-hidden w-60">
+                  <img src={profile} alt="Profile Picture" className="size-auto rounded" />
                   {mode === "edit" && (
                     <div className="absolute inset-x-0 bottom-0 h-3/10 bg-shark/50 flex justify-center items-center p-5">
                       <FaCamera className="text-light text-2xl" />
@@ -126,10 +114,7 @@ const CreateNewUserPage = () => {
                 >
                   <div className=" flex flex-col md:flex-row md:gap-1">
                     <div className=" flex flex-col gap-1 mb-2 md:mb-3">
-                      <label
-                        htmlFor="firstName"
-                        className="font-medium text-xs"
-                      >
+                      <label htmlFor="firstName" className="font-medium text-xs">
                         First Name
                       </label>
                       <input
@@ -284,13 +269,8 @@ const CreateNewUserPage = () => {
                         </div>
                       )}
 
-                      <label
-                        htmlFor="emailVerified"
-                        className="font-medium text-sm "
-                      >
-                        {emailVerified
-                          ? "Email Verified"
-                          : "Email Not Verified"}
+                      <label htmlFor="emailVerified" className="font-medium text-sm ">
+                        {emailVerified ? "Email Verified" : "Email Not Verified"}
                       </label>
                       <input
                         type="checkbox"
