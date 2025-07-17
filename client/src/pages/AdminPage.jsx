@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import Card from "../components/Card";
 import UserManagementImg from "../assets/img/userManagementImg.jpg";
 import ProductsManagementImg from "../assets/img/productsManagementImg.jpg";
+import BackButton from "../components/BackButton";
+import { FaUserLock } from "react-icons/fa";
 
 const AdminPage = () => {
   const usersCardInfo = {
@@ -19,9 +21,18 @@ const AdminPage = () => {
 
   return (
     <section className="w-[90%] mx-auto py-10">
-      <h2 className="mb-8 text-2xl font-bold">Hello {userInfo.firstName},</h2>
+      <div className="flex items-center mb-4">
+        <BackButton />
+        <div></div>
+        <h2 className="text-2xl font-bold text-shark flex items-center justify-center w-full">
+          Hello {userInfo.firstName}{" "}
+          <div className="ml-2">
+            <FaUserLock />
+          </div>
+        </h2>
+      </div>
 
-      <div className="flex flex-col md:grid md:grid-cols-4 gap-4">
+      <div className="flex flex-col md:grid md:grid-cols-2 lg:grid lg:grid-cols-3 gap-4 justify-center w-full">
         <Link to="/admin/users">
           <Card data={usersCardInfo} />
         </Link>
