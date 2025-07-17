@@ -1,8 +1,9 @@
-import { Link } from "react-router-dom";
 import ErrorPageImg from "../assets/svg/errorPageImg.svg";
-import { FaArrowLeft } from "react-icons/fa";
+import BackButton from "../components/BackButton";
+import { FaExclamationCircle } from "react-icons/fa";
 
 const ErrorPage = () => {
+  const icon = "NotFound";
   return (
     <div className="errorBg w-full overflow-hidden">
       <div className="p-8 mx-auto justify-center md:grid md:grid-cols-2 md:place-items-center md:h-full flex flex-col ">
@@ -13,16 +14,14 @@ const ErrorPage = () => {
 
         {/* Error Text */}
         <div className="text-sharkDark-300 flex flex-col items-center justify-end md:p-6">
-          <p className="text-4xl font-bold mb-1">Page Not Found</p>
-          <p className="text-base leading-loose mb-3 md:mb-4 text-center">
+          <p className="text-4xl font-bold mb-1 text-red-700 flex items-center gap-2">
+            <FaExclamationCircle />
+            Page Not Found
+          </p>
+          <p className="text-base leading-loose mb-3 w-3/5 md:mb-4 text-center">
             Oops! Looks like something went wrong. We are working on it.
           </p>
-          <Link
-            to="/"
-            className="bg-shark text-light px-4 py-2 w-full rounded hover:bg-sharkDark-100 focus:outline-none flex flex-row items-center justify-center"
-          >
-            <FaArrowLeft className="mr-2" /> Go back
-          </Link>
+          <BackButton icon={icon} className="md:w-4/5" />
         </div>
       </div>
     </div>
