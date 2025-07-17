@@ -2,7 +2,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 // import { useDispatch } from "react-redux";
 import {
-  FaCaretLeft,
   FaCheckCircle,
   FaChevronLeft,
   FaChevronRight,
@@ -21,12 +20,12 @@ import {
   useRegisterMutation,
 } from "../slices/usersApiSlice";
 import { toast } from "react-toastify";
+import BackButton from "../components/BackButton";
 // import { getCredentials } from "../slices/authSlice";
 
 const UserListPage = () => {
   const { data, isLoading: isGettingUsers, refetch } = useGetUsersQuery();
-  const [deleteUserApiCall, { isLoading: isDeletingUser }] =
-    useDeleteUserMutation();
+  const [deleteUserApiCall, { isLoading: isDeletingUser }] = useDeleteUserMutation();
 
   const [filteredUsers, setFilteredUsers] = useState([]);
 
@@ -126,9 +125,7 @@ const UserListPage = () => {
     console.log(keyword);
 
     const filtered = data.users.filter((user) =>
-      Object.values(user).some((value) =>
-        value.toLowerCase().includes(enteredText.toLowerCase())
-      )
+      Object.values(user).some((value) => value.toLowerCase().includes(enteredText.toLowerCase()))
     );
 
     setFilteredUsers(filtered);
@@ -138,8 +135,7 @@ const UserListPage = () => {
   // For Add new user
   const navigate = useNavigate();
   // const dispatch = useDispatch();
-  const [registerApiCall, { isLoading: isRegisteringUser }] =
-    useRegisterMutation();
+  const [registerApiCall, { isLoading: isRegisteringUser }] = useRegisterMutation();
 
   // Add a new user
   const addUserHandler = async () => {
@@ -161,8 +157,6 @@ const UserListPage = () => {
     } catch (err) {
       toast.error(err?.data?.message || err.error);
     }
-
-    // navigate("/admin/user/:userId/create");
   };
 
   //Delete Selected Users
@@ -197,21 +191,15 @@ const UserListPage = () => {
   return (
     <div className="p-6 mb-10 min-h-[80vh] w-[90%] mx-auto">
       <div className="flex flex-col mb-4 md:flex-row md:justify-between">
-        <div className="flex items-center  mb-4 md:mb-0">
-          <Link
-            to="/admin"
-            className="flex items-center mr-8 px-3 py-2 bg-shark text-light text-xs hover:bg-sharkDark-100 focus:outline-none rounded-lg"
-          >
-            <div className="mr-1">
-              <FaCaretLeft />
-            </div>
-            Back
-          </Link>
-          <h2 className="text-2xl font-bold md:mb-0 text-shark">All Users</h2>
+        <div className="flex items-center  w-full mb-4 md:mb-0">
+          <BackButton />
+          <h2 className="text-2xl font-bold md:mb-0 text-shark flex justify-center w-full">
+            All Users
+          </h2>
         </div>
 
         {/* Add and Delete Users Button */}
-        <div className="flex gap-2 w-full md:w-2/5 text-sm">
+        <div className="flex gap-2 w-full md:w-4/5 text-sm">
           <button
             type="submit"
             className="flex col-span-2 w-full items-center justify-center px-3 py-2 bg-green-800 hover:bg-green-900 text-white rounded"
@@ -280,16 +268,11 @@ const UserListPage = () => {
 
             <tbody>
               {usersToDisplay.map((user, index) => (
-                <tr
-                  key={user._id}
-                  className="text-left border-b border-gray-200"
-                >
+                <tr key={user._id} className="text-left border-b border-gray-200">
                   <td className="p-2">
                     <input type="checkbox" />
                   </td>
-                  <td className="p-2">
-                    {index + 1 + (currentPage - 1) * usersPerPage}
-                  </td>
+                  <td className="p-2">{index + 1 + (currentPage - 1) * usersPerPage}</td>
                   <td className="p-2">
                     {
                       <div className="flex gap-2 items-end">
@@ -310,9 +293,7 @@ const UserListPage = () => {
                   <td className="p-2 md:table-cell hidden">
                     <a href={`mailto:${user.email}`}>{user.email}</a>
                   </td>
-                  <td className="p-2 md:table-cell hidden">
-                    {user.createdAt.split("T")[0]}
-                  </td>
+                  <td className="p-2 md:table-cell hidden">{user.createdAt.split("T")[0]}</td>
                   {/* <td className="p-2 md:table-cell hidden">{user.isAdmin ? "Yes" : "No"}</td> */}
                   <td className="p-2 md:table-cell hidden">
                     <div

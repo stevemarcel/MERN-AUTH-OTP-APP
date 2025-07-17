@@ -4,9 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useSendResetPasswordEmailMutation, useUpdateUserMutation } from "../slices/usersApiSlice";
 import { setCredentials, setOTPData } from "../slices/authSlice";
-import { FaCamera, FaCheckCircle, FaLock, FaPaperPlane, FaUserEdit } from "react-icons/fa";
+import { FaCamera, FaCheckCircle, FaUserLock, FaPaperPlane, FaUserEdit } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import Loader from "../components/Loader";
+import BackButton from "../components/BackButton";
+
 const ProfilePage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -90,7 +92,12 @@ const ProfilePage = () => {
 
   return (
     <div className="p-6 mb-10 min-h-[80vh] lg:w-[70%] mx-auto">
-      <h2 className="text-2xl font-bold mb-4 text-shark">Profile</h2>
+      <div className="flex items-center mb-4">
+        <BackButton />
+        <h2 className="text-2xl font-bold text-shark items-center flex justify-center w-full">
+          Profile
+        </h2>
+      </div>
       <div className="flex mx-auto justify-center text-shark">
         <div className="flex flex-col md:flex-row bg-sharkLight-100/50 p-10 rounded-lg gap-8">
           <div className="flex flex-col items-center">
@@ -121,7 +128,7 @@ const ProfilePage = () => {
             {isAdmin && (
               <div className="flex justify-center items-center py-2 px-5 rounded-full mt-2 bg-light cursor-default text-xs">
                 <div className="mr-2">
-                  <FaLock />
+                  <FaUserLock />
                 </div>{" "}
                 Admin User
               </div>
@@ -234,7 +241,11 @@ const ProfilePage = () => {
 
               <button
                 type={mode === "edit" ? "submit" : "button"} // Submit button in edit mode
-                className="flex items-center justify-center w-full mt-5 px-4 py-2 bg-shark hover:bg-sharkDark-100 text-white rounded"
+                className={`flex items-center justify-center w-full mt-5 px-4 py-2 text-white rounded ${
+                  mode === "edit"
+                    ? "bg-green-700 hover:bg-green-800"
+                    : "bg-shark hover:bg-sharkDark-100"
+                }`}
                 onClick={mode === "edit" ? updateProfileHandler : handleEditClick}
               >
                 {isUpdatingProfile ? (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
   useGetUserByIdQuery,
@@ -7,7 +7,6 @@ import {
 } from "../slices/usersApiSlice";
 import {
   FaCamera,
-  FaCaretLeft,
   FaCheckCircle,
   FaUserLock,
   FaUserAlt,
@@ -16,6 +15,7 @@ import {
 import { MdVerified } from "react-icons/md";
 import { PiSealWarningFill } from "react-icons/pi";
 import Loader from "../components/Loader";
+import BackButton from "../components/BackButton";
 
 const UserEditPage = () => {
   const { userId } = useParams();
@@ -99,15 +99,7 @@ const UserEditPage = () => {
       ) : (
         <div>
           <div className="flex items-center mb-4">
-            <Link
-              to="/admin/users"
-              className="flex items-center mr-8 px-3 py-2 w-auto bg-shark text-light text-xs hover:bg-sharkDark-100 focus:outline-none rounded-lg"
-            >
-              <div className="mr-1">
-                <FaCaretLeft />
-              </div>
-              Back
-            </Link>
+            <BackButton />
             <div
               className={`text-2xl font-bold uppercase items-center flex justify-center w-full ${
                 mode === "edit" ? "text-green-700" : "text-shark"

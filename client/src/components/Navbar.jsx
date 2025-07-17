@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   FaUser,
-  FaLock,
+  FaUserLock,
   FaSignOutAlt,
   FaUserPlus,
   FaSignInAlt,
@@ -58,7 +58,7 @@ const Navbar = () => {
   const profileItems = [
     { id: 1, text: "Profile", link: "/profile", icon: <FaUser /> },
     { id: 2, text: "Notifications", link: "/notification", icon: <FaBell /> },
-    { id: 3, text: "Admin", link: "/admin", icon: <FaLock /> },
+    { id: 3, text: "Admin Page", link: "/admin", icon: <FaUserLock /> },
     { id: 4, text: "Logout", icon: <FaSignOutAlt /> },
   ];
 

@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import Card from "../components/Card";
 import UserManagementImg from "../assets/img/userManagementImg.jpg";
 import ProductsManagementImg from "../assets/img/productsManagementImg.jpg";
+import PlaceholderImg from "../assets/img/placeholder.jpg";
 import BackButton from "../components/BackButton";
 import { FaUserLock } from "react-icons/fa";
 
@@ -17,6 +18,13 @@ const AdminPage = () => {
     title: "Products Management",
     description: "View and manage all user products",
   };
+
+  const dummyCardInfo = {
+    image: PlaceholderImg,
+    title: "Dummy Admin Management",
+    description: "View and manage all dummy admin item",
+  };
+
   const { userInfo } = useSelector((state) => state.auth);
 
   return (
@@ -38,6 +46,21 @@ const AdminPage = () => {
         </Link>
         <Link to="/admin/products">
           <Card data={productsCardInfo} />
+        </Link>
+        <Link to="/admin/dummyitems">
+          <Card data={dummyCardInfo} />
+        </Link>
+        <Link to="/admin/dummyitems">
+          <Card data={dummyCardInfo} />
+        </Link>
+        <Link to="/admin/dummyitems">
+          <Card data={dummyCardInfo} />
+        </Link>
+        <Link to="/admin/dummyitems">
+          <Card data={dummyCardInfo} />
+        </Link>
+        <Link to="/admin/dummyitems">
+          <Card data={dummyCardInfo} />
         </Link>
       </div>
     </section>

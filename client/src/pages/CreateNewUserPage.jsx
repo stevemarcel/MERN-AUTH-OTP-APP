@@ -1,20 +1,15 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
   useGetUserByIdQuery,
   useUpdateUserByAdminMutation,
 } from "../slices/usersApiSlice";
-import {
-  FaCamera,
-  FaCaretLeft,
-  FaUserLock,
-  FaUserAlt,
-  FaUserPlus,
-} from "react-icons/fa";
+import { FaCamera, FaUserLock, FaUserAlt, FaUserPlus } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import { PiSealWarningFill } from "react-icons/pi";
 import Loader from "../components/Loader";
+import BackButton from "../components/BackButton";
 
 const CreateNewUserPage = () => {
   const { userId } = useParams();
@@ -99,16 +94,10 @@ const CreateNewUserPage = () => {
       ) : (
         <div>
           <div className="flex items-center mb-4">
-            <Link
-              to="/admin/users"
-              className="flex items-center mr-8 px-3 py-2 w-auto bg-shark text-light text-xs hover:bg-sharkDark-100 focus:outline-none rounded-lg"
-            >
-              <div className="mr-1">
-                <FaCaretLeft />
-              </div>
-              Back
-            </Link>
-            <div className="text-2xl font-bold text-shark">Create New User</div>
+            <BackButton />
+            <div className="text-2xl font-bold text-shark flex justify-center w-full">
+              Create New User
+            </div>
           </div>
           <div className="flex mx-auto justify-center text-shark">
             <div className="flex flex-col md:flex-row bg-sharkLight-100/50 p-10 rounded-lg gap-8">
