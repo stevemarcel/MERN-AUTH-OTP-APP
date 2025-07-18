@@ -49,7 +49,7 @@ const functionalities = [
     id: 8,
     title: "User Feedback & Notifications",
     description:
-      "Implements comprehensive success, error, and loading notifications (e.g., toast messages) for all user interactions and API calls.",
+      "Implements success, error, and loading notifications with toast messages for all user interactions and API calls.",
     image: "/images/functionalities/User-Feedback-and-Notifications.png",
   },
   {
