@@ -1,3 +1,10 @@
 {
-  "cSpell.words": ["Colour", "dummyitems", "verifyemail"]
+  "cSpell.words": [
+    "Colour",
+    "dummyitems",
+    "sendresetpasswordemail",
+    "sendverificationemail",
+    "verifyemail",
+    "verifyresetpasswordotp"
+  ]
 }

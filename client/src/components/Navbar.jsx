@@ -16,24 +16,6 @@ import { useLogoutMutation } from "../slices/usersApiSlice";
 import { deleteCredentials } from "../slices/authSlice";
 
 const Navbar = () => {
-  //? For testing
-  // const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login state
-  // const [username, setUsername] = useState(""); // Username for logged in state
-
-  // Placeholder profile picture
-  // const profileImage = "https://avatar.iran.liara.run/public/boy?username=Ash";
-
-  //  const handleLogin = (name) => {
-  //   setIsLoggedIn(true);
-  //   setUsername(name); // Set username on login
-  // };
-
-  // const handleLogout = () => {
-  //   setIsLoggedIn(false);
-  //   setUsername(""); // Clear username on logout
-  // };
-  //?
-
   const [mobileNavOpen, setMobileNavOpen] = useState(false); // State to manage the navbar's visibility
   const [showDropdown, setShowDropdown] = useState(false); // Dropdown visibility state
 
@@ -164,30 +146,10 @@ const Navbar = () => {
           ))}
         </ul>
 
-        {/* For Testing */}
-        {/* <div className="handleLogs flex mr-4">
-          <button
-            className="flex items-center px-4 py-2 bg-gray-700 text-light hover:bg-gray-600"
-            onClick={() => {
-              handleLogin("Steve");
-            }}
-          >
-            login
-          </button>
-          <button
-            className="flex items-center px-4 py-2 bg-gray-700 text-light hover:bg-gray-600"
-            onClick={() => {
-              handleLogout();
-            }}
-          >
-            logout
-          </button>
-        </div> */}
-
         {/* Right Button */}
         <div className="flex items-center">
           <button
-            className="rightNavButton md:flex hidden items-center px-4 py-2 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none relative rounded"
+            className="rightNavButton md:flex hidden items-center px-4 py-2 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none relative rounded duration-200"
             onClick={() => {
               toggleDropdown(); // Toggle dropdown on button click
             }}

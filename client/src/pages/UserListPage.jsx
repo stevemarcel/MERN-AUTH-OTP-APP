@@ -8,55 +8,71 @@ import {
   FaUsersSlash,
   // FaSearch,
   FaTimesCircle,
+  FaUser,
+  FaAt,
+  FaEnvelope,
+  FaCalendarDay,
+  FaCalendarWeek,
 } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { IoIosEye } from "react-icons/io";
-import Loader from "../components/Loader";
 // import UserTable from "../components/UserTable";
+import { toast } from "react-toastify";
+
+// --- USERS API SLICE HOOKS ---
 import {
-  useDeleteUserMutation,
   useGetUsersQuery,
   useRegisterMutation,
+  useDeleteUserMutation,
+  useDeleteUsersByAdminMutation,
 } from "../slices/usersApiSlice";
-import { toast } from "react-toastify";
+
+// --- LOCAL COMPONENTS IMPORTS ---
+import Loader from "../components/Loader";
 import BackButton from "../components/BackButton";
+import SearchFilterDropdown from "../components/SearchFilterDropdown";
 
 const UserListPage = () => {
+  //! --- REACT QUERY API CALLS ---
   const { data, isLoading: isGettingUsers, refetch } = useGetUsersQuery();
+  const [registerApiCall, { isLoading: isRegisteringUser }] = useRegisterMutation();
   const [deleteUserApiCall, { isLoading: isDeletingUser }] = useDeleteUserMutation();
+  const [deleteUsersByAdminApiCall, { isLoading: isDeletingMultipleUsers }] =
+    useDeleteUsersByAdminMutation();
 
-  //! STATE STORES
+  //! --- LOCAL STATE DEFINITIONS ---
   // Users States
   const [allUsersData, setAllUsersData] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-
-  // State Store for deleting user
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
-
   // State Store for Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
-
   // State Store for Search
   const [searchTerm, setSearchTerm] = useState("");
   const [searchFilter, setSearchFilter] = useState("name");
-  // const [keyword, setKeyword] = useState("");
+  // State Store for deleting user
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  // State for Selected Users and Bulk Delete Confirmation
+  const [selectedUserIds, setSelectedUserIds] = useState(new Set()); // Using a Set for efficient add/delete/check
+  const [isBulkConfirmOpen, setIsBulkConfirmOpen] = useState(false);
 
   // For Selecting User(s)
   // const [isChecked, setIsChecked] = useState([]);
 
-  //! To prevent multiple or delayed fetch from API
+  //! --- To prevent multiple or delayed fetch from API ---
   useEffect(() => {
-    refetch();
-    if (data) {
+    if (data && data.users) {
       setAllUsersData(data.users);
       setFilteredUsers(data.users);
       setCurrentPage(1); // Good practice to reset pagination after new data fetch
+      setSelectedUserIds(new Set()); // Clear selections when new data arrives
     }
-  }, [data, refetch]);
+  }, [data]);
 
-  //! Search Filtering Logic
+  const navigate = useNavigate();
+
+  //! --- SEARCH FILTERING LOGIC ---
   useEffect(() => {
     let currentFilteredUsers = allUsersData;
 
@@ -87,19 +103,11 @@ const UserListPage = () => {
           return user.username && user.username.toLowerCase().includes(lowerCaseSearchTerm);
         } else if (searchFilter === "email") {
           return user.email && user.email.toLowerCase().includes(lowerCaseSearchTerm);
-        }
-        // else if (searchFilter === "memberSince") {
-        //   // For 'Member Since', we compare the date string.
-        //   // The `user.createdAt` is "YYYY-MM-DDTHH:MM:SS.sssZ", so we extract "YYYY-MM-DD"
-        //   const createdAtDate = user.createdAt ? user.createdAt.split("T")[0] : "";
-        //   return createdAtDate.includes(lowerCaseSearchTerm);
-        // }
-        else if (searchFilter === "memberSinceMonth") {
+        } else if (searchFilter === "memberSinceMonth") {
           if (!user.createdAt) return false; // Skip if no creation date
           const date = new Date(user.createdAt);
           const monthNumber = (date.getMonth() + 1).toString(); // "1" for Jan, "10" for Oct
           const monthName = monthNames[date.getMonth()]; // "january", "october"
-
           // Check if the search term matches the month number OR the month name
           return (
             monthNumber.includes(lowerCaseSearchTerm) || monthName.includes(lowerCaseSearchTerm)
@@ -116,10 +124,56 @@ const UserListPage = () => {
 
     setFilteredUsers(currentFilteredUsers);
     setCurrentPage(1); // IMPORTANT: Always reset to the first page when search/filter changes
+    setSelectedUserIds(new Set()); // Clear selections when filter/search changes
   }, [searchTerm, searchFilter, allUsersData]);
 
-  //! PAGE FUNCTIONS
-  // Pagination Logic
+  // Define Dropdown Options
+  const filterOptions = [
+    { value: "name", label: "Name", icon: <FaUser /> },
+    { value: "username", label: "Username", icon: <FaAt /> },
+    { value: "email", label: "Email", icon: <FaEnvelope /> },
+    { value: "memberSinceMonth", label: "Month Joined", icon: <FaCalendarDay /> },
+    { value: "memberSinceYear", label: "Year Joined", icon: <FaCalendarWeek /> },
+  ];
+
+  //! --- CHECKBOX HANDLERS ---
+  // Users currently visible on the page (after filter & pagination)
+  const usersOnCurrentPage = filteredUsers.slice(
+    (currentPage - 1) * usersPerPage,
+    currentPage * usersPerPage
+  );
+
+  // This is for the header checkbox's 'checked' state
+  const isAllOnPageSelected =
+    usersOnCurrentPage.length > 0 &&
+    usersOnCurrentPage.every((user) => selectedUserIds.has(user._id));
+
+  // Handler for the header checkbox (select/deselect all on current page)
+  const handleSelectAll = () => {
+    const newSelectedUserIds = new Set(selectedUserIds);
+    if (isAllOnPageSelected) {
+      // Deselect all users currently visible on the page
+      usersOnCurrentPage.forEach((user) => newSelectedUserIds.delete(user._id));
+    } else {
+      // Select all users currently visible on the page
+      usersOnCurrentPage.forEach((user) => newSelectedUserIds.add(user._id));
+    }
+    setSelectedUserIds(newSelectedUserIds);
+  };
+
+  // Handler for individual user checkboxes
+  const handleSelectUser = (userId) => {
+    const newSelectedUserIds = new Set(selectedUserIds);
+    if (newSelectedUserIds.has(userId)) {
+      newSelectedUserIds.delete(userId);
+    } else {
+      newSelectedUserIds.add(userId);
+    }
+    setSelectedUserIds(newSelectedUserIds);
+  };
+
+  //! --- USER TABLE PAGINATION FUNCTIONS ---
+  // Prepare Users for Display (Pagination Slice)
   const usersToDisplay = filteredUsers.slice(
     (currentPage - 1) * usersPerPage,
     currentPage * usersPerPage
@@ -186,12 +240,7 @@ const UserListPage = () => {
     );
   };
 
-  // ! ADD NEW USER FUNCTIONS
-  // For Add new user
-  const navigate = useNavigate();
-  const [registerApiCall, { isLoading: isRegisteringUser }] = useRegisterMutation();
-
-  // Add a new user
+  // ! --- ADD NEW USER FUNCTION ---
   const addUserHandler = async () => {
     const newUserData = {
       firstName: "Sample",
@@ -212,34 +261,62 @@ const UserListPage = () => {
     }
   };
 
-  // ! DELETE USER FUNCTIONS
-  //Delete Selected Users
-  const deleteUsersHandler = async () => {};
-
-  // Delete User By ID Confirmation Popup logic
+  // ! --- DELETE USER FUNCTIONS ---
+  // Confirmation Popup for Delete Single User By ID
   const deleteUserPopup = async (id) => {
-    setIsConfirmOpen(true);
     setDeleteId(id);
+    setIsConfirmOpen(true);
+  };
+  // Cancel Confirmation Popup for Delete Single User By ID
+  const handleCancelDelete = () => {
+    setIsConfirmOpen(false);
+    setDeleteId(null);
   };
 
-  // Delete User By ID
+  // Delete Single User By ID Function
   const deleteUserByIdHandler = async () => {
     if (deleteId) {
       try {
         const delUserRes = await deleteUserApiCall(deleteId).unwrap();
         toast.success(delUserRes.message);
-        refetch();
         setIsConfirmOpen(false);
+        setDeleteId(null);
       } catch (err) {
-        toast.error(err?.data?.message || err.error);
         setIsConfirmOpen(false);
+        setDeleteId(null);
+        toast.error(err?.data?.message || err.error);
       }
     }
   };
 
-  // Cancel Delete User By ID Pop-up
-  const handleCancelDelete = () => {
-    setIsConfirmOpen(false);
+  // Confirmation Popup for Bulk Delete Users
+  const handleDeleteMultipleUsersPopup = () => {
+    if (selectedUserIds.size === 0) {
+      // Optional: show a toast/alert that no users are selected
+      toast.error("Please select users to delete.");
+      return;
+    }
+    setIsBulkConfirmOpen(true);
+  };
+  // Cancel Confirmation Popup for Bulk Delete Users
+  const cancelBulkDelete = () => {
+    setIsBulkConfirmOpen(false);
+  };
+
+  // Delete Multiple Users Function
+  const confirmBulkDeleteHandler = async () => {
+    try {
+      // Convert Set to Array for the API call
+      const idsToDelete = Array.from(selectedUserIds);
+      const delUsersRes = await deleteUsersByAdminApiCall(idsToDelete).unwrap();
+      toast.success(delUsersRes.message);
+      setIsBulkConfirmOpen(false);
+      setSelectedUserIds(new Set());
+    } catch (err) {
+      setIsBulkConfirmOpen(false);
+      setSelectedUserIds(new Set());
+      toast.error(err?.data?.message || err.error);
+    }
   };
 
   return (
@@ -256,7 +333,7 @@ const UserListPage = () => {
         <div className="flex gap-2 w-full md:w-4/5 text-sm">
           <button
             type="submit"
-            className="flex col-span-2 w-full items-center justify-center px-3 py-2 bg-green-800 hover:bg-green-900 text-white rounded"
+            className="flex col-span-2 w-full items-center justify-center px-3 py-2 bg-green-800 hover:bg-green-900 text-white rounded duration-200"
             onClick={addUserHandler}
           >
             {isRegisteringUser ? (
@@ -273,14 +350,13 @@ const UserListPage = () => {
             )}
           </button>
           <button
-            type="submit"
-            className="flex col-span-2 items-center justify-center px-3 py-2 bg-red-800 hover:bg-red-900 text-white rounded w-full"
-            onClick={deleteUsersHandler}
+            type="button"
+            className="flex col-span-2 items-center justify-center px-3 py-2 bg-red-800 hover:bg-red-900 text-white rounded w-full disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            onClick={handleDeleteMultipleUsersPopup}
+            disabled={selectedUserIds.size === 0 || isDeletingMultipleUsers} // Disabled if no users selected or if deletion is in progress
           >
-            <div className="mr-2">
-              <FaUsersSlash />
-            </div>
-            Delete Users
+            <div className="mr-2">{isDeletingMultipleUsers ? <Loader /> : <FaUsersSlash />}</div>
+            Delete Users ({selectedUserIds.size})
           </button>
         </div>
       </div>
@@ -288,18 +364,11 @@ const UserListPage = () => {
       {/* Search Bar */}
       <div className="flex gap-1 mb-4 items-center">
         {/* Filter Dropdown */}
-        <select
-          value={searchFilter}
-          onChange={(e) => setSearchFilter(e.target.value)}
-          className="px-3 py-2 rounded border text-shark border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400"
-        >
-          <option value="name">Name</option>
-          <option value="username">Username</option>
-          <option value="email">Email</option>
-          {/* <option value="memberSince">Member Since</option> */}
-          <option value="memberSinceMonth">Month Joined</option>
-          <option value="memberSinceYear">Year Joined</option>
-        </select>
+        <SearchFilterDropdown
+          searchFilter={searchFilter}
+          setSearchFilter={setSearchFilter}
+          options={filterOptions}
+        />
 
         {/* Search Input */}
         <input
@@ -311,20 +380,6 @@ const UserListPage = () => {
           className="px-3 py-2 rounded border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400 flex-grow"
         />
       </div>
-      {/* <div className="flex flex-col mb-4 md:flex-row items-center">
-        <div className="relative flex items-center w-full mb-4 md:mb-0">
-          <input
-            type="text"
-            placeholder="search user"
-            onChange={searchHandler}
-            value={keyword}
-            className="px-3 py-2 rounded bg-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400  w-full"
-          />
-          <span className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <FaSearch />
-          </span>
-        </div>
-      </div> */}
 
       {/* Users Table */}
       <div className="text-shark">
@@ -334,7 +389,17 @@ const UserListPage = () => {
             <thead>
               <tr className="text-left border-b border-shark">
                 <th className="p-2">
-                  <input type="checkbox" />
+                  <input
+                    type="checkbox"
+                    onChange={handleSelectAll}
+                    checked={isAllOnPageSelected}
+                    // Indeterminate state: if some but not all users on the current page are selected
+                    ref={(el) => {
+                      if (el) {
+                        el.indeterminate = selectedUserIds.size > 0 && !isAllOnPageSelected;
+                      }
+                    }}
+                  />
                 </th>
                 <th className="p-2">S/N</th>
                 <th className="p-2">Name</th>
@@ -346,85 +411,111 @@ const UserListPage = () => {
             </thead>
 
             <tbody>
-              {usersToDisplay.map((user, index) => (
-                <tr key={user._id} className="text-left border-b border-gray-200">
-                  <td className="p-2">
-                    <input type="checkbox" />
-                  </td>
-                  <td className="p-2">{index + 1 + (currentPage - 1) * usersPerPage}</td>
-                  <td className="p-2">
-                    {
-                      <div className="flex gap-2 items-end">
-                        <img
-                          src={user.profile}
-                          alt="Profile Picture"
-                          className="size-9 hidden md:block"
-                        />
-                        <div className="flex flex-col">
-                          <span>
-                            {user.firstName} {user.lastName}
-                          </span>
-                          <span className="italic font-mono text-xs">{`@${user.username}`}</span>
-                        </div>
-                      </div>
-                    }
-                  </td>
-                  <td className="p-2 md:table-cell hidden">
-                    <a href={`mailto:${user.email}`}>{user.email}</a>
-                  </td>
-                  <td className="p-2 md:table-cell hidden">{user.createdAt.split("T")[0]}</td>
-                  {/* <td className="p-2 md:table-cell hidden">{user.isAdmin ? "Yes" : "No"}</td> */}
-                  <td className="p-2 md:table-cell hidden">
-                    <div
-                      className={`flex justify-center ${
-                        user.isAdmin ? "text-green-600" : "text-sharkLight-300"
-                      }`}
-                    >
-                      {user.isAdmin ? <FaCheckCircle /> : <FaTimesCircle />}
-                    </div>
-                  </td>
-                  <td className="p-2">
-                    <div className="flex gap-2 ">
-                      <Link
-                        to={`/admin/user/${user._id}/edit`}
-                        className="relative flex col-span-2 items-center justify-center p-2 bg-shark hover:bg-sharkDark-300  text-white rounded"
-                        title={`View ${user.firstName}`}
-                      >
-                        <IoIosEye />
-                        {/* <span className="absolute bottom-0 left-3 px-2 py-1 text-xs bg-shark rounded opacity-0 hover:opacity-100 whitespace-nowrap">
-                            {`View ${user.firstName}`}
-                          </span> */}
-                      </Link>
-                      <button
-                        type="submit"
-                        className="flex col-span-2 items-center justify-center p-2 bg-red-800 hover:bg-red-900 text-white rounded"
-                        onClick={() => deleteUserPopup(user._id)}
-                        title={`Delete ${user.firstName}`}
-                      >
-                        {isDeletingUser ? (
-                          <div className="text-3xl">
-                            <Loader />
-                          </div>
-                        ) : (
-                          <MdDelete />
-                        )}
-                      </button>
-                    </div>
+              {isGettingUsers ? (
+                <tr>
+                  <td colSpan="7" className="text-center p-4">
+                    <div className="flex justify-center p-8"></div>
+                    <Loader /> Loading users...
                   </td>
                 </tr>
-              ))}
+              ) : filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="text-center p-4 text-sharkLight-300 italic">
+                    No matching users found.
+                  </td>
+                </tr>
+              ) : (
+                usersToDisplay.map((user, index) => (
+                  <tr
+                    key={user._id}
+                    className={`text-left  border-gray-200 transition-all duration-200 ${
+                      selectedUserIds.has(user._id)
+                        ? "bg-sharkLight-100 border-l-4 border-shark" // Apply these classes when selected
+                        : ""
+                    }`}
+                  >
+                    <td className="p-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedUserIds.has(user._id)}
+                        onChange={() => handleSelectUser(user._id)}
+                      />
+                    </td>
+                    <td className="p-2">{index + 1 + (currentPage - 1) * usersPerPage}</td>
+                    <td className="p-2">
+                      {
+                        <div className="flex gap-2 items-end">
+                          <img
+                            src={user.profile}
+                            alt="Profile Picture"
+                            className="size-9 hidden md:block"
+                          />
+                          <div className="flex flex-col">
+                            <span>
+                              {user.firstName} {user.lastName}
+                            </span>
+                            <span className="italic font-mono text-xs">{`@${user.username}`}</span>
+                          </div>
+                        </div>
+                      }
+                    </td>
+                    <td className="p-2 md:table-cell hidden">
+                      <a href={`mailto:${user.email}`}>{user.email}</a>
+                    </td>
+                    <td className="p-2 md:table-cell hidden">{user.createdAt.split("T")[0]}</td>
+                    <td className="p-2 md:table-cell hidden">
+                      <div
+                        className={`flex justify-center ${
+                          user.isAdmin ? "text-green-600" : "text-sharkLight-300"
+                        }`}
+                      >
+                        {user.isAdmin ? <FaCheckCircle /> : <FaTimesCircle />}
+                      </div>
+                    </td>
+                    <td className="p-2">
+                      <div className="flex gap-2 ">
+                        <Link
+                          to={`/admin/user/${user._id}/edit`}
+                          className="relative flex col-span-2 items-center justify-center p-2 bg-shark hover:bg-sharkDark-300  text-white rounded"
+                          title={`View ${user.firstName}`}
+                        >
+                          <IoIosEye />
+                          {/* <span className="absolute bottom-0 left-3 px-2 py-1 text-xs bg-shark rounded opacity-0 hover:opacity-100 whitespace-nowrap">
+                            {`View ${user.firstName}`}
+                          </span> */}
+                        </Link>
+                        <button
+                          type="button"
+                          className="flex col-span-2 items-center justify-center p-2 bg-red-800 hover:bg-red-900 text-white rounded"
+                          onClick={() => deleteUserPopup(user._id)}
+                          title={`Delete ${user.firstName}`}
+                          disabled={isDeletingUser}
+                        >
+                          {isDeletingUser ? (
+                            <div className="text-3xl">
+                              <Loader />
+                            </div>
+                          ) : (
+                            <MdDelete />
+                          )}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
           {renderPagination()}
 
           {/* Loader */}
-          {isGettingUsers && (
+          {/* {isGettingUsers && (
             <div className="flex justify-center p-8 text-9xl">
               <Loader />
             </div>
-          )}
+          )} */}
 
-          {/* Delete User By ID Confirmation Popup */}
+          {/* Delete Single User by ID Confirmation Popup */}
           {isConfirmOpen && (
             <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-50 bg-sharkDark-500">
               <div className="bg-white p-8 pb-5 rounded-md">
@@ -434,14 +525,37 @@ const UserListPage = () => {
                     className="flex col-span-2 items-center justify-center mr-4 px-3 py-2 bg-red-800 hover:bg-red-900 text-white rounded w-auto"
                     onClick={deleteUserByIdHandler}
                   >
-                    <div className="mr-2">
-                      <MdDelete />
-                    </div>
+                    <div className="mr-2">{isDeletingUser ? <Loader /> : <MdDelete />}</div>
                     Confirm
                   </button>
                   <button
                     className="items-center justify-center px-3 py-2 bg-sharkLight-100 hover:bg-sharkLight-200 rounded w-auto"
                     onClick={handleCancelDelete}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Delete Multiple Users Confirmation Popup */}
+          {isBulkConfirmOpen && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-50 bg-sharkDark-500">
+              <div className="bg-white p-8 pb-5 rounded-md text-shark">
+                <p>Are you sure you want to delete {selectedUserIds.size} selected users?</p>
+                <div className="mt-4 flex justify-end">
+                  <button
+                    className="flex col-span-2 items-center justify-center mr-4 px-3 py-2 bg-red-800 hover:bg-red-900 text-white rounded w-auto disabled:opacity-50"
+                    onClick={confirmBulkDeleteHandler}
+                    disabled={isDeletingMultipleUsers}
+                  >
+                    <div className="mr-2">{isDeletingMultipleUsers ? "..." : <FaUsersSlash />}</div>
+                    Confirm Delete
+                  </button>
+                  <button
+                    className="items-center justify-center px-3 py-2 bg-sharkLight-100 hover:bg-sharkLight-200 rounded w-auto"
+                    onClick={cancelBulkDelete}
                   >
                     Cancel
                   </button>

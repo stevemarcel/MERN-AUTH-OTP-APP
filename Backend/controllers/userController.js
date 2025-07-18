@@ -9,8 +9,7 @@ import bcrypt from "bcryptjs";
 // @ROUTE       POST /api/users
 // @ACCESS      Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { firstName, lastName, email, password, isAdminCreatingUser } =
-    req.body;
+  const { firstName, lastName, email, password, isAdminCreatingUser } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -409,6 +408,31 @@ const deleteUserByAdmin = asyncHandler(async (req, res) => {
   }
 });
 
+// @DESCRIPTION Delete multiple users as ADMIN
+// @ROUTE       DELETE /api/users
+// @ACCESS      Private/Admin
+const deleteUsersByAdmin = asyncHandler(async (req, res) => {
+  const { userIds } = req.body; // Expect an array of IDs in the request body
+
+  if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+    res.status(400);
+    throw new Error("Please provide an array of user IDs to delete.");
+  }
+
+  // Ensure all provided IDs are valid MongoDB ObjectIds (optional but good practice)
+  // You might want to add a check here if IDs could be malformed.
+  // Example: userIds = userIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+
+  const deleteResult = await User.deleteMany({ _id: { $in: userIds } });
+
+  if (deleteResult.deletedCount > 0) {
+    res.json({ message: `${deleteResult.deletedCount} users deleted successfully` });
+  } else {
+    res.status(404);
+    throw new Error("No users found or have already been deleted.");
+  }
+});
+
 // @DESCRIPTION Logout currently logged in user
 // @ROUTE       POST /api/users/logout
 // @ACCESS      Public
@@ -433,5 +457,6 @@ export {
   updateUserProfile,
   updateUserByAdmin,
   deleteUserByAdmin,
+  deleteUsersByAdmin,
   logoutUser,
 };
