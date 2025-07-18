@@ -94,7 +94,6 @@ const Navbar = () => {
     <Link
       to={item.link}
       key={item.id}
-      // onClick={userInfo && item.text === "Logout" && logoutHandler}
       onClick={
         userInfo && item.text === "Logout"
           ? logoutHandler
@@ -104,7 +103,7 @@ const Navbar = () => {
       }
     >
       <li
-        className={`hover:bg-sharkLight-100 px-4 py-2 text-black flex items-center ${
+        className={`hover:bg-sharkLight-100 px-4 py-2 text-shark flex items-center ${
           userInfo ? (userInfo.isAdmin || item.text !== "Admin" ? "" : "hidden") : ""
         }
       
@@ -166,12 +165,19 @@ const Navbar = () => {
             ) : (
               "Get Started"
             )}
-            <div className="ml-1">
-              <FaCaretDown />
-            </div>
+
+            <FaCaretDown
+              className={`md:ml-2 ml-1 transform transition-transform duration-200 ${
+                showDropdown ? "rotate-180" : "rotate-0"
+              }`}
+            />
+
             {showDropdown && (
               // Render dropdown only if visible
-              <ul className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2">
+              <ul
+                role="listbox"
+                className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2 duration-200"
+              >
                 {dropdownList}
               </ul>
             )}
@@ -196,7 +202,7 @@ const Navbar = () => {
                 </div>
                 {showDropdown && (
                   // Render dropdown only if visible
-                  <ul className="absolute text-base top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2">
+                  <ul className="absolute text-base top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2  duration-200">
                     {dropdownList}
                   </ul>
                 )}

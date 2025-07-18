@@ -30,13 +30,11 @@ const SearchFilterDropdown = ({ searchFilter, setSearchFilter, options }) => {
   const currentLabel = selectedOption?.label || "Select Filter"; // Fallback label
   const currentIcon = selectedOption?.icon; // Get the icon for the selected filter
 
-  // const currentLabel = options.find((opt) => opt.value === searchFilter)?.label || "Select Filter";
-
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         type="button"
-        className="px-4 py-2 flex items-center justify-center md:justify-between w-12 md:w-44 rounded bg-shark text-light border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkDark-400 focus:ring-opacity-50 transition-colors duration-200"
+        className="px-3 py-2 flex items-center justify-center md:justify-between w-16 md:w-44 rounded bg-shark text-light border border-sharkLight-100 focus:outline-none focus:ring-1 focus:ring-sharkDark-400 focus:ring-opacity-50 transition-colors duration-200"
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -44,7 +42,7 @@ const SearchFilterDropdown = ({ searchFilter, setSearchFilter, options }) => {
         {currentIcon && <span className="text-base">{currentIcon}</span>}
         <span className="hidden md:inline-block">{currentLabel}</span>
         <FaCaretDown
-          className={`md:ml-2 ml-1 transform transition-transform duration-200 ${
+          className={`ml-3 transform transition-transform duration-200 ${
             isOpen ? "rotate-180" : "rotate-0"
           }`}
         />
@@ -52,19 +50,18 @@ const SearchFilterDropdown = ({ searchFilter, setSearchFilter, options }) => {
 
       {isOpen && (
         <ul
-          className="absolute z-10 top-full mt-1 w-44 bg-shark text-light rounded shadow-lg overflow-hidden transition-opacity duration-200 opacity-100"
+          className="absolute z-10 top-full mt-1 w-44 bg-light text-shark rounded shadow-lg overflow-hidden transition-opacity duration-200 opacity-100"
           role="listbox"
         >
-          {options.map((option, index) => (
+          {options.map((option) => (
             <li
               key={option.value}
               className={`px-4 py-2 cursor-pointer transition-colors duration-150 flex items-center gap-2
                 ${
                   searchFilter === option.value
-                    ? "bg-sharkDark-100 font-semibold"
-                    : "hover:bg-sharkLight-500 hover:text-shark"
+                    ? "bg-sharkLight-100 border-l-4 border-shark font-medium"
+                    : "hover:bg-sharkLight-100 hover:text-shark"
                 }
-                ${index !== options.length - 1 ? "border-b border-sharkLight-500" : ""}
               `}
               onClick={() => handleOptionClick(option.value)}
               role="option"
