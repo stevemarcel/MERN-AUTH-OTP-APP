@@ -212,7 +212,7 @@ const Navbar = () => {
             )}
 
             {/* Mobile Hamburger Nav */}
-            <button className="ml-5 " onClick={handleMobileNavOpen}>
+            <button className="ml-5" onClick={handleMobileNavOpen}>
               {mobileNavOpen ? <FaTimes /> : <FaBars />}
             </button>
           </div>
@@ -228,7 +228,7 @@ const Navbar = () => {
         }
         onClick={handleMobileNavOpen}
       >
-        <div className={mobileNavOpen ? "text-shark bg-sharkLight-100/70 transition-all" : ""}>
+        <div className={mobileNavOpen ? "text-shark bg-light/85 transition-all" : ""}>
           <ul className="mx-auto flex flex-col p-4">
             {userInfo ? (
               ""
@@ -259,7 +259,9 @@ const Navbar = () => {
                 to={navItem.link}
                 key={navItem.id}
                 className={({ isActive }) => {
-                  return isActive ? "bg-shark text-light p-4 mb-2" : "p-4 mb-2 cursor-pointer";
+                  return isActive
+                    ? "bg-sharkLight-200/50 border-l-4 border-shark p-4 mb-2"
+                    : "p-4 mb-2 cursor-pointer";
                 }}
               >
                 <li>{navItem.text}</li>
