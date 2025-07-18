@@ -50,7 +50,7 @@ const functionalities = [
     title: "User Feedback & Notifications",
     description:
       "Implements comprehensive success, error, and loading notifications (e.g., toast messages) for all user interactions and API calls.",
-    image: "/images/functionalities/react-redux-tailwind-css.png",
+    image: "/images/functionalities/User-Feedback-and-Notifications.png",
   },
   {
     id: 9,

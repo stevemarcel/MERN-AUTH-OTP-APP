@@ -419,9 +419,8 @@ const deleteUsersByAdmin = asyncHandler(async (req, res) => {
     throw new Error("Please provide an array of user IDs to delete.");
   }
 
-  // Ensure all provided IDs are valid MongoDB ObjectIds (optional but good practice)
-  // You might want to add a check here if IDs could be malformed.
-  // Example: userIds = userIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+  //TODO: May add a check here if IDs that could be malformed. (optional but good practice)
+  // userIds = userIds.filter(id => mongoose.Types.ObjectId.isValid(id));
 
   const deleteResult = await User.deleteMany({ _id: { $in: userIds } });
 
