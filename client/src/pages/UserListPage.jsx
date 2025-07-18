@@ -518,18 +518,19 @@ const UserListPage = () => {
           {/* Delete Single User by ID Confirmation Popup */}
           {isConfirmOpen && (
             <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-50 bg-sharkDark-500">
-              <div className="bg-white p-8 pb-5 rounded-md">
-                <p>Are you sure you want to delete this user?</p>
-                <div className="mt-4 flex justify-end">
+              <div className="w-4/5 md:w-2/5 bg-white px-12 py-8 rounded-md">
+                <h2 className="flex justify-center font-bold text-xl">Delete User</h2>
+                <p className="flex justify-center">Are you sure you want to delete this user?</p>
+                <div className="mt-5 flex justify-center  ">
                   <button
-                    className="flex col-span-2 items-center justify-center mr-4 px-3 py-2 bg-red-800 hover:bg-red-900 text-white rounded w-auto"
+                    className="flex col-span-2 items-center justify-center mr-4 px-2 py-1 bg-red-800 hover:bg-red-900 text-white rounded w-1/2 duration-200"
                     onClick={deleteUserByIdHandler}
                   >
                     <div className="mr-2">{isDeletingUser ? <Loader /> : <MdDelete />}</div>
-                    Confirm
+                    Confirm Delete
                   </button>
                   <button
-                    className="items-center justify-center px-3 py-2 bg-sharkLight-100 hover:bg-sharkLight-200 rounded w-auto"
+                    className="items-center justify-center px-2 py-1 bg-sharkLight-100 hover:bg-sharkLight-200 rounded w-1/2 duration-200"
                     onClick={handleCancelDelete}
                   >
                     Cancel
@@ -542,11 +543,16 @@ const UserListPage = () => {
           {/* Delete Multiple Users Confirmation Popup */}
           {isBulkConfirmOpen && (
             <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-50 bg-sharkDark-500">
-              <div className="bg-white p-8 pb-5 rounded-md text-shark">
-                <p>Are you sure you want to delete {selectedUserIds.size} selected users?</p>
-                <div className="mt-4 flex justify-end">
+              <div className="w-4/5 md:w-2/5 bg-white p-8 pb-5 rounded-md text-shark">
+                <h2 className="flex justify-center font-bold text-xl">
+                  Delete {selectedUserIds.size} {""} {selectedUserIds.size === 1 ? "User" : "Users"}
+                </h2>
+                <p className="flex justify-center">
+                  Are you sure you want to delete {selectedUserIds.size} selected users?
+                </p>
+                <div className="mt-5 flex justify-end">
                   <button
-                    className="flex col-span-2 items-center justify-center mr-4 px-3 py-2 bg-red-800 hover:bg-red-900 text-white rounded w-auto disabled:opacity-50"
+                    className="flex col-span-2 items-center justify-center mr-4 px-2 py-1 bg-red-800 hover:bg-red-900 text-white rounded w-1/2 duration-200 disabled:opacity-50"
                     onClick={confirmBulkDeleteHandler}
                     disabled={isDeletingMultipleUsers}
                   >
@@ -554,7 +560,7 @@ const UserListPage = () => {
                     Confirm Delete
                   </button>
                   <button
-                    className="items-center justify-center px-3 py-2 bg-sharkLight-100 hover:bg-sharkLight-200 rounded w-auto"
+                    className="items-center justify-center px-3 py-2 bg-sharkLight-100 hover:bg-sharkLight-200 rounded w-1/2 duration-200"
                     onClick={cancelBulkDelete}
                   >
                     Cancel

@@ -32,13 +32,23 @@ const AdminPage = () => {
       <div className="flex items-center mb-4">
         <BackButton />
         <div></div>
-        <h2 className="text-2xl font-bold text-shark flex items-center justify-center w-full">
-          Hello {userInfo.firstName}{" "}
+        <h2 className="text-3xl font-bold text-shark flex items-center justify-center w-full">
+          {/* Hello {userInfo.firstName}{" "}
           <div className="ml-2">
             <FaUserLock />
-          </div>
+          </div> */}
+          ADMIN DASHBOARD
         </h2>
       </div>
+
+      <p className="flex items-center text-lg text-shark mb-4">
+        Hello {userInfo.firstName}{" "}
+        <span className="ml-2">
+          <FaUserLock />
+        </span>{" "}
+        <br />
+        Welcome to the admin
+      </p>
 
       <div className="flex flex-col md:grid md:grid-cols-2 lg:grid lg:grid-cols-3 gap-4 justify-center w-full">
         <Link to="/admin/users">
