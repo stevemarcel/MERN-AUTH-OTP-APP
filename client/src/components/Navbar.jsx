@@ -15,6 +15,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLogoutMutation } from "../slices/usersApiSlice";
 import { deleteCredentials } from "../slices/authSlice";
 
+const BACKEND_BASE_URL = "http://localhost:5000";
+
 const Navbar = () => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false); // State to manage the navbar's visibility
   const [showDropdown, setShowDropdown] = useState(false); // Dropdown visibility state
@@ -156,7 +158,7 @@ const Navbar = () => {
             {userInfo ? (
               <div className="flex items-center">
                 <img
-                  src={userInfo ? userInfo.profile : ""}
+                  src={userInfo ? `${BACKEND_BASE_URL}${userInfo.profile}` : ""}
                   alt="Profile Picture"
                   className="w-6 h-6 mr-2 rounded-full"
                 />

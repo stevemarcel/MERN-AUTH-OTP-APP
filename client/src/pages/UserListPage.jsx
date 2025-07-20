@@ -32,6 +32,8 @@ import Loader from "../components/Loader";
 import BackButton from "../components/BackButton";
 import SearchFilterDropdown from "../components/SearchFilterDropdown";
 
+const BACKEND_BASE_URL = "http://localhost:5000";
+
 const UserListPage = () => {
   //! --- REACT QUERY API CALLS ---
   const { data, isLoading: isGettingUsers, refetch } = useGetUsersQuery();
@@ -444,12 +446,14 @@ const UserListPage = () => {
                     <td className="p-2">{index + 1 + (currentPage - 1) * usersPerPage}</td>
                     <td className="p-2">
                       {
-                        <div className="flex gap-2 items-end">
-                          <img
-                            src={user.profile}
-                            alt="Profile Picture"
-                            className="size-9 hidden md:block"
-                          />
+                        <div className="flex gap-2 items-center">
+                          <div className="hidden md:block  w-8 h-8 mr-1 rounded-full overflow-hidden">
+                            <img
+                              src={`${BACKEND_BASE_URL}${user.profile}`}
+                              alt="Profile Picture"
+                              className=" object-cover w-full h-full"
+                            />
+                          </div>
                           <div className="flex flex-col">
                             <span>
                               {user.firstName} {user.lastName}
