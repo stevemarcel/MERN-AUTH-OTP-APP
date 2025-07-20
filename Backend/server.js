@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
@@ -19,6 +20,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
+
+// Making the 'uploads' folder publicly accessible.
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/users", userRoutes);
 

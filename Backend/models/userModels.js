@@ -42,7 +42,7 @@ const userSchema = mongoose.Schema(
     },
     profile: {
       type: String,
-      default: "/images/sample-profile.png",
+      default: "/uploads/profiles/placeholder.png",
     },
     address: {
       type: String,

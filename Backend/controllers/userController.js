@@ -3,7 +3,36 @@ import genToken from "../utils/genToken.js";
 import User from "../models/userModels.js";
 import EmailVerifyToken from "../models/emailVerifyTokenModel.js";
 import sendEmail from "../utils/sendEmail.js";
+import { PLACEHOLDER_PROFILE_IMAGE } from "../utils/fileUpload.js";
 import bcrypt from "bcryptjs";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import mongoose from "mongoose";
+
+// Define __filename and __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Function to remove old profile image from the file system
+const removeOldProfileImage = (oldImagePath) => {
+  if (oldImagePath && oldImagePath !== PLACEHOLDER_PROFILE_IMAGE) {
+    const fullPathToDelete = path.join(__dirname, "..", oldImagePath);
+
+    // Check if the file actually exists on the disk before attempting to delete
+    if (fs.existsSync(fullPathToDelete)) {
+      fs.unlink(fullPathToDelete, (err) => {
+        if (err) {
+          console.error(`Error deleting old profile image '${fullPathToDelete}':`, err);
+        } else {
+          console.log(`Successfully deleted old profile image: ${fullPathToDelete}`);
+        }
+      });
+    } else {
+      console.log(`Old profile image not found on disk, skipping deletion: ${fullPathToDelete}`);
+    }
+  }
+};
 
 // @DESCRIPTION Register new user
 // @ROUTE       POST /api/users
@@ -31,13 +60,10 @@ const registerUser = asyncHandler(async (req, res) => {
     let message;
 
     if (isAdminCreatingUser) {
-      // Admin is creating a user
       message = "Sample user generated";
-      // console.log("Admin Reg");
     } else {
       // User is self-registering
       genToken(res, user._id);
-      // console.log("User Reg");
       message = "User registered successfully";
     }
 
@@ -70,12 +96,17 @@ const sendVerificationEmail = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
   const mode = "verifyEmail";
   const expiry = process.env.EMAIL_EXPIRY;
-  const verificationEmail = req.body.email;
 
-  const findToken = await EmailVerifyToken.findOne({
-    userId: user._id,
-  });
+  // If user is not found
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found.");
+  }
 
+  // Check if token already exists for this user
+  const findToken = await EmailVerifyToken.findOne({ userId: user._id });
+
+  // If a token already exists, delete it to issue a new one
   if (findToken) {
     await EmailVerifyToken.deleteOne({ userId: user._id });
   }
@@ -83,12 +114,13 @@ const sendVerificationEmail = asyncHandler(async (req, res) => {
   if (!user.emailVerified) {
     try {
       await sendEmail(user, mode);
-      res.status(201).json({ verificationEmail, expiry });
+      res.status(201).json({ verificationEmail: user.email, expiry: Number(expiry) });
     } catch (err) {
-      console.error(err);
-      res.status(400).json({ message: "Email not sent" });
+      res.status(500);
+      throw new Error("Failed to send verification email. Please try again later.");
     }
   } else {
+    // If email is already verified
     res.status(200).json({ message: "Email Verified Already" });
   }
 });
@@ -104,6 +136,12 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
       throw new Error("Invalid Verification Link");
     }
 
+    // If email is already verified, no need to proceed
+    if (user.emailVerified) {
+      res.status(200);
+      throw new Error("Email already verified.");
+    }
+
     const clientToken = req.params.token;
 
     const findToken = await EmailVerifyToken.findOne({
@@ -113,12 +151,16 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
     // Match client Token with EmailVerify token
     const clientTokenVerified = await findToken.matchToken(clientToken);
 
-    if (clientTokenVerified) {
-      await EmailVerifyToken.deleteOne({ userId: user._id });
+    if (!clientTokenVerified) {
+      res.status(400);
+      throw new Error("Invalid verification token.");
     }
 
-    user.emailVerified = true;
+    // If token is verified, delete it from the database
+    await EmailVerifyToken.deleteOne({ userId: user._id });
 
+    // Mark user's email as verified
+    user.emailVerified = true;
     await user.save();
 
     if (process.env.NODE_ENV === "development") {
@@ -134,11 +176,9 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
       isAdmin: user.isAdmin,
       emailVerified: user.emailVerified,
     });
-
-    // await EmailVerifyToken.deleteOne({ userId: user._id });
   } catch (error) {
     res.status(400);
-    throw new Error("Email verification failed");
+    throw new Error(error.message || "Email verification failed.");
   }
 });
 
@@ -151,7 +191,7 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
-    genToken(res, user._id);
+    genToken(res, user._id); // Generate JWT token and set as cookie
     res.status(201).json({
       message: "Login successful",
       _id: user._id,
@@ -187,7 +227,7 @@ const getUsers = asyncHandler(async (req, res) => {
 // @ROUTE       GET /api/users/:id
 // @ACCESS      Private/Admin
 const getUserById = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.params.id).select("-password");
+  const user = await User.findById(req.params.id).select("-password"); // Exclude password from response
 
   if (user) {
     res.json(user);
@@ -202,6 +242,12 @@ const getUserById = asyncHandler(async (req, res) => {
 // @ACCESS      Private
 const sendResetPasswordOTPEmail = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found.");
+  }
+
   const mode = "OTP";
   const expiry = process.env.EMAIL_EXPIRY;
 
@@ -215,13 +261,13 @@ const sendResetPasswordOTPEmail = asyncHandler(async (req, res) => {
 
   try {
     user.resetSession = false;
-
     await user.save();
+
     await sendEmail(user, mode);
-    res.status(201).json({ verificationEmail: user.email, expiry });
+    res.status(201).json({ verificationEmail: user.email, expiry: Number(expiry) });
   } catch (err) {
-    console.error(err);
-    res.status(400).json({ message: "Email not sent" });
+    res.status(500);
+    throw new Error("Failed to send reset password email. Please try again later.");
   }
 });
 
@@ -229,7 +275,6 @@ const sendResetPasswordOTPEmail = asyncHandler(async (req, res) => {
 // @ROUTE       GET /api/users/verifyresetpasswordotp
 // @ACCESS      Private
 const verifyResetPasswordOTP = asyncHandler(async (req, res) => {
-  // try {
   const { email, OTP } = req.body;
 
   const user = await User.findOne({ email });
@@ -243,31 +288,34 @@ const verifyResetPasswordOTP = asyncHandler(async (req, res) => {
     userId: user._id,
   });
 
+  if (!findToken) {
+    res.status(400);
+    throw new Error("OTP expired or invalid. Please request a new one.");
+  }
+
   // Match OTP with EmailVerify token
   const OTPVerified = await findToken.matchToken(OTP);
 
   if (!OTPVerified) {
     res.status(400);
     throw new Error("The entered OTP code is invalid");
-    // .json({ message: "The entered OTP code is invalid" });
   }
-  // else {
-  try {
-    await EmailVerifyToken.deleteOne({ userId: user._id });
-    user.resetSession = true;
 
+  try {
+    await EmailVerifyToken.deleteOne({ userId: user._id }); // Delete token after successful verification
+    user.resetSession = true; // Mark session as ready for password change
     await user.save();
 
     res.status(200).json({
-      message: "OTP Confirmed",
+      message: "OTP Confirmed. You can now reset your password.",
     });
+
     if (process.env.NODE_ENV === "development") {
       console.log(`OTP Deleted, Verification: ${OTPVerified}`);
     }
-    // }
   } catch (error) {
-    res.status(400);
-    throw new Error("OTP verification failed");
+    res.status(500);
+    throw new Error(error.message || "OTP verification failed due to a server error.");
   }
 });
 
@@ -278,6 +326,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
+    // --- Password Reset Flow ---
     if (user.resetSession) {
       if (!req.body.password) {
         res.status(400);
@@ -288,28 +337,31 @@ const updateUserProfile = asyncHandler(async (req, res) => {
         res.status(400);
         throw new Error("Can not use old password");
       }
-      if (req.body.password) {
-        user.password = req.body.password;
-        user.resetSession = false;
 
-        await user.save();
+      user.password = req.body.password;
+      user.resetSession = false;
 
-        res.status(200).json({
-          message: "Password updated successfully",
-          _id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          isAdmin: user.isAdmin,
-          emailVerified: user.emailVerified,
-          resetSession: user.resetSession,
-          username: user.username,
-          profile: user.profile,
-          address: user.address,
-          mobile: user.mobile,
-        });
-      }
-    } else {
+      const updatedUser = await user.save();
+
+      res.status(200).json({
+        message: "Password updated successfully.",
+        _id: updatedUser._id,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        email: updatedUser.email,
+        isAdmin: updatedUser.isAdmin,
+        emailVerified: updatedUser.emailVerified,
+        resetSession: updatedUser.resetSession,
+        username: updatedUser.username,
+        profile: updatedUser.profile,
+        address: updatedUser.address,
+        mobile: updatedUser.mobile,
+      });
+    }
+    // --- General Profile Update Flow ---
+    else {
+      const oldProfilePath = user.profile;
+
       user.firstName = req.body.firstName || user.firstName;
       user.lastName = req.body.lastName || user.lastName;
       user.email = req.body.email || user.email;
@@ -317,6 +369,21 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       user.profile = req.body.profile || user.profile;
       user.address = req.body.address || user.address;
       user.mobile = req.body.mobile || user.mobile;
+
+      // Profile image update logic: Now checks req.file (from Multer)
+      if (req.file) {
+        // If a new file was uploaded by Multer
+        const newProfilePath = "/uploads/profiles/" + req.file.filename;
+
+        if (newProfilePath !== oldProfilePath) {
+          user.profile = newProfilePath;
+          removeOldProfileImage(oldProfilePath);
+        }
+      } else if (req.body.profile === null) {
+        // Handle case where frontend explicitly sends null to clear profile (Delete profile picture)
+        user.profile = PLACEHOLDER_PROFILE_IMAGE;
+        removeOldProfileImage(oldProfilePath);
+      }
 
       const updatedUser = await user.save();
 
@@ -348,27 +415,45 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
   if (user) {
+    const oldProfilePath = user.profile;
+
     user.firstName = req.body.firstName || user.firstName;
     user.lastName = req.body.lastName || user.lastName;
     user.email = req.body.email || user.email;
-    user.emailVerified = req.body.emailVerified;
-    user.isAdminCreatingUser = req.body.isAdminCreatingUser;
-    user.isAdmin = req.body.isAdmin;
+    user.emailVerified =
+      req.body.emailVerified !== undefined ? req.body.emailVerified : user.emailVerified;
+    user.isAdminCreatingUser =
+      req.body.isAdminCreatingUser !== undefined
+        ? req.body.isAdminCreatingUser
+        : user.isAdminCreatingUser;
+    user.isAdmin = req.body.isAdmin !== undefined ? req.body.isAdmin : user.isAdmin;
     user.username = req.body.username || user.username;
     user.profile = req.body.profile || user.profile;
     user.address = req.body.address || user.address;
     user.mobile = req.body.mobile || user.mobile;
 
+    // Profile image update logic: Now checks req.file (from Multer)
+    if (req.file) {
+      // If a new file was uploaded by Multer
+      const newProfilePath = "/uploads/profiles/" + req.file.filename;
+
+      if (newProfilePath !== oldProfilePath) {
+        user.profile = newProfilePath;
+        removeOldProfileImage(oldProfilePath);
+      }
+    } else if (req.body.profile === null) {
+      // Handle case where frontend explicitly sends null to clear profile (Delete profile picture)
+      user.profile = PLACEHOLDER_PROFILE_IMAGE;
+      removeOldProfileImage(oldProfilePath);
+    }
+
     const updatedUser = await user.save();
 
-    const isAdminCreatingUser = updatedUser.isAdminCreatingUser;
     let message;
 
     if (isAdminCreatingUser) {
-      // Admin is creating a user
       message = `${updatedUser.firstName}'s Profile Created Successfully`;
     } else {
-      // Admin is updating a user
       message = `${updatedUser.firstName}'s Profile Updated Successfully`;
     }
 
@@ -399,8 +484,10 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
 const deleteUserByAdmin = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
   if (user) {
+    // Delete their profile image from upload folder when user is deleted
+    removeOldProfileImage(user.profile);
+
     await user.deleteOne();
-    // res.json({ message: "User deleted" });
     res.json({ message: `${user.firstName}'s profile deleted` });
   } else {
     res.status(404);
@@ -419,8 +506,16 @@ const deleteUsersByAdmin = asyncHandler(async (req, res) => {
     throw new Error("Please provide an array of user IDs to delete.");
   }
 
-  //TODO: May add a check here if IDs that could be malformed. (optional but good practice)
-  // userIds = userIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+  // Filter out any invalid ObjectIDs to prevent database errors and ensure valid IDs are processed
+  userIds = userIds.filter((id) => mongoose.Types.ObjectId.isValid(id));
+
+  // Find users to get their profile paths before deleting them
+  const usersToDelete = await User.find({ _id: { $in: userIds } }).select("profile");
+
+  // Delete profile images from upload folder for each user
+  usersToDelete.forEach((user) => {
+    removeOldProfileImage(user.profile);
+  });
 
   const deleteResult = await User.deleteMany({ _id: { $in: userIds } });
 
