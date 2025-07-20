@@ -173,14 +173,6 @@ const ProfilePage = () => {
               {mode === "edit" ? "Click camera icon to change" : ""}
             </p>
 
-            {/* <div id="profileImg" className="relative rounded-full overflow-hidden w-60">
-              <img src={profile} alt="Profile Picture" className="size-auto rounded" />
-              {mode === "edit" && (
-                <div className="absolute inset-x-0 bottom-0 h-3/10 bg-shark/50 flex justify-center items-center p-5">
-                  <FaCamera className="text-light text-2xl" />
-                </div>
-              )}
-            </div> */}
             <div className=" flex items-center gap-1 mt-2 md:my-3">
               <label htmlFor="username" className="font-medium text-xs">
                 Username:
