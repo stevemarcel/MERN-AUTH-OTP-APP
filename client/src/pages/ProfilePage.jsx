@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -8,6 +8,9 @@ import { FaCamera, FaCheckCircle, FaUserLock, FaPaperPlane, FaUserEdit } from "r
 import { MdVerified } from "react-icons/md";
 import Loader from "../components/Loader";
 import BackButton from "../components/BackButton";
+import { PiSealWarningFill } from "react-icons/pi";
+
+const BACKEND_BASE_URL = "http://localhost:5000";
 
 const ProfilePage = () => {
   const [firstName, setFirstName] = useState("");
@@ -21,12 +24,21 @@ const ProfilePage = () => {
   const [mobile, setMobile] = useState("");
 
   const [mode, setMode] = useState("view");
+  const [selectedFile, setSelectedFile] = useState(null); // State for the selected file object
+  const [filePreview, setFilePreview] = useState(null); // State for file preview URL
+  const fileInputRef = useRef(null); // Ref for file input
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleEditClick = () => {
     setMode(mode === "view" ? "edit" : "view");
+
+    if (mode === "edit") {
+      setSelectedFile(null);
+      setFilePreview(null);
+      setProfile(userInfo.profile); // Reset profile display to current user info
+    }
   };
 
   const { userInfo } = useSelector((state) => state.auth);
@@ -44,32 +56,58 @@ const ProfilePage = () => {
     setEmailVerified(userInfo.emailVerified);
     setUsername(userInfo.username);
     setProfile(userInfo.profile);
-    setAddress(userInfo.address);
-    setMobile(userInfo.mobile);
+    setAddress(userInfo.address || "");
+    setMobile(userInfo.mobile || "");
   }, [userInfo]);
 
+  // Handle file selection for profile picture
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      // Create a URL for the file preview
+      setFilePreview(URL.createObjectURL(file));
+      setProfile(""); // Clear the existing profile URL when a new file is selected
+    } else {
+      setSelectedFile(null);
+      setFilePreview(null);
+      setProfile(userInfo.profile); // Reset to current user info URL if no file selected
+    }
+  };
+
+  // Cleanup for file preview URL
+  useEffect(() => {
+    return () => {
+      if (filePreview) {
+        URL.revokeObjectURL(filePreview);
+      }
+    };
+  }, [filePreview]);
+
+  // Handle update profile form submission
   const updateProfileHandler = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await updateProfileApiCall({
-        _id: userInfo._id,
-        firstName,
-        lastName,
-        email,
-        username,
-        profile,
-        address,
-        mobile,
-      }).unwrap();
+      const formData = new FormData();
+      formData.append("firstName", firstName);
+      formData.append("lastName", lastName);
+      formData.append("email", email);
+      formData.append("username", username);
+      formData.append("address", address);
+      formData.append("mobile", mobile);
 
+      if (selectedFile) {
+        formData.append("profile", selectedFile);
+      }
+
+      const res = await updateProfileApiCall(formData).unwrap();
       dispatch(setCredentials({ ...res }));
+
       toast.success(res.message);
-
-      // TODO: Remove console log
-      // console.log(res.message);
-
       setMode("view");
+      setSelectedFile(null); // Clear selected file after upload
+      setFilePreview(null); // Clear file preview after upload
     } catch (err) {
       toast.error(err?.data?.message || err.error);
     }
@@ -78,15 +116,11 @@ const ProfilePage = () => {
   const sendResetPasswordOTP = async () => {
     try {
       const res = await sendResetPasswordOTPApiCall(userInfo).unwrap();
-
-      // TODO: Remove console log
-      // console.log(res);
-
       dispatch(setOTPData({ ...res }));
-
+      toast.success(res.message);
       navigate("/resetPassword");
     } catch (err) {
-      console.log(err?.data?.message || err.error);
+      toast.error(err?.data?.message || err.error);
     }
   };
 
@@ -101,14 +135,52 @@ const ProfilePage = () => {
       <div className="flex mx-auto justify-center text-shark">
         <div className="flex flex-col md:flex-row bg-sharkLight-100/50 p-10 rounded-lg gap-8">
           <div className="flex flex-col items-center">
-            <div id="profileImg" className="relative rounded-full overflow-hidden w-60">
+            <div className="relative mb-4 w-60 h-60 rounded-full overflow-hidden border-2 border-sharkLight-400">
+              {/* Conditional rendering for image preview or existing profile */}
+              <img
+                src={
+                  filePreview
+                    ? filePreview
+                    : profile // If profile is a non-empty string, use it
+                    ? `${BACKEND_BASE_URL}${profile}` // Prepend backend URL
+                    : `${BACKEND_BASE_URL}/uploads/profiles/placeholder.png`
+                }
+                alt="Profile"
+                className="object-cover w-full h-full"
+              />
+              {mode === "edit" && (
+                <label
+                  htmlFor="profile-upload"
+                  className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white cursor-pointer text-2xl"
+                >
+                  <FaCamera />
+                </label>
+              )}
+            </div>
+            {/* Hidden file input */}
+            <input
+              type="file"
+              id="profile-upload"
+              name="profile"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+              ref={fileInputRef} // Attach ref
+              disabled={mode === "view"}
+            />
+
+            <p className="text-sm text-sharkLight-400 mb-2">
+              {mode === "edit" ? "Click camera icon to change" : ""}
+            </p>
+
+            {/* <div id="profileImg" className="relative rounded-full overflow-hidden w-60">
               <img src={profile} alt="Profile Picture" className="size-auto rounded" />
               {mode === "edit" && (
                 <div className="absolute inset-x-0 bottom-0 h-3/10 bg-shark/50 flex justify-center items-center p-5">
                   <FaCamera className="text-light text-2xl" />
                 </div>
               )}
-            </div>
+            </div> */}
             <div className=" flex items-center gap-1 mt-2 md:my-3">
               <label htmlFor="username" className="font-medium text-xs">
                 Username:
@@ -140,13 +212,14 @@ const ProfilePage = () => {
                 e.preventDefault();
               }}
             >
-              <div className=" flex flex-col md:flex-row md:gap-1">
-                <div className=" flex flex-col gap-1 mb-2 md:mb-3">
+              <div className="flex flex-col md:flex-row md:gap-1">
+                <div className="flex flex-col gap-1 mb-2 md:mb-3">
                   <label htmlFor="firstName" className="font-medium text-xs">
                     First Name
                   </label>
                   <input
                     type="text"
+                    id="firstName"
                     name="firstName"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
@@ -165,6 +238,7 @@ const ProfilePage = () => {
                   </label>
                   <input
                     type="text"
+                    id="lastName"
                     name="lastName"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
@@ -182,14 +256,19 @@ const ProfilePage = () => {
                 <div className=" flex flex-col gap-1 mb-2 md:mb-3 md:w-[70%]">
                   <label htmlFor="email" className="flex items-center font-medium text-xs">
                     Email
-                    {emailVerified && (
-                      <div className="ml-1">
+                    {emailVerified ? (
+                      <div className="ml-1 text-green-600">
                         <MdVerified />
+                      </div>
+                    ) : (
+                      <div className="ml-1 text-red-600">
+                        <PiSealWarningFill />
                       </div>
                     )}
                   </label>
                   <input
                     type="email"
+                    id="email"
                     name="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -208,6 +287,7 @@ const ProfilePage = () => {
                   </label>
                   <input
                     type="tel"
+                    id="mobile"
                     name="mobile"
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value)}
@@ -227,6 +307,7 @@ const ProfilePage = () => {
                 </label>
                 <input
                   type="text"
+                  id="address"
                   name="address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
@@ -240,11 +321,11 @@ const ProfilePage = () => {
               </div>
 
               <button
-                type={mode === "edit" ? "submit" : "button"} // Submit button in edit mode
+                type={mode === "edit" ? "submit" : "button"} // Button type changes based on mode
                 className={`flex items-center justify-center w-full mt-5 px-4 py-2 text-white rounded ${
-                  mode === "edit"
-                    ? "bg-green-700 hover:bg-green-800"
-                    : "bg-shark hover:bg-sharkDark-100"
+                  mode === "view"
+                    ? "bg-shark hover:bg-sharkDark-100"
+                    : "bg-green-800 hover:bg-green-900"
                 }`}
                 onClick={mode === "edit" ? updateProfileHandler : handleEditClick}
               >

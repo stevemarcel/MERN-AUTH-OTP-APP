@@ -1,17 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import {
-  useGetUserByIdQuery,
-  useUpdateUserByAdminMutation,
-} from "../slices/usersApiSlice";
-import {
-  FaCamera,
-  FaCheckCircle,
-  FaUserLock,
-  FaUserAlt,
-  FaUserEdit,
-} from "react-icons/fa";
+import { useGetUserByIdQuery, useUpdateUserByAdminMutation } from "../slices/usersApiSlice";
+import { FaCamera, FaCheckCircle, FaUserLock, FaUserAlt, FaUserEdit } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import { PiSealWarningFill } from "react-icons/pi";
 import Loader from "../components/Loader";
@@ -19,11 +10,7 @@ import BackButton from "../components/BackButton";
 
 const UserEditPage = () => {
   const { userId } = useParams();
-  const {
-    data,
-    isLoading: isGettingUser,
-    refetch,
-  } = useGetUserByIdQuery(userId);
+  const { data, isLoading: isGettingUser, refetch } = useGetUserByIdQuery(userId);
 
   const [user, setUser] = useState({});
 
@@ -112,22 +99,14 @@ const UserEditPage = () => {
                   <FaUserEdit />
                 </div>
               )}{" "}
-              {user.firstName} {user.lastName}{" "}
-              {mode === "view" ? "User" : "Edit"} Page
+              {user.firstName} {user.lastName} {mode === "view" ? "User" : "Edit"} Page
             </div>
           </div>
           <div className="flex mx-auto justify-center text-shark">
             <div className="flex flex-col md:flex-row bg-sharkLight-100/50 p-10 rounded-lg gap-8">
               <div className="flex flex-col items-center">
-                <div
-                  id="profileImg"
-                  className="relative rounded-full overflow-hidden w-60"
-                >
-                  <img
-                    src={profile}
-                    alt="Profile Picture"
-                    className="size-auto rounded"
-                  />
+                <div id="profileImg" className="relative rounded-full overflow-hidden w-60">
+                  <img src={profile} alt="Profile Picture" className="size-auto rounded" />
                   {mode === "edit" && (
                     <div className="absolute inset-x-0 bottom-0 h-3/10 bg-shark/50 flex justify-center items-center p-5">
                       <FaCamera className="text-light text-2xl" />
@@ -159,10 +138,7 @@ const UserEditPage = () => {
                 >
                   <div className=" flex flex-col md:flex-row md:gap-1">
                     <div className=" flex flex-col gap-1 mb-2 md:mb-3">
-                      <label
-                        htmlFor="firstName"
-                        className="font-medium text-xs"
-                      >
+                      <label htmlFor="firstName" className="font-medium text-xs">
                         First Name
                       </label>
                       <input
@@ -285,22 +261,17 @@ const UserEditPage = () => {
                     <div className="flex items-center mt-1">
                       {/* Verification Icons */}
                       {emailVerified ? (
-                        <div className="mr-1 text-green-600">
+                        <div className="ml-1 text-green-600">
                           <MdVerified />
                         </div>
                       ) : (
-                        <div className="mr-1 text-red-600">
+                        <div className="ml-1 text-red-600">
                           <PiSealWarningFill />
                         </div>
                       )}
 
-                      <label
-                        htmlFor="emailVerified"
-                        className="font-medium text-sm "
-                      >
-                        {emailVerified
-                          ? "Email Verified"
-                          : "Email Not Verified"}
+                      <label htmlFor="emailVerified" className="font-medium text-sm ">
+                        {emailVerified ? "Email Verified" : "Email Not Verified"}
                       </label>
                       <input
                         type="checkbox"
@@ -322,9 +293,7 @@ const UserEditPage = () => {
                         ? "bg-green-800 hover:bg-green-900"
                         : "bg-shark hover:bg-sharkDark-100"
                     }`}
-                    onClick={
-                      mode === "edit" ? updateUserHandler : handleEditClick
-                    }
+                    onClick={mode === "edit" ? updateUserHandler : handleEditClick}
                   >
                     {isUpdatingProfile ? (
                       <div className="text-3xl">
