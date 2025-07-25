@@ -31,6 +31,8 @@ const ProfilePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const { userInfo } = useSelector((state) => state.auth);
+
   const handleEditClick = () => {
     setMode(mode === "view" ? "edit" : "view");
 
@@ -40,8 +42,6 @@ const ProfilePage = () => {
       setProfile(userInfo.profile); // Reset profile display to current user info
     }
   };
-
-  const { userInfo } = useSelector((state) => state.auth);
 
   const [updateProfileApiCall, { isLoading: isUpdatingProfile }] = useUpdateUserMutation();
 

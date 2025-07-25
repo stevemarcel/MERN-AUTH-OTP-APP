@@ -41,14 +41,14 @@ const AdminPage = () => {
         </h2>
       </div>
 
-      <p className="flex items-center text-lg text-shark mb-4">
+      <p className="flex items-center text-lg text-shark">
         Hello {userInfo.firstName}{" "}
         <span className="ml-2">
           <FaUserLock />
         </span>{" "}
-        <br />
-        Welcome to the admin
+        ,
       </p>
+      <p className="flex items-center text-lg text-shark mb-4">Welcome to the admin</p>
 
       <div className="flex flex-col md:grid md:grid-cols-2 lg:grid lg:grid-cols-3 gap-4 justify-center w-full">
         <Link to="/admin/users">

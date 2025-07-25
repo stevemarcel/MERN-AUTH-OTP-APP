@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGetUserByIdQuery, useUpdateUserByAdminMutation } from "../slices/usersApiSlice";
@@ -8,11 +8,13 @@ import { PiSealWarningFill } from "react-icons/pi";
 import Loader from "../components/Loader";
 import BackButton from "../components/BackButton";
 
+const BACKEND_BASE_URL = "http://localhost:5000";
+
 const UserEditPage = () => {
   const { userId } = useParams();
-  const { data, isLoading: isGettingUser, refetch } = useGetUserByIdQuery(userId);
+  const { data: userData, isLoading: isGettingUser } = useGetUserByIdQuery(userId);
 
-  const [user, setUser] = useState({});
+  // const [user, setUser] = useState({});
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -25,55 +27,91 @@ const UserEditPage = () => {
   const [mobile, setMobile] = useState("");
 
   const [mode, setMode] = useState("view");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   const handleEditClick = () => {
     setMode(mode === "view" ? "edit" : "view");
+
+    if (mode === "edit") {
+      setSelectedFile(null);
+      setFilePreview(null);
+      setProfile(userData.profile || "");
+    }
   };
 
   const [updateUserByAdminApiCall, { isLoading: isUpdatingProfile }] =
     useUpdateUserByAdminMutation();
 
   useEffect(() => {
-    if (data) {
-      setUser(data);
-      setFirstName(data.firstName);
-      setLastName(data.lastName);
-      setEmail(data.email);
-      setEmailVerified(data.emailVerified);
-      setIsAdmin(data.isAdmin);
-      setUsername(data.username);
-      setProfile(data.profile);
-      setAddress(data.address);
-      setMobile(data.mobile);
+    if (userData) {
+      setFirstName(userData.firstName || "");
+      setLastName(userData.lastName || "");
+      setEmail(userData.email || "");
+      setEmailVerified(userData.emailVerified);
+      setIsAdmin(userData.isAdmin);
+      setUsername(userData.username || "");
+      setProfile(userData.profile || "");
+      setAddress(userData.address || "");
+      setMobile(userData.mobile || "");
     }
-  }, [data]);
+  }, [userData]);
 
+  // Handle file selection for profile picture
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setFilePreview(URL.createObjectURL(file));
+      setProfile("");
+    } else {
+      setSelectedFile(null);
+      setFilePreview(null);
+      setProfile(userData.profile || "");
+    }
+  };
+
+  // Cleanup for file preview URL
+  useEffect(() => {
+    return () => {
+      if (filePreview) {
+        URL.revokeObjectURL(filePreview);
+      }
+    };
+  }, [filePreview]);
+
+  // Handle update user form submission
   const updateUserHandler = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await updateUserByAdminApiCall({
-        _id: user._id,
-        firstName,
-        lastName,
-        email,
-        emailVerified,
-        isAdmin,
-        username,
-        profile,
-        address,
-        mobile,
-      }).unwrap();
+      const formData = new FormData();
+      // formData.append("_id", userId);
+      formData.append("firstName", firstName);
+      formData.append("lastName", lastName);
+      formData.append("email", email);
+      formData.append("emailVerified", emailVerified);
+      formData.append("isAdmin", isAdmin);
+      formData.append("username", username);
+      formData.append("address", address);
+      formData.append("mobile", mobile);
 
-      refetch();
+      if (selectedFile) {
+        formData.append("profile", selectedFile);
+      }
+
+      const res = await updateUserByAdminApiCall({ userId, formData }).unwrap();
+      // refetch();
+
       toast.success(res.message);
-
-      // TODO: Remove console log
-      // console.log(res.message);
-
       setMode("view");
+      setSelectedFile(null);
+      setFilePreview(null);
     } catch (err) {
       toast.error(err?.data?.message || err.error);
+      setSelectedFile(null);
+      setFilePreview(null);
     }
   };
 
@@ -99,20 +137,59 @@ const UserEditPage = () => {
                   <FaUserEdit />
                 </div>
               )}{" "}
-              {user.firstName} {user.lastName} {mode === "view" ? "User" : "Edit"} Page
+              {userData.firstName} {userData.lastName} {mode === "view" ? "User" : "Edit"} Page
             </div>
           </div>
           <div className="flex mx-auto justify-center text-shark">
             <div className="flex flex-col md:flex-row bg-sharkLight-100/50 p-10 rounded-lg gap-8">
               <div className="flex flex-col items-center">
-                <div id="profileImg" className="relative rounded-full overflow-hidden w-60">
+                {/* <div id="profileImg" className="relative rounded-full overflow-hidden w-60">
                   <img src={profile} alt="Profile Picture" className="size-auto rounded" />
                   {mode === "edit" && (
                     <div className="absolute inset-x-0 bottom-0 h-3/10 bg-shark/50 flex justify-center items-center p-5">
                       <FaCamera className="text-light text-2xl" />
                     </div>
                   )}
+                </div> */}
+                <div
+                  id="profileImg"
+                  className="relative mb-4 w-60 h-60 rounded-full overflow-hidden border-2 border-sharkLight-400"
+                >
+                  {/* Conditional rendering for image preview or existing profile */}
+                  <img
+                    src={
+                      filePreview
+                        ? filePreview
+                        : profile // If profile is a non-empty string, use it
+                        ? `${BACKEND_BASE_URL}${profile}` // Prepend backend URL
+                        : `${BACKEND_BASE_URL}/uploads/profiles/placeholder.png`
+                    }
+                    alt="Profile"
+                    className="object-cover w-full h-full"
+                  />
+                  {mode === "edit" && (
+                    <label
+                      htmlFor="profile-upload"
+                      className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white cursor-pointer text-2xl"
+                    >
+                      <FaCamera />
+                    </label>
+                  )}
                 </div>
+                {/* Hidden file input */}
+                <input
+                  type="file"
+                  id="profile-upload"
+                  name="profile"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  ref={fileInputRef} // Attach ref
+                  disabled={mode === "view"}
+                />
+                <p className="text-sm text-sharkLight-400 mb-2">
+                  {mode === "edit" ? "Click camera icon to change" : ""}
+                </p>
                 <div className="flex items-center gap-1 mt-2 md:my-3">
                   <label htmlFor="username" className="font-medium text-xs">
                     Username:

@@ -114,13 +114,13 @@ export const usersApiSlice = apiSlice.injectEndpoints({
 
     // Update User by Admin Mutation
     updateUserByAdmin: builder.mutation({
-      query: (data) => ({
-        url: `${USERS_URL}/${data._id}`, // PUT /api/users/:id
+      query: ({ userId, formData }) => ({
+        url: `${USERS_URL}/${userId}`, // PUT /api/users/:id
         method: "PUT",
-        body: data,
+        body: formData,
       }),
       // Invalidate the 'User' tag, specifically for the updated user and the general list.
-      invalidatesTags: (result, error, arg) => ["User", { type: "User", id: arg._id }],
+      invalidatesTags: (result, error, { userId }) => ["User", { type: "User", id: userId }],
     }),
 
     // Delete a Single User by ID Mutation

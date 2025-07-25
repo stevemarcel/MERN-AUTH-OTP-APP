@@ -27,7 +27,7 @@ const CountdownTimer = ({ duration }) => {
 };
 
 CountdownTimer.propTypes = {
-  duration: PropTypes.string,
+  duration: PropTypes.number,
 };
 
 export default CountdownTimer;

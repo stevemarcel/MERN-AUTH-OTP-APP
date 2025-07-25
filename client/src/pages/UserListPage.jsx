@@ -484,6 +484,10 @@ const UserListPage = () => {
                           title={`View ${user.firstName}`}
                         >
                           <IoIosEye />
+                          {/* Custom Tooltip for View Button */}
+                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-sharkDark-500 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-10">
+                            {`View ${user.firstName}`}
+                          </span>
                           {/* <span className="absolute bottom-0 left-3 px-2 py-1 text-xs bg-shark rounded opacity-0 hover:opacity-100 whitespace-nowrap">
                             {`View ${user.firstName}`}
                           </span> */}
@@ -511,13 +515,6 @@ const UserListPage = () => {
             </tbody>
           </table>
           {renderPagination()}
-
-          {/* Loader */}
-          {/* {isGettingUsers && (
-            <div className="flex justify-center p-8 text-9xl">
-              <Loader />
-            </div>
-          )} */}
 
           {/* Delete Single User by ID Confirmation Popup */}
           {isConfirmOpen && (

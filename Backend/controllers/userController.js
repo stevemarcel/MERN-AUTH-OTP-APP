@@ -451,7 +451,7 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
 
     let message;
 
-    if (isAdminCreatingUser) {
+    if (updatedUser.isAdminCreatingUser) {
       message = `${updatedUser.firstName}'s Profile Created Successfully`;
     } else {
       message = `${updatedUser.firstName}'s Profile Updated Successfully`;
