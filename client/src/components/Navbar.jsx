@@ -139,7 +139,7 @@ const Navbar = () => {
                 to={navItem.link}
                 className={({ isActive }) => {
                   return isActive
-                    ? "font-bold hover:text-sharkDark-300 underline underline-offset-4"
+                    ? "font-bold hover:text-sharkDark-300 underline underline-offset-4 duration-200"
                     : "hover:text-sharkLight-300 p-4 rounded-sm duration-200";
                 }}
               >
