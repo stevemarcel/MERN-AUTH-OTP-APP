@@ -92,32 +92,34 @@ const Navbar = () => {
     }
   };
 
-  const dropdownList = getDropdownItems().map((item) => (
-    <Link
-      to={item.link}
-      key={item.id}
-      onClick={
-        userInfo && item.text === "Logout"
-          ? logoutHandler
-          : mobileNavOpen
-          ? handleMobileNavOpen
-          : null
-      }
-    >
-      <li
-        className={`hover:bg-sharkLight-100 px-4 py-2 text-shark flex items-center ${
-          userInfo ? (userInfo.isAdmin || item.text !== "Admin" ? "" : "hidden") : ""
+  const dropdownList = getDropdownItems().map((item) => {
+    // Determine if the item should be hidden
+    const isHidden = userInfo && item.text === "Admin Page" && !userInfo.isAdmin;
+    return (
+      <Link
+        to={item.link}
+        key={item.id}
+        onClick={
+          userInfo && item.text === "Logout"
+            ? logoutHandler
+            : mobileNavOpen
+            ? handleMobileNavOpen
+            : null
         }
-      
-      `}
       >
-        <div className="flex items-center text-left">
-          <div>{item.icon}</div>
-          <div className=" ml-2">{item.text}</div>
-        </div>
-      </li>
-    </Link>
-  ));
+        <li
+          className={`hover:bg-sharkLight-100 px-4 py-2 text-shark flex items-center ${
+            isHidden ? "hidden" : ""
+          }`}
+        >
+          <div className="flex items-center text-left">
+            <div>{item.icon}</div>
+            <div className=" ml-2">{item.text}</div>
+          </div>
+        </li>
+      </Link>
+    );
+  });
 
   return (
     <div className="bg-sharkLight-100 text-shark sticky top-0 z-50">
@@ -197,9 +199,9 @@ const Navbar = () => {
               >
                 <div className="flex items-center">
                   <img
-                    src={userInfo ? userInfo.profile : ""}
+                    src={userInfo ? `${BACKEND_BASE_URL}${userInfo.profile}` : ""}
                     alt="Profile Picture"
-                    className="w-8 h-8"
+                    className="w-8 h-8 rounded-full"
                   />
                 </div>
                 {showDropdown && (
