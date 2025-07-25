@@ -1,4 +1,4 @@
-import Hero from "../components/Hero"; // Your refactored Hero component
+import Hero from "../components/Hero";
 import FunctionalitiesSection from "../components/FunctionalitiesSection";
 
 const FeaturesPage = () => {

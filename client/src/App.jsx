@@ -11,7 +11,7 @@ const App = () => {
     !location.pathname.includes("/login") && !location.pathname.includes("/register"); // Check for login and register paths
 
   return (
-    <div className="bg-light">
+    <div className="bg-sharkLight-100/30">
       <ToastContainer />
       <Navbar />
       <Outlet />
