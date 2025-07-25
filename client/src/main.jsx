@@ -15,7 +15,6 @@ import App from "./App.jsx";
 import "./index.css";
 
 // Pages Import
-//? import RegisterPage from "./assets/test/RegisterPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
@@ -25,20 +24,29 @@ import VerifyEmail from "./pages/VerifyEmail.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
-import PrivateRoute from "./components/PrivateRoute.jsx";
-import AdminRoute from "./components/AdminRoute.jsx";
 import UserListPage from "./pages/UserListPage.jsx";
 import ProductListPage from "./pages/ProductListPage.jsx";
 import UserEditPage from "./pages/UserEditPage.jsx";
 import CreateNewUserPage from "./pages/CreateNewUserPage.jsx";
 import DummyListPage from "./pages/DummyListPage.jsx";
+import FeaturesPage from "./pages/FeaturesPage.jsx";
+import AboutPage from "./pages/AboutPage.jsx";
+import ContactPage from "./pages/ContactPage.jsx";
+
+// Components Import
+import PrivateRoute from "./components/PrivateRoute.jsx";
+import AdminRoute from "./components/AdminRoute.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
+      {/* Public Routes */}
       <Route index={true} path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/features" element={<FeaturesPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
       <Route path="/confirm-email/:id" element={<ConfirmEmailPage />} />
       <Route path="/:id/verifyemail/:token" element={<VerifyEmail />} />
       <Route path="*" element={<ErrorPage />} />
@@ -47,6 +55,7 @@ const router = createBrowserRouter(
       <Route path="" element={<PrivateRoute />}>
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/resetPassword" element={<ResetPasswordPage />} />
+
         {/* Admin Routes */}
         <Route path="" element={<AdminRoute />}>
           <Route path="/admin" element={<AdminPage />} />

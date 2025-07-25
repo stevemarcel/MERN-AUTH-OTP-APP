@@ -24,10 +24,10 @@ const Navbar = () => {
   //Get user
   const { userInfo } = useSelector((state) => state.auth);
 
-  // Array containing navigation items when not logged in
+  // Array containing navigation items
   const navItems = [
     { id: 1, text: "Home", link: "/" },
-    { id: 2, text: "Services", link: "/services" },
+    { id: 2, text: "Features", link: "/features" },
     { id: 3, text: "About", link: "/about" },
     { id: 4, text: "Contact", link: "/contact" },
   ];
@@ -132,7 +132,7 @@ const Navbar = () => {
         </div>
 
         {/* Nav bar items */}
-        <ul className="md:flex hidden">
+        <ul className="md:flex hidden gap-x-4">
           {navItems.map((navItem) => (
             <li key={navItem.id}>
               <NavLink
@@ -140,7 +140,7 @@ const Navbar = () => {
                 className={({ isActive }) => {
                   return isActive
                     ? "font-bold hover:text-sharkDark-300 underline underline-offset-4"
-                    : "hover:text-sharkLight-300 p-4 rounded-sm";
+                    : "hover:text-sharkLight-300 p-4 rounded-sm duration-200";
                 }}
               >
                 {navItem.text}
@@ -264,8 +264,8 @@ const Navbar = () => {
                 key={navItem.id}
                 className={({ isActive }) => {
                   return isActive
-                    ? "bg-sharkLight-200/50 border-l-4 border-shark p-4 mb-2"
-                    : "p-4 mb-2 cursor-pointer";
+                    ? "bg-sharkLight-200/50 border-l-4 border-shark p-4 mb-2 "
+                    : "p-4 mb-2 cursor-pointer hover:bg-sharkLight-200/50 duration-200";
                 }}
               >
                 <li>{navItem.text}</li>

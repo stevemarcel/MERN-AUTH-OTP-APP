@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 import SharkLogo from "../assets/img/sharkColoursLogoInverse.png";
 import FooterForm from "./FooterForm";
 
-// Array containing navigation items when not logged in
+// Array containing navigation items
 const navItems = [
   { id: 1, text: "Home", link: "/" },
-  { id: 2, text: "Services", link: "/services" },
+  { id: 2, text: "Features", link: "/features" },
   { id: 3, text: "About", link: "/about" },
   { id: 4, text: "Contact", link: "/contact" },
 ];
