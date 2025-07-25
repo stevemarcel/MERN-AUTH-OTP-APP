@@ -204,7 +204,7 @@ const UserListPage = () => {
     }
 
     return (
-      <div className="flex justify-end gap-1 items-center mt-4">
+      <div className="flex justify-end gap-1 items-center">
         <button
           className="disabled:opacity-30 disabled:hover:font-normal hover:font-medium bg-sharkLight-100 px-2 py-1 rounded text-sm"
           disabled={currentPage === 1}
@@ -381,6 +381,7 @@ const UserListPage = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="px-3 py-2 rounded border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400 flex-grow"
         />
+        <div className="">{renderPagination()}</div>
       </div>
 
       {/* Users Table */}
@@ -478,35 +479,51 @@ const UserListPage = () => {
                     </td>
                     <td className="p-2">
                       <div className="flex gap-2 ">
-                        <Link
-                          to={`/admin/user/${user._id}/edit`}
-                          className="relative flex col-span-2 items-center justify-center p-2 bg-shark hover:bg-sharkDark-300  text-white rounded"
-                          title={`View ${user.firstName}`}
-                        >
-                          <IoIosEye />
+                        <div className="group relative">
+                          {" "}
+                          <Link
+                            to={`/admin/user/${user._id}/edit`}
+                            className="flex col-span-2 items-center justify-center p-2 bg-shark hover:bg-sharkDark-300 text-white rounded"
+                          >
+                            <IoIosEye />
+                          </Link>
                           {/* Custom Tooltip for View Button */}
-                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-sharkDark-500 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-10">
+                          <span
+                            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2
+                            px-2 py-1 text-xs text-white bg-sharkDark-300 rounded-md
+                            opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                            whitespace-nowrap z-10 pointer-events-none"
+                          >
                             {`View ${user.firstName}`}
                           </span>
-                          {/* <span className="absolute bottom-0 left-3 px-2 py-1 text-xs bg-shark rounded opacity-0 hover:opacity-100 whitespace-nowrap">
-                            {`View ${user.firstName}`}
-                          </span> */}
-                        </Link>
-                        <button
-                          type="button"
-                          className="flex col-span-2 items-center justify-center p-2 bg-red-800 hover:bg-red-900 text-white rounded"
-                          onClick={() => deleteUserPopup(user._id)}
-                          title={`Delete ${user.firstName}`}
-                          disabled={isDeletingUser}
-                        >
-                          {isDeletingUser ? (
-                            <div className="text-3xl">
-                              <Loader />
-                            </div>
-                          ) : (
-                            <MdDelete />
-                          )}
-                        </button>
+                        </div>
+                        <div className="group relative">
+                          {" "}
+                          {/* This is the new wrapper div */}
+                          <button
+                            type="button"
+                            className="flex col-span-2 items-center justify-center p-2 bg-red-800 hover:bg-red-900 text-white rounded"
+                            onClick={() => deleteUserPopup(user._id)}
+                            disabled={isDeletingUser}
+                          >
+                            {isDeletingUser ? (
+                              <div className="text-3xl">
+                                <Loader />
+                              </div>
+                            ) : (
+                              <MdDelete />
+                            )}
+                          </button>
+                          {/* Custom Tooltip for Delete Button */}
+                          <span
+                            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2
+                            px-2 py-1 text-xs text-white bg-red-900 rounded-md
+                            opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                            whitespace-nowrap z-10 pointer-events-none"
+                          >
+                            {`Delete ${user.firstName}`}
+                          </span>
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -514,7 +531,7 @@ const UserListPage = () => {
               )}
             </tbody>
           </table>
-          {renderPagination()}
+          <div className="mt-4">{renderPagination()}</div>
 
           {/* Delete Single User by ID Confirmation Popup */}
           {isConfirmOpen && (

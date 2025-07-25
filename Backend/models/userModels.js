@@ -38,7 +38,7 @@ const userSchema = mongoose.Schema(
     },
     username: {
       type: String,
-      default: "sample",
+      unique: true,
     },
     profile: {
       type: String,

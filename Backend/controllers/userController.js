@@ -38,7 +38,7 @@ const removeOldProfileImage = (oldImagePath) => {
 // @ROUTE       POST /api/users
 // @ACCESS      Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { firstName, lastName, email, password, isAdminCreatingUser } = req.body;
+  const { firstName, lastName, email, password, isAdminCreatingUser, username } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -53,6 +53,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password,
     isAdminCreatingUser,
+    username,
   });
 
   if (user) {

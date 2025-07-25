@@ -87,9 +87,18 @@ const CreateNewUserPage = () => {
       formData.append("isAdminCreatingUser", isAdminCreatingUser);
       formData.append("emailVerified", emailVerified);
       formData.append("isAdmin", isAdmin);
-      formData.append("username", username);
+
       formData.append("address", address);
       formData.append("mobile", mobile);
+
+      // Create the username
+      const randomDigits = Math.floor(10 + Math.random() * 90);
+      const generatedUsername = `${firstName.toLowerCase().replace(/\s/g, "")}${lastName
+        .toLowerCase()
+        .replace(/\s/g, "")}${randomDigits}`;
+
+      // Use the provided username or the generated one
+      formData.append("username", username ? username : generatedUsername);
 
       if (selectedFile) {
         formData.append("profile", selectedFile);

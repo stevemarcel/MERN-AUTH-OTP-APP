@@ -7,7 +7,6 @@ import { setCredentials } from "../slices/authSlice";
 import AuthPagesLayout from "../components/AuthPagesLayout";
 
 const RegisterPage = () => {
-  // Register PROPS for AuthPagesLayout
   const title = "Get Started";
   const buttonText = "Register";
   const redirectQuestion = "Already have an account?";
@@ -34,8 +33,10 @@ const RegisterPage = () => {
   }, [navigate, userInfo]);
 
   const registerHandler = async (formData) => {
+    // Client-side validation
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
+      return;
     } else if (
       formData.firstName === "" ||
       formData.lastName === "" ||
@@ -44,10 +45,24 @@ const RegisterPage = () => {
       formData.isAdminCreatingUser === "" ||
       formData.confirmPassword === ""
     ) {
-      toast.error("Invalid Input(s)");
+      toast.error("Invalid Input(s). Please fill all required fields.");
     } else {
       try {
-        const res = await registerApiCall(formData).unwrap();
+        // Generate a random 2-digit number (between 10 and 99)
+        const randomDigits = Math.floor(10 + Math.random() * 90);
+
+        // Create the username
+        const generatedUsername = `${formData.firstName
+          .toLowerCase()
+          .replace(/\s/g, "")}${formData.lastName.toLowerCase().replace(/\s/g, "")}${randomDigits}`;
+
+        // Create a new formData object including the generated username
+        const dataToSend = {
+          ...formData,
+          username: generatedUsername,
+        };
+
+        const res = await registerApiCall(dataToSend).unwrap();
 
         dispatch(setCredentials({ ...res }));
         navigate(`/confirm-email/${res._id}`);
