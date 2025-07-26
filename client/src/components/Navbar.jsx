@@ -10,6 +10,7 @@ import {
   FaBars,
   FaTimes,
   FaCaretDown,
+  FaRocket,
 } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { useLogoutMutation } from "../slices/usersApiSlice";
@@ -167,7 +168,11 @@ const Navbar = () => {
                 <span>{userInfo.firstName}</span>
               </div>
             ) : (
-              "Get Started"
+              <>
+                <span className="">
+                  Get Started <FaRocket className="inline-block mx-2" />
+                </span>
+              </>
             )}
 
             <FaCaretDown

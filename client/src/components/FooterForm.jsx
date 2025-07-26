@@ -7,10 +7,10 @@ const FooterForm = ({ placeholder }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission here (e.g., send message to server)
+
     console.log("Email:", email);
     console.log("Message:", message);
-    setMessage(""); // Clear the message after submit
+    setMessage("");
   };
 
   return (
@@ -32,7 +32,7 @@ const FooterForm = ({ placeholder }) => {
       />
       <button
         type="submit"
-        className="px-4 py-2 bg-sharkLight-100 hover:bg-sharkLight-300 hover:text-shark  rounded-sm font-bold"
+        className="px-4 py-2 bg-sharkLight-100 hover:bg-sharkLight-100/90 rounded-sm font-bold transition duration-300 transform hover:scale-105"
       >
         Send
       </button>

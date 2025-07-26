@@ -12,7 +12,7 @@ const HomePage = () => {
   return (
     <div className=" text-sharkDark-300">
       <Hero title="USER MANAGEMENT SYSTEM (OTP)" description={homePageDescription} />
-      <FunctionalitiesSection />
+      <FunctionalitiesSection className="py-12" />
     </div>
   );
 };

@@ -26,32 +26,33 @@ const AboutPage = () => {
 
   const missionContent = `
     At the core of this project is a dedication to simplifying user administration
-    while elevating digital security. We strive to provide a robust and intuitive
+    while elevating digital security. I strive to provide a robust and intuitive
     platform that empowers businesses to manage user accounts efficiently and securely,
     prioritizing data integrity and user privacy through advanced authentication protocols.
-    Our vision is to set a new standard for user management, combining strong security
+    My vision is to set a new standard for user management, combining strong security
     measures with a seamless and accessible user experience.
   `
     .replace(/\s+/g, " ")
     .trim();
 
   const technologyContent = `
-    This system is meticulously crafted using the cutting-edge MERN stack (MongoDB, Express.js,
-    React, Node.js). We harnessed React and Redux Toolkit for a dynamic and predictable frontend,
-    React Query for highly efficient data fetching and caching, and Tailwind CSS for rapid,
-    responsive UI development. On the backend, Express.js provides a robust RESTful API,
-    seamlessly integrated with MongoDB for flexible and scalable data storage. This combination
-    ensures a high-performance, maintainable, and modern application ready for deployment.
+    This system is meticulously crafted using the cutting-edge <strong>MERN stack (MongoDB, Express.js,
+    React, Node.js)</strong>. I harnessed React and <strong>Redux Toolkit</strong> for a dynamic and
+    predictable frontend, <strong>React Query</strong> for highly efficient data fetching and caching,
+    and <strong>Tailwind CSS</strong> for rapid, responsive UI development. On the backend, <strong>Express.js</strong> 
+    provides a robust RESTful API, seamlessly integrated with <strong>MongoDB</strong> for flexible and 
+    scalable data storage. This combination ensures a high-performance, maintainable, and modern 
+    application ready for deployment.
   `
     .replace(/\s+/g, " ")
     .trim();
 
   const developerContent = `
-    This User Management System was developed by <strong>Stephen Onyejuluwa</strong>
-    as a comprehensive demonstration of full-stack web development capabilities.
+    This User Management System was developed by me; <strong>Stephen Onyejuluwa</strong>
+    as a comprehensive demonstration of my full-stack web development capabilities.
     My passion for building secure, efficient, and user-friendly applications drove the creation
-    of this project, focusing on modern best practices in authentication, state management,
-    and API design. I continuously strive to learn and implement the latest technologies
+    of this project, <strong>focusing on modern best practices in authentication, state management,
+    and API design</strong>. I continuously strive to learn and implement the latest technologies
     to create impactful digital solutions.
   `
     .replace(/\s+/g, " ")
@@ -61,21 +62,18 @@ const AboutPage = () => {
     <div>
       <Hero title="About Our User Management System" description={aboutHeroDescription} />
 
-      {/* Main content area for the About page */}
       <main>
-        {/* Our Mission Section - Image on Left */}
+        {/* The Mission Section - Image on Left */}
         <section className="bg-sharkLight-100/10 py-12">
           <div className="w-[90%] mx-auto flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12">
             <div className="md:w-1/2 flex justify-center">
-              <img
-                src={missionImage}
-                alt="Our Mission"
-                className="rounded-lg shadow-lg max-w-full h-auto"
-              />
+              <div className="w-full max-w-md aspect-square rounded-lg overflow-hidden shadow-lg">
+                <img src={missionImage} alt="Our Mission" className="w-full h-full object-cover" />
+              </div>
             </div>
             <div className="md:w-1/2 text-sharkDark-400">
               <h2 className="mb-4 text-lg md:text-2xl font-bold uppercase flex items-center justify-center md:justify-start">
-                <FaBullseye className="mr-3 text-shark" size={24} /> Our Mission
+                <FaBullseye className="mr-3 text-shark" size={24} /> The Mission
               </h2>
               <p className="text-justify">{missionContent}</p>
             </div>
@@ -86,17 +84,25 @@ const AboutPage = () => {
         <section className="bg-sharkLight-100/30 py-12">
           <div className="w-[90%] mx-auto flex flex-col md:flex-row-reverse items-center justify-center gap-8 md:gap-12">
             <div className="md:w-1/2 flex justify-center">
-              <img
-                src={techStackImage}
-                alt="Technologies Used"
-                className="rounded-lg shadow-lg max-w-full h-auto"
-              />
+              <div className="w-full max-w-md aspect-square rounded-lg overflow-hidden shadow-lg">
+                <img
+                  src={techStackImage}
+                  alt="Technologies Used"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
             <div className="md:w-1/2 text-sharkDark-400">
               <h2 className="mb-4 text-lg md:text-2xl font-bold uppercase flex items-center justify-center md:justify-start">
-                <FaCode className="mr-3 text-shark" size={24} /> Technologies That Drive Us
+                <FaCode className="mr-3 text-shark" size={24} /> Technologies That Drives The
+                Project
               </h2>
-              <p className="text-justify">{technologyContent}</p>
+              <p
+                className="text-justify"
+                dangerouslySetInnerHTML={{
+                  __html: technologyContent,
+                }}
+              ></p>
             </div>
           </div>
         </section>
@@ -108,7 +114,7 @@ const AboutPage = () => {
               <img
                 src={myProfilePhoto}
                 alt="Developer Photo"
-                className="rounded-full shadow-lg max-w-full h-auto" // Rounded for a profile look
+                className="rounded-full shadow-lg size-80 object-cover mx-auto"
               />
             </div>
             <div className="md:w-1/2 text-sharkDark-400">
@@ -163,7 +169,7 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* Call to Action Section - Styling Adjusted Here */}
+        {/* Call to Action Section */}
         <section className="bg-sharkDark-300 text-sharkLight-100 py-12 text-center shadow-xl">
           {" "}
           <h3 className="text-xl md:text-3xl font-bold mb-4">

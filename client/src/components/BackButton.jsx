@@ -16,7 +16,7 @@ const BackButton = ({ icon }) => {
   return (
     <div>
       <button
-        className={`flex items-center justify-center mr-8 px-3 py-2 w-full text-light text-xs focus:outline-none rounded-lg duration-200 ${BtnColour}`}
+        className={`flex items-center justify-center mr-8 px-3 py-2 w-full text-light text-xs focus:outline-none rounded-lg transition duration-300 hover:scale-105 hover:shadow-sm ${BtnColour}`}
         onClick={() => navigate(-1)}
       >
         <div className="mr-1">{BtnIcon}</div>

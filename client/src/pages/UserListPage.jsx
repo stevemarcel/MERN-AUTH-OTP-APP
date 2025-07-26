@@ -326,8 +326,8 @@ const UserListPage = () => {
       <div className="flex flex-col mb-4 md:flex-row md:justify-between">
         <div className="flex items-center  w-full mb-4 md:mb-0">
           <BackButton />
-          <h2 className="text-2xl font-bold md:mb-0 text-shark flex justify-center w-full">
-            All Users
+          <h2 className="text-3xl font-bold md:mb-0 text-shark uppercase flex justify-center w-full">
+            Manage Users
           </h2>
         </div>
 
@@ -408,8 +408,8 @@ const UserListPage = () => {
                 <th className="p-2">Name</th>
                 <th className="p-2 md:table-cell hidden">Email</th>
                 <th className="p-2 md:table-cell hidden">Member Since</th>
-                <th className="p-2 md:table-cell hidden">Admin</th>
-                <th className="p-2">Options</th>
+                <th className="p-2 md:table-cell hidden text-center">Admin</th>
+                <th className="p-2 text-center">Options</th>
               </tr>
             </thead>
 
@@ -431,7 +431,7 @@ const UserListPage = () => {
                 usersToDisplay.map((user, index) => (
                   <tr
                     key={user._id}
-                    className={`text-left  border-gray-200 transition-all duration-200 ${
+                    className={`text-left text-xs border-gray-200 transition-all duration-300 hover:bg-sharkLight-100/50 hover:scale-105 hover:shadow-md ${
                       selectedUserIds.has(user._id)
                         ? "bg-sharkLight-100 border-l-4 border-shark" // Apply these classes when selected
                         : ""
@@ -444,7 +444,9 @@ const UserListPage = () => {
                         onChange={() => handleSelectUser(user._id)}
                       />
                     </td>
-                    <td className="p-2">{index + 1 + (currentPage - 1) * usersPerPage}</td>
+                    <td className="p-2 text-center">
+                      {index + 1 + (currentPage - 1) * usersPerPage}
+                    </td>
                     <td className="p-2">
                       {
                         <div className="flex gap-2 items-center">
@@ -467,7 +469,17 @@ const UserListPage = () => {
                     <td className="p-2 md:table-cell hidden">
                       <a href={`mailto:${user.email}`}>{user.email}</a>
                     </td>
-                    <td className="p-2 md:table-cell hidden">{user.createdAt.split("T")[0]}</td>
+                    {/* <td className="p-2 md:table-cell hidden">{user.createdAt.split("T")[0]}</td> */}
+                    <td className="p-2 md:table-cell hidden">
+                      {new Intl.DateTimeFormat("en-US", {
+                        day: "numeric", // e.g., 15
+                        month: "short", // e.g., Dec
+                        year: "numeric", // e.g., 2025
+                        hour: "2-digit", // e.g., 11
+                        minute: "2-digit", // e.g., 32
+                        hour12: true, // e.g., AM/PM
+                      }).format(new Date(user.createdAt))}
+                    </td>
                     <td className="p-2 md:table-cell hidden">
                       <div
                         className={`flex justify-center ${
@@ -478,7 +490,7 @@ const UserListPage = () => {
                       </div>
                     </td>
                     <td className="p-2">
-                      <div className="flex gap-2 ">
+                      <div className="flex gap-2 justify-center">
                         <div className="group relative">
                           {" "}
                           <Link
