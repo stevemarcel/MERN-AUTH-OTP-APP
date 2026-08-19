@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node Backend/server.js",
-    "build": "npm install --prefix frontend && npm run build --prefix frontend",
+    "build": "npm install --prefix client && npm run build --prefix client",
     "server": "nodemon Backend/server.js",
     "client": "npm run dev --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\""
