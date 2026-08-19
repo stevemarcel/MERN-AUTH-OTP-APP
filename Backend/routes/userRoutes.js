@@ -5,6 +5,7 @@ import {
   sendVerificationEmail,
   verifyUserEmail,
   loginUser,
+  getUserProfile,
   getUsers,
   getUserById,
   sendResetPasswordOTPEmail,
@@ -30,7 +31,10 @@ router.route("/login").post(loginUser);
 router.route("/sendresetpasswordemail").post(protect, sendResetPasswordOTPEmail);
 router.route("/verifyresetpasswordotp").post(protect, verifyResetPasswordOTP);
 
-router.route("/profile").put(protect, uploadProfileImage.single("profile"), updateUserProfile);
+router
+  .route("/profile")
+  .get(protect, getUserProfile)
+  .put(protect, uploadProfileImage.single("profile"), updateUserProfile);
 
 router
   .route("/:id")

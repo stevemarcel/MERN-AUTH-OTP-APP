@@ -23,7 +23,8 @@
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.4.2",
     "multer": "^2.0.2",
-    "nodemailer": "^6.9.6"
+    "nodemailer": "^6.9.6",
+    "recharts": "^3.1.0"
   },
   "devDependencies": {
     "concurrently": "^8.2.1",

@@ -213,11 +213,18 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
+// @DESCRIPTION Get currently logged in user's profile
+// @ROUTE       GET /api/users/profile
+// @ACCESS      Private
+const getUserProfile = asyncHandler(async (req, res) => {
+  res.status(200).json(req.user);
+});
+
 // @DESCRIPTION Gets all users
 // @ROUTE       GET /api/users
 // @ACCESS      Private/Admin
 const getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({});
+  const users = await User.find().select("-password");
   res.status(200).json({
     message: "All users details sent",
     users,
@@ -545,6 +552,7 @@ export {
   sendVerificationEmail,
   verifyUserEmail,
   loginUser,
+  getUserProfile,
   getUsers,
   getUserById,
   sendResetPasswordOTPEmail,

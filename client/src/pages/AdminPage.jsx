@@ -1,89 +1,61 @@
-import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import Card from "../components/Card";
-import UserManagementImg from "../assets/img/userManagementImg.jpg";
-import ProductsManagementImg from "../assets/img/productsManagementImg.jpg";
-import PlaceholderImg from "../assets/img/placeholder.jpg";
-import BackButton from "../components/BackButton";
-import { FaUserLock } from "react-icons/fa";
+import { FaShieldHalved } from "react-icons/fa6";
+import { useGetUsersQuery } from "../slices/usersApiSlice";
+
+import AdminDashboardOverview from "../components/Admin/AdminDashboardOverview";
 import Hero from "../components/Hero";
+import Loader from "../components/Loader";
 
 const AdminPage = () => {
-	const { userInfo } = useSelector((state) => state.auth);
+  const { userInfo } = useSelector((state) => state.auth);
 
-	const admin = (
-		<div className="font-bold text-xl inline-block">
-			<div className="flex items-center">
-				{userInfo.firstName} <FaUserLock className="ml-1" />
-			</div>
-		</div>
-	);
+  const { data: usersData, isLoading: isUsersLoading, isError: isUsersError } = useGetUsersQuery();
 
-	// const adminPageTitle = `Hello ${admin}, Welcome to the Admin Dashboard`;
+  const users = usersData?.users || [];
 
-	const adminPageDescription = [
-		`Welcome to the administrator dashboard, `,
-		admin,
-		`. Here you can manage users, products, and more.`,
-	];
+  const dashboardStats = {
+    totalUsers: users.length,
+    verifiedUsers: users.filter((user) => user.emailVerified).length,
+    unverifiedUsers: users.filter((user) => !user.emailVerified).length,
+    adminUsers: users.filter((user) => user.isAdmin).length,
+    nonAdminUsers: users.filter((user) => !user.isAdmin).length,
+  };
 
-	const usersCardInfo = {
-		image: UserManagementImg,
-		title: "Manage Users",
-		description: "View and manage all users",
-	};
-	const productsCardInfo = {
-		image: ProductsManagementImg,
-		title: "Manage Products",
-		description: "View and manage all user products",
-	};
+  const adminPageDescription = [
+    `Welcome to the administrator dashboard, ${userInfo.firstName}`,
+    <FaShieldHalved key="admin-icon" className="inline-block" />,
+    `. `,
+    `Here you can manage users, products, and more.`,
+  ];
 
-	const dummyCardInfo = {
-		image: PlaceholderImg,
-		title: "Manage Dummy Items",
-		description: "View and manage all dummy admin item",
-	};
+  if (isUsersLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader />
+        <span className="ml-2 text-shark">Loading dashboard data...</span>
+      </div>
+    );
+  }
 
-	return (
-		<section className="w-[90%] mx-auto py-10">
-			<div className="flex items-center mb-4">
-				<BackButton />
-				<h2 className="text-3xl font-bold text-shark flex items-center justify-center w-full">
-					ADMIN DASHBOARD
-				</h2>
-			</div>
+  if (isUsersError) {
+    return (
+      <div className="text-center text-red-600 p-4">
+        Error loading user data for dashboard. Please try again.
+      </div>
+    );
+  }
 
-			<Hero
-				// title={adminPageTitle}
-				description={adminPageDescription}
-				inlineDescription={true}
-			/>
+  return (
+    <>
+      <h1 className="text-3xl font-bold text-shark mb-6 md:mb-8">Admin Dashboard</h1>
 
-			<div className="flex flex-col md:grid md:grid-cols-2 lg:grid lg:grid-cols-3 gap-4 justify-center w-full">
-				<Link to="/admin/users">
-					<Card data={usersCardInfo} />
-				</Link>
-				<Link to="/admin/products">
-					<Card data={productsCardInfo} />
-				</Link>
-				<Link to="/admin/dummyitems">
-					<Card data={dummyCardInfo} />
-				</Link>
-				<Link to="/admin/dummyitems">
-					<Card data={dummyCardInfo} />
-				</Link>
-				<Link to="/admin/dummyitems">
-					<Card data={dummyCardInfo} />
-				</Link>
-				<Link to="/admin/dummyitems">
-					<Card data={dummyCardInfo} />
-				</Link>
-				<Link to="/admin/dummyitems">
-					<Card data={dummyCardInfo} />
-				</Link>
-			</div>
-		</section>
-	);
+      <div className="mb-8">
+        <Hero description={adminPageDescription} inlineDescription={true} />
+      </div>
+
+      <AdminDashboardOverview stats={dashboardStats} />
+    </>
+  );
 };
 
 export default AdminPage;

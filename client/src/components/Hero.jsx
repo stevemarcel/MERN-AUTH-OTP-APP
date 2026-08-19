@@ -12,7 +12,7 @@ const Hero = ({ title, description, inlineDescription = false }) => {
 				{Array.isArray(description) ? (
 					inlineDescription ? (
 						// If inlineDescription is true, render all array items inline within one paragraph
-						<div className="flex justify-center items-center gap-1">
+						<div className="flex justify-center items-center gap-1 flex-wrap">
 							{description.map((item, index) => (
 								<React.Fragment key={index}>{item}</React.Fragment>
 							))}

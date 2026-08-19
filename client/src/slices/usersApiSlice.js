@@ -8,7 +8,7 @@ const USERS_URL = "/api/users"; // Base URL for user-related API endpoints
 
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // Register User Mutation
+    // * 1. Register User Mutation
     register: builder.mutation({
       query: (data) => ({
         url: `${USERS_URL}`, // POST /api/users
@@ -20,7 +20,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["User"],
     }),
 
-    // Send Verification Email Mutation
+    // * 2. Send Verification Email Mutation
     sendVerificationEmail: builder.mutation({
       query: (data) => ({
         url: `${USERS_URL}/sendverificationemail`, // POST /api/users/sendverificationemail
@@ -29,14 +29,14 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
-    // Verify User Email Query
+    // * 3. Verify User Email Query
     verifyUserEmail: builder.query({
       query: ({ id, token }) => ({
         url: `${USERS_URL}/${id}/verifyemail/${token}`, // GET /api/users/:id/verifyemail/:token
       }),
     }),
 
-    // Login User Mutation
+    // * 4. Login User Mutation
     login: builder.mutation({
       query: (data) => ({
         url: `${USERS_URL}/login`, // POST /api/users/login
@@ -45,7 +45,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
-    // Send Reset Password Email Mutation
+    // * 5. Send Reset Password Email Mutation
     sendResetPasswordEmail: builder.mutation({
       query: (data) => ({
         url: `${USERS_URL}/sendresetpasswordemail`, // POST /api/users/sendresetpasswordemail
@@ -54,7 +54,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
-    // Verify Reset Password OTP Mutation
+    // * 6. Verify Reset Password OTP Mutation
     verifyResetPasswordOTP: builder.mutation({
       query: (data) => ({
         url: `${USERS_URL}/verifyresetpasswordotp`, // POST /api/users/verifyresetpasswordotp
@@ -63,15 +63,16 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
-    // Get User Profile Query (commented out as per your original code)
-    // getUserProfile: builder.query({
-    //   query: () => ({
-    //     url: `${USERS_URL}/profile`, // GET /api/users/profile
-    //     method: "GET",
-    //   }),
-    // }),
+    // * 7. Get User Profile Query
+    getUserProfile: builder.query({
+      query: () => ({
+        url: `${USERS_URL}/profile`, // GET /api/users/profile
+        method: "GET",
+      }),
+      providesTags: ["User"],
+    }),
 
-    // Update User Profile Mutation
+    // * 8. Update User Profile Mutation
     updateUser: builder.mutation({
       query: (data) => ({
         url: `${USERS_URL}/profile`, // PUT /api/users/profile
@@ -79,19 +80,20 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
       // This is for specific user invalidation
-      invalidatesTags: (result, error, arg) => [{ type: "User", id: arg._id }],
+      invalidatesTags: ["User"],
     }),
 
-    // Logout User Mutation
+    // * 9. Logout User Mutation
     logout: builder.mutation({
       query: () => ({
         url: `${USERS_URL}/logout`, // POST /api/users/logout
         method: "POST",
       }),
+      invalidatesTags: ["User"],
     }),
 
     //! --- ADMIN ONLY ENDPOINTS ---
-    // Get All Users Query
+    // * 1. Get All Users Query
     getUsers: builder.query({
       query: () => ({
         url: `${USERS_URL}/`, // GET /api/users/
@@ -102,7 +104,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       providesTags: ["User"],
     }),
 
-    // Get a User Profile by ID Query
+    // * 2. Get a User Profile by ID Query
     getUserById: builder.query({
       query: (id) => ({
         url: `${USERS_URL}/${id}`, // GET /api/users/:id
@@ -112,7 +114,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       providesTags: (result, error, id) => [{ type: "User", id }],
     }),
 
-    // Update User by Admin Mutation
+    // * 3. Update User by Admin Mutation
     updateUserByAdmin: builder.mutation({
       query: ({ userId, formData }) => ({
         url: `${USERS_URL}/${userId}`, // PUT /api/users/:id
@@ -123,7 +125,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { userId }) => ["User", { type: "User", id: userId }],
     }),
 
-    // Delete a Single User by ID Mutation
+    // * 4. Delete a Single User by ID Mutation
     deleteUser: builder.mutation({
       query: (id) => ({
         url: `${USERS_URL}/${id}`, // DELETE /api/users/:id
@@ -133,7 +135,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, id) => ["User", { type: "User", id }],
     }),
 
-    // Delete Multiple Users by Admin Mutation
+    // * 5. Delete Multiple Users by Admin Mutation
     deleteUsersByAdmin: builder.mutation({
       query: (userIds) => ({
         // userIds should be an array of strings
@@ -155,7 +157,7 @@ export const {
   useLoginMutation,
   useSendResetPasswordEmailMutation,
   useVerifyResetPasswordOTPMutation,
-  // useGetUserProfileQuery,
+  useGetUserProfileQuery,
   useUpdateUserMutation,
   useLogoutMutation,
   useGetUsersQuery,

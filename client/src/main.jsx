@@ -24,7 +24,6 @@ import VerifyEmail from "./pages/VerifyEmail.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
-import UserListPage from "./pages/UserListPage.jsx";
 import ProductListPage from "./pages/ProductListPage.jsx";
 import UserEditPage from "./pages/UserEditPage.jsx";
 import CreateNewUserPage from "./pages/CreateNewUserPage.jsx";
@@ -36,6 +35,7 @@ import ContactPage from "./pages/ContactPage.jsx";
 // Components Import
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import AdminRoute from "./components/AdminRoute.jsx";
+import AdminLayout from "./components/Admin/AdminLayout";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -57,17 +57,19 @@ const router = createBrowserRouter(
         <Route path="/resetPassword" element={<ResetPasswordPage />} />
 
         {/* Admin Routes */}
-        <Route path="" element={<AdminRoute />}>
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/admin/users" element={<UserListPage />} />
-          <Route path="/admin/user/:userId/edit" element={<UserEditPage />} />
-          <Route path="/admin/user/:userId/create" element={<CreateNewUserPage />} />
-          <Route path="/admin/products" element={<ProductListPage />} />
-          <Route path="/admin/dummyitems" element={<DummyListPage />} />
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminPage />} />
+
+            <Route path="user/:userId/edit" element={<UserEditPage />} />
+            <Route path="user/:userId/create" element={<CreateNewUserPage />} />
+            <Route path="products" element={<ProductListPage />} />
+            <Route path="dummyitems" element={<DummyListPage />} />
+          </Route>
         </Route>
       </Route>
-    </Route>
-  )
+    </Route>,
+  ),
 );
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -75,5 +77,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
       <RouterProvider router={router} />
     </React.StrictMode>
-  </Provider>
+  </Provider>,
 );

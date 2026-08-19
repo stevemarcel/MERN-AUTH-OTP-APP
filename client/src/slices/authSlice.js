@@ -5,6 +5,7 @@ import { createSlice } from "@reduxjs/toolkit";
 // Initial state: Check for user info in local storage, if found, convert to a javascript object, then use it else return null
 const initialState = {
   userInfo: localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null,
+  authChecked: false,
 };
 
 // Create the auth slice
@@ -13,30 +14,36 @@ const authSlice = createSlice({
   initialState,
   // This is an object with reducer functions
   reducers: {
-    // Function to set user information to local storage on login. This is an ACTION.
+    // ! 1. AUTHENTICATION REDUCERS
+    // * Function to set user information to local storage on login. This is an ACTION.
     setCredentials: (state, action) => {
       state.userInfo = action.payload;
       localStorage.setItem("userInfo", JSON.stringify(action.payload));
     },
 
-    getCredentials: (state, action) => {
-      state.userInfo = action.payload;
-      localStorage.getItem("userInfo", JSON.stringify(action.payload));
+    // * Function to set authChecked to true. This is an ACTION.
+    setAuthChecked: (state) => {
+      state.authChecked = true;
     },
+    // getCredentials: (state, action) => {
+    //   state.userInfo = action.payload;
+    //   localStorage.getItem("userInfo", JSON.stringify(action.payload));
+    // },
 
-    // Function to delete user information from local storage on logout. This is an ACTION.
+    // * Function to delete user information from local storage on logout. This is an ACTION.
     deleteCredentials: (state) => {
       state.userInfo = null;
       localStorage.removeItem("userInfo");
     },
 
-    // Function to set OTP information to local storage. This is an ACTION.
+    // ! 2. OTP REDUCERS
+    // * Function to set OTP information to local storage. This is an ACTION.
     setOTPData: (state, action) => {
       state.otpData = action.payload;
       localStorage.setItem("otpData", JSON.stringify(action.payload));
     },
 
-    // Function to delete user information from local storage on logout. This is an ACTION.
+    // * Function to delete OTP information from local storage. This is an ACTION.
     deleteOTPData: (state) => {
       state.otpData = null;
       localStorage.removeItem("otpData");
@@ -44,7 +51,13 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, getCredentials, deleteCredentials, setOTPData, deleteOTPData } =
-  authSlice.actions;
+export const {
+  setCredentials,
+  setAuthChecked,
+  // getCredentials,
+  deleteCredentials,
+  setOTPData,
+  deleteOTPData,
+} = authSlice.actions;
 
 export default authSlice.reducer;

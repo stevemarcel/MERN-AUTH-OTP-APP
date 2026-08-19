@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useSendResetPasswordEmailMutation, useUpdateUserMutation } from "../slices/usersApiSlice";
 import { setCredentials, setOTPData } from "../slices/authSlice";
-import { FaCamera, FaCheckCircle, FaUserLock, FaPaperPlane, FaUserEdit } from "react-icons/fa";
+import { FaCamera, FaCheckCircle, FaPaperPlane, FaUserEdit } from "react-icons/fa";
+import { FaShieldHalved } from "react-icons/fa6";
 import { MdVerified } from "react-icons/md";
 import Loader from "../components/Loader";
 import BackButton from "../components/BackButton";
@@ -126,12 +127,21 @@ const ProfilePage = () => {
 
   return (
     <div className="p-6 mb-10 min-h-[80vh] lg:w-[70%] mx-auto">
-      <div className="flex items-center mb-4">
-        <BackButton />
-        <h2 className="text-2xl font-bold text-shark items-center flex justify-center w-full">
+      <BackButton />
+      <div className="flex justify-center items-center mb-4">
+        <h2 className="text-2xl font-bold items-center flex justify-center  text-shark uppercase">
           Profile
         </h2>
+        {isAdmin && (
+          <div className="flex justify-center items-center ml-2 py-1 px-3 rounded-md mt-2 bg-sharkDark-100/50 text-light cursor-default text-xs">
+            <div className="mr-2">
+              <FaShieldHalved />
+            </div>{" "}
+            Admin User
+          </div>
+        )}
       </div>
+
       <div className="flex mx-auto justify-center text-shark">
         <div className="flex flex-col md:flex-row bg-sharkLight-100/50 p-10 rounded-lg gap-8">
           <div className="flex flex-col items-center">
@@ -142,8 +152,8 @@ const ProfilePage = () => {
                   filePreview
                     ? filePreview
                     : profile // If profile is a non-empty string, use it
-                    ? `${BACKEND_BASE_URL}${profile}` // Prepend backend URL
-                    : `${BACKEND_BASE_URL}/uploads/profiles/placeholder.png`
+                      ? `${BACKEND_BASE_URL}${profile}` // Prepend backend URL
+                      : `${BACKEND_BASE_URL}/uploads/profiles/placeholder.png`
                 }
                 alt="Profile"
                 className="object-cover w-full h-full"
@@ -173,15 +183,15 @@ const ProfilePage = () => {
               {mode === "edit" ? "Click camera icon to change" : ""}
             </p>
 
-            <div className=" flex items-center gap-1 mt-2 md:my-3">
-              <label htmlFor="username" className="font-medium text-xs">
+            <div className=" flex justify-center items-center gap-1 mt-2 md:my-3 text-xs">
+              <label htmlFor="username" className="font-medium ">
                 Username:
               </label>
               <input
                 name="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className={`p-2 w-full rounded border italic ${
+                className={`p-2 rounded border italic ${
                   mode === "view"
                     ? "focus:none font-mono border-none bg-transparent"
                     : "focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
@@ -189,14 +199,6 @@ const ProfilePage = () => {
                 disabled={mode === "view"}
               />
             </div>
-            {isAdmin && (
-              <div className="flex justify-center items-center py-2 px-5 rounded-full mt-2 bg-light cursor-default text-xs">
-                <div className="mr-2">
-                  <FaUserLock />
-                </div>{" "}
-                Admin User
-              </div>
-            )}
           </div>
           <div id="userInformation" className="">
             <form
