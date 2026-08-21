@@ -12,9 +12,7 @@ import BackButton from "../components/BackButton";
 // Redux Imports
 import { useGetUserByIdQuery, useUpdateUserByAdminMutation } from "../slices/usersApiSlice";
 
-// Constants
-// const BACKEND_BASE_URL = "http://localhost:5000";
-const BACKEND_BASE_URL = "";
+const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
 const UserEditPage = () => {
   const { userId } = useParams();

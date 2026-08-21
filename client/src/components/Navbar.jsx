@@ -19,8 +19,7 @@ import { useLogoutMutation } from "../slices/usersApiSlice";
 import { deleteCredentials } from "../slices/authSlice";
 import { apiSlice } from "../slices/apiSlice";
 
-// const BACKEND_BASE_URL = "http://localhost:5000";
-const BACKEND_BASE_URL = "";
+const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
 const Navbar = () => {
   // !  --- LOCAL STATE MANAGEMENT ---

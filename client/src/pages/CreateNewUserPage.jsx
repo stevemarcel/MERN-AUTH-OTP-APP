@@ -8,8 +8,7 @@ import { PiSealWarningFill } from "react-icons/pi";
 import Loader from "../components/Loader";
 import BackButton from "../components/BackButton";
 
-// const BACKEND_BASE_URL = "http://localhost:5000";
-const BACKEND_BASE_URL = "";
+const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
 const CreateNewUserPage = () => {
   const { userId } = useParams();

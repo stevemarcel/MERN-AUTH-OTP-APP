@@ -23,10 +23,14 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
-// Making the 'uploads' folder publicly accessible.
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Making the 'uploads' folder publicly accessible.
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Making the 'email-assets' folder publicly accessible.
+app.use("/email-assets", express.static(path.join(__dirname, "email-assets")));
 
 app.use("/api/users", userRoutes);
 

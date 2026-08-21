@@ -504,7 +504,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                           font-size: 18px;
                                         "
                                         ><img
-                                          src="https://ecesybu.stripocdn.email/content/guids/CABINET_ee77850a5a9f3068d9355050e69c76d26d58c3ea2927fa145f0d7a894e624758/images/group_4076323.png"
+                                          src="${process.env.BASE_URL}/email-assets/confirm-email.avif"
                                           alt="Confirm email"
                                           style="
                                             display: block;
@@ -921,7 +921,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                                 font-size: 18px;
                                               "
                                               ><img
-                                                src="https://ecesybu.stripocdn.email/content/guids/CABINET_ee77850a5a9f3068d9355050e69c76d26d58c3ea2927fa145f0d7a894e624758/images/group_4076325.png"
+                                                src="${process.env.BASE_URL}/email-assets/email-info.avif"
                                                 alt="Demo"
                                                 style="
                                                   display: block;
@@ -1129,7 +1129,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                                 font-size: 14px;
                                               "
                                               ><img
-                                                src="https://ecesybu.stripocdn.email/content/assets/img/social-icons/logo-black/facebook-logo-black.png"
+                                                src="${process.env.BASE_URL}/email-assets/facebook.png"
                                                 alt="Fb"
                                                 title="Facebook"
                                                 height="24"
@@ -1158,7 +1158,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                               "
                                             >
                                               <img
-                                                src="https://ecesybu.stripocdn.email/content/assets/img/social-icons/logo-black/instagram-logo-black.png"
+                                                src="${process.env.BASE_URL}/email-assets/instagram.png"
                                                 alt="Ig"
                                                 title="Instagram"
                                                 height="24"
@@ -1187,7 +1187,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                                 font-size: 14px;
                                               "
                                               ><img
-                                                src="https://ecesybu.stripocdn.email/content/assets/img/social-icons/logo-black/x-logo-black.png"
+                                                src="${process.env.BASE_URL}/email-assets/x.png"
                                                 alt="X"
                                                 title="X.com"
                                                 height="24"
@@ -1216,7 +1216,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                               "
                                             >
                                               <img
-                                                src="https://ecesybu.stripocdn.email/content/assets/img/social-icons/logo-black/behance-logo-black.png"
+                                                src="${process.env.BASE_URL}/email-assets/behance.png"
                                                 alt="Be"
                                                 title="Behance"
                                                 height="24"
@@ -1246,7 +1246,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                               "
                                             >
                                               <img
-                                                src="https://ecesybu.stripocdn.email/content/assets/img/messenger-icons/logo-black/whatsapp-logo-black.png"
+                                                src="${process.env.BASE_URL}/email-assets/whatsapp.png"
                                                 alt="Whatsapp"
                                                 title="Whatsapp"
                                                 height="24"
