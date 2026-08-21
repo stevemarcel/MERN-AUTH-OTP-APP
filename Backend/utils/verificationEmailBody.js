@@ -1,6 +1,6 @@
 const verificationEmailBody = (verification, userFirstName, mode) => {
   const mailExpiry = process.env.EMAIL_EXPIRY;
-  const senderEmail = process.env.EMAIL_USER;
+  const senderEmail = process.env.EMAIL_FROM;
   const company = process.env.EMAIL_USERNAME;
   const X = process.env.X;
   const facebook = process.env.FACEBOOK;
