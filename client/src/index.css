@@ -12,13 +12,13 @@
 
 .heroBg {
   @apply bgFit;
-  background-image: url("./assets/img/hero-bg.jpg");
+  background-image: url("./assets/img/hero-bg.avif");
 }
 .loginBg {
   @apply bgFit;
-  background-image: url("./assets/img/loginBg.jpg");
+  background-image: url("./assets/img/loginBg.avif");
 }
 .regBg {
   @apply bgFit;
-  background-image: url("./assets/img/regBg.jpg");
+  background-image: url("./assets/img/regBg.avif");
 }

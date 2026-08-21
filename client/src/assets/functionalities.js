@@ -1,12 +1,12 @@
-import secureUserAuthenticationIMG from "../assets//img/functionalities/Secure-User-Authentication.jpg";
-import enhancedSecurityWithOTPIMG from "../assets/img/functionalities/Enhanced-Security-with-OTP.jpg";
-import streamlinedTokenManagementIMG from "../assets/img/functionalities/Streamlined-Token-Management.jpg";
-import adminDashboardIMG from "../assets/img/functionalities/Admin-Dashboard.png";
-import robustAPIWithExpressIMG from "../assets/img/functionalities/Robust-API-with-Express.jpg";
-import restfulDataExperienceIMG from "../assets/img/functionalities/RESTful-Data-Experience.jpg";
-import passwordSecurityAndValidationIMG from "../assets/img/functionalities/Password-Security-and-Validation.png";
-import userFeedbackAndNotificationsIMG from "../assets/img/functionalities/User-Feedback-and-Notifications.png";
-import reactReduxTailwindCSSIMG from "../assets/img/functionalities/react-redux-tailwind-css.png";
+import secureUserAuthenticationIMG from "../assets//img/functionalities/Secure-User-Authentication.avif";
+import enhancedSecurityWithOTPIMG from "../assets/img/functionalities/Enhanced-Security-with-OTP.avif";
+import streamlinedTokenManagementIMG from "../assets/img/functionalities/Streamlined-Token-Management.avif";
+import adminDashboardIMG from "../assets/img/functionalities/Admin-Dashboard.avif";
+import robustAPIWithExpressIMG from "../assets/img/functionalities/Robust-API-with-Express.avif";
+import restfulDataExperienceIMG from "../assets/img/functionalities/RESTful-Data-Experience.avif";
+import passwordSecurityAndValidationIMG from "../assets/img/functionalities/Password-Security-and-Validation.avif";
+import userFeedbackAndNotificationsIMG from "../assets/img/functionalities/User-Feedback-and-Notifications.avif";
+import reactReduxTailwindCSSIMG from "../assets/img/functionalities/react-redux-tailwind-css.avif";
 
 const functionalities = [
   {

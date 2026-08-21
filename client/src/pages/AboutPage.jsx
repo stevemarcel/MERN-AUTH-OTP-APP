@@ -10,9 +10,9 @@ import {
   FaInstagramSquare,
 } from "react-icons/fa";
 
-import missionImage from "../assets/img/about/mission.jpg";
-import techStackImage from "../assets/img/about/tech-stack.png";
-import myProfilePhoto from "../assets/img/about/my-photo.png";
+import missionImage from "../assets/img/about/mission.avif";
+import techStackImage from "../assets/img/about/tech-stack.avif";
+import myProfilePhoto from "../assets/img/about/my-photo.avif";
 
 const AboutPage = () => {
   const aboutHeroDescription = `
