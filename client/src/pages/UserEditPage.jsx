@@ -13,7 +13,8 @@ import BackButton from "../components/BackButton";
 import { useGetUserByIdQuery, useUpdateUserByAdminMutation } from "../slices/usersApiSlice";
 
 // Constants
-const BACKEND_BASE_URL = "http://localhost:5000";
+// const BACKEND_BASE_URL = "http://localhost:5000";
+const BACKEND_BASE_URL = "";
 
 const UserEditPage = () => {
   const { userId } = useParams();

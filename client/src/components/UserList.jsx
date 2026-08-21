@@ -27,7 +27,8 @@ import UserTablePaginationControls from "./UserTablePaginationControls";
 import ConfirmationModal from "./ConfirmationModal";
 import UserTable from "./UserTable";
 
-const BACKEND_BASE_URL = "http://localhost:5000";
+// const BACKEND_BASE_URL = "http://localhost:5000";
+const BACKEND_BASE_URL = "";
 
 const UserList = () => {
   // ! --- REACT QUERY API CALLS ---
