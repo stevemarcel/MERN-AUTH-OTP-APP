@@ -504,7 +504,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                           font-size: 18px;
                                         "
                                         ><img
-                                          src="${process.env.BASE_URL}/email-assets/confirm-email.avif"
+                                          src="${process.env.BASE_URL}/email-assets/confirm-email.png"
                                           alt="Confirm email"
                                           style="
                                             display: block;
@@ -921,7 +921,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                                 font-size: 18px;
                                               "
                                               ><img
-                                                src="${process.env.BASE_URL}/email-assets/email-info.avif"
+                                                src="${process.env.BASE_URL}/email-assets/email-info.png"
                                                 alt="Demo"
                                                 style="
                                                   display: block;
@@ -1116,7 +1116,7 @@ const verificationEmailBody = (verification, userFirstName, mode) => {
                                         <tr>
                                           <td
                                             align="center"
-                                            valign="top"
+                                            valign="top"F
                                             style="padding: 0; margin: 0; padding-right: 5px"
                                           >
                                             <a
