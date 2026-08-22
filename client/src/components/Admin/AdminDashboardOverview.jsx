@@ -106,54 +106,63 @@ const AdminDashboardOverview = () => {
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {verificationData.length > 0 && (
-          <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+          <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm">
             <h3 className="text-xl font-semibold mb-4 text-center">User Verification Status</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={verificationData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                >
-                  {verificationData.map((entry, index) => (
-                    <Cell key={`cell-ver-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+
+            <div className="w-full h-[260px] sm:h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={verificationData}
+                    cx="50%"
+                    cy="45%"
+                    outerRadius="65%"
+                    fill="#8884d8"
+                    dataKey="value"
+                    labelLine={false}
+                  >
+                    {verificationData.map((entry, index) => (
+                      <Cell key={`cell-ver-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         )}
 
         {adminStatusData.length > 0 && (
-          <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+          <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm">
             <h3 className="text-xl font-semibold mb-4 text-center">Admin vs. Regular Users</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={adminStatusData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  fill="#82ca9d"
-                  dataKey="value"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                >
-                  {adminStatusData.map((entry, index) => (
-                    <Cell key={`cell-admin-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+
+            <div className="w-full h-[260px] sm:h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={adminStatusData}
+                    cx="50%"
+                    cy="45%"
+                    outerRadius="65%"
+                    fill="#82ca9d"
+                    dataKey="value"
+                    labelLine={false}
+                  >
+                    {adminStatusData.map((entry, index) => (
+                      <Cell
+                        key={`cell-admin-${index}`}
+                        fill={COLORS[(index + 2) % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         )}
       </div>
