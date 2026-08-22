@@ -42,37 +42,35 @@ import AdminDashboardOverview from "./components/Admin/AdminDashboardOverview.js
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
-      {/* Public Routes */}
-      <Route index={true} path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/features" element={<FeaturesPage />} />
-      <Route path="/about" element={<AboutPage />} />
-      <Route path="/contact" element={<ContactPage />} />
-      <Route path="/confirm-email/:id" element={<ConfirmEmailPage />} />
-      <Route path="/:id/verifyemail/:token" element={<VerifyEmail />} />
-      <Route path="*" element={<ErrorPage />} />
+      {/* ==================== PUBLIC ROUTES ==================== */}
+      <Route index element={<HomePage />} /> <Route path="login" element={<LoginPage />} />
+      <Route path="register" element={<RegisterPage />} />
+      <Route path="features" element={<FeaturesPage />} />
+      <Route path="about" element={<AboutPage />} />
+      <Route path="contact" element={<ContactPage />} />
+      <Route path="confirm-email/:id" element={<ConfirmEmailPage />} />
+      <Route path=":id/verifyemail/:token" element={<VerifyEmail />} />
+      {/* ==================== PRIVATE ROUTES ==================== */}
+      <Route element={<PrivateRoute />}>
+        <Route path="profile" element={<ProfilePage />} />
+        <Route path="resetPassword" element={<ResetPasswordPage />} />
 
-      {/* Private Routes */}
-      <Route path="" element={<PrivateRoute />}>
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/resetPassword" element={<ResetPasswordPage />} />
-
-        {/* Admin Routes */}
-        <Route path="" element={<AdminRoute />}>
-          <Route path="/admin" element={<AdminPage />}>
+        {/* ==================== ADMIN ROUTES ==================== */}
+        <Route element={<AdminRoute />}>
+          <Route path="admin" element={<AdminPage />}>
             <Route index element={<AdminDashboardOverview />} />
             <Route path="users" element={<UserListPage />} />
             <Route path="products" element={<ProductListPage />} />
             <Route path="dummyitems" element={<DummyListPage />} />
             <Route path="activities" element={<UserActivityPage />} />
-
             <Route path="user/:userId/edit" element={<UserEditPage />} />
             <Route path="user/:userId/create" element={<CreateNewUserPage />} />
             <Route path="user/:userId/activities" element={<UserActivityPage />} />
           </Route>
         </Route>
       </Route>
+      {/* ==================== CATCH-ALL ==================== */}
+      <Route path="*" element={<ErrorPage />} />
     </Route>,
   ),
 );

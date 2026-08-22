@@ -1,28 +1,26 @@
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
-import AdminSidebar from "./AdminSidebar";
+import { Navigate, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-const AdminLayout = () => {
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+const AdminRoute = () => {
+  const { userInfo, authChecked } = useSelector((state) => state.auth);
 
-  const toggleMobileSidebar = () => {
-    setIsMobileSidebarOpen((prev) => !prev);
-  };
+  // Wait until authentication has been checked
+  if (!authChecked) {
+    return null;
+  }
 
-  return (
-    <div className="flex min-h-[calc(100vh-theme(spacing.20))] bg-sharkLight-100/30">
-      {/* Admin Sidebar */}
-      <AdminSidebar
-        isMobileSidebarOpen={isMobileSidebarOpen}
-        toggleMobileSidebar={toggleMobileSidebar}
-      />
+  // Not logged in
+  if (!userInfo) {
+    return <Navigate to="/login" replace />;
+  }
 
-      {/* Admin Page Content */}
-      <main className="flex-1 min-w-0 py-6 md:p-8 mt-[60px] md:mt-0">
-        <Outlet />
-      </main>
-    </div>
-  );
+  // Logged in but not an admin
+  if (!userInfo.isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Authenticated admin
+  return <Outlet />;
 };
 
-export default AdminLayout;
+export default AdminRoute;

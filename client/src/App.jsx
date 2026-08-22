@@ -27,19 +27,28 @@ const App = () => {
   });
 
   useEffect(() => {
+    // No user information exists, so the user is unauthenticated.
+    // Authentication has therefore been checked.
+    if (!userInfo) {
+      dispatch(setAuthChecked());
+      return;
+    }
+
+    // User profile successfully retrieved
     if (isSuccess && user) {
       dispatch(setCredentials(user));
       dispatch(setAuthChecked());
+      return;
     }
 
+    // User profile request failed
     if (isError) {
       if (error?.status === 401) {
         dispatch(deleteCredentials());
       }
-
       dispatch(setAuthChecked());
     }
-  }, [user, error, isSuccess, isError, dispatch]);
+  }, [userInfo, user, error, isSuccess, isError, dispatch]);
 
   const shouldShowFooter =
     !location.pathname.includes("/login") && !location.pathname.includes("/register"); // Check for login and register paths

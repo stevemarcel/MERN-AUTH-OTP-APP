@@ -1,47 +1,36 @@
-import React from "react";
 import PropTypes from "prop-types";
 
-const Hero = ({ title, description, inlineDescription = false }) => {
-	return (
-		<section className="heroBg mb-10 flex items-center text-sharkLight-100 py-10 relative">
-			<div className="absolute inset-0 bg-sharkDark-400 bg-opacity-90 z-10"></div>{" "}
-			{/* Overlay element */}
-			<div className="p-6 relative z-20 w-[95%] md:w-[80%] mx-auto text-justify space-y-2">
-				<h2 className="text-lg md:text-3xl font-bold text-center">{title}</h2>{" "}
-				{/* Conditional rendering for description */}
-				{Array.isArray(description) ? (
-					inlineDescription ? (
-						// If inlineDescription is true, render all array items inline within one paragraph
-						<div className="flex justify-center items-center gap-1 flex-wrap">
-							{description.map((item, index) => (
-								<React.Fragment key={index}>{item}</React.Fragment>
-							))}
-						</div>
-					) : (
-						// If inlineDescription is false (default), render each array item as a new paragraph
-						description.map((paragraph, index) => (
-							<p key={index}>{paragraph}</p>
-						))
-					)
-				) : (
-					// If description is a string, always render it as a single paragraph
-					<p>{description}</p>
-				)}
-			</div>
-		</section>
-	);
+const Hero = ({ eyebrow, title, description, children }) => {
+  return (
+    <section className="bg-sharkDark-300 text-light">
+      <div className="w-[90%] max-w-6xl mx-auto py-20 md:py-28">
+        <div className="max-w-4xl">
+          {eyebrow && (
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sharkLight-300 mb-4">
+              {eyebrow}
+            </p>
+          )}
+
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight">{title}</h1>
+
+          {description && (
+            <p className="mt-6 text-base md:text-lg text-sharkLight-100/80 leading-relaxed max-w-2xl">
+              {description}
+            </p>
+          )}
+
+          {children && <div className="mt-8">{children}</div>}
+        </div>
+      </div>
+    </section>
+  );
 };
 
-// PropTypes for type checking and documentation
 Hero.propTypes = {
-	title: PropTypes.string,
-	description: PropTypes.oneOfType([
-		PropTypes.string,
-		PropTypes.arrayOf(
-			PropTypes.oneOfType([PropTypes.string, PropTypes.element])
-		),
-	]).isRequired,
-	inlineDescription: PropTypes.bool, // Added propType for inlineDescription
+  eyebrow: PropTypes.string,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  children: PropTypes.node,
 };
 
 export default Hero;

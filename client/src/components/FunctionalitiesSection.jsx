@@ -1,18 +1,82 @@
-import Card from "./Card";
-import functionalities from "../assets/functionalities";
+import { FaShieldAlt, FaUsers, FaUserCog, FaHistory, FaEnvelope, FaLock } from "react-icons/fa";
+
+const capabilities = [
+  {
+    icon: <FaShieldAlt />,
+    title: "Secure Authentication",
+    description:
+      "JWT authentication with HTTP-only cookies, protected routes, and secure account sessions.",
+  },
+  {
+    icon: <FaUsers />,
+    title: "User Management",
+    description:
+      "Create, view, update, search, filter, and manage user accounts from a centralized interface.",
+  },
+  {
+    icon: <FaUserCog />,
+    title: "Administration",
+    description: "Powerful administrative controls for managing users individually or in batches.",
+  },
+  {
+    icon: <FaHistory />,
+    title: "Activity Tracking",
+    description:
+      "Important account actions are recorded so administrators can understand what happened and when.",
+  },
+  {
+    icon: <FaLock />,
+    title: "Password Security",
+    description:
+      "Password validation, strength feedback, secure hashing, and password recovery workflows.",
+  },
+  {
+    icon: <FaEnvelope />,
+    title: "Email Workflows",
+    description:
+      "Verification emails and password recovery workflows are integrated directly into the authentication system.",
+  },
+];
 
 const FunctionalitiesSection = () => {
   return (
-    <section className="w-[90%] mx-auto pb-10">
-      <h2 className="mb-3 text-lg md:text-2xl font-bold text-center uppercase">Project Features</h2>
-      <p className="mb-8 text-center text-lg text-sharkDark-100 max-w-3xl mx-auto">
-        Explore the core features that power the user management system, designed to streamline your
-        operations and enhance user experience.
-      </p>
-      <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 justify-center w-full">
-        {functionalities.map((functionItem) => (
-          <Card key={functionItem.id} data={functionItem} />
-        ))}
+    <section className="bg-sharkLight-100/30 py-16 md:py-20">
+      <div className="w-[90%] max-w-6xl mx-auto">
+        {/* Section Heading */}
+        <div className="max-w-3xl mb-10">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sharkLight-300 mb-3">
+            Core Capabilities
+          </p>
+
+          <h2 className="text-2xl md:text-4xl font-bold text-shark leading-tight">
+            Built around the essentials of modern user management.
+          </h2>
+
+          <p className="mt-4 text-sharkLight-300 leading-relaxed">
+            Every part of the platform is designed to make authentication, administration, and
+            account management more secure and easier to understand.
+          </p>
+        </div>
+
+        {/* Capability Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {capabilities.map((capability) => (
+            <article
+              key={capability.title}
+              className="bg-white border border-sharkLight-200 rounded-xl p-6 hover:shadow-md transition duration-200"
+            >
+              <div className="w-11 h-11 rounded-lg bg-sharkLight-100 flex items-center justify-center text-shark text-lg mb-5">
+                {capability.icon}
+              </div>
+
+              <h3 className="text-lg font-bold text-shark">{capability.title}</h3>
+
+              <p className="mt-2 text-sm text-sharkLight-300 leading-relaxed">
+                {capability.description}
+              </p>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   );
