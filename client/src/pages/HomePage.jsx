@@ -14,7 +14,9 @@ import {
 import Hero from "../components/Hero";
 import FunctionalitiesSection from "../components/FunctionalitiesSection";
 
+// Images
 import adminDashboardImage from "../assets/img/functionalities/Admin-Dashboard.avif";
+import homeHeroImage from "../assets/img/hero/home-hero.avif";
 
 const HomePage = () => {
   const technologies = [
@@ -64,9 +66,11 @@ const HomePage = () => {
     <div className="text-shark">
       {/* Hero */}
       <Hero
-        eyebrow="Secure User Management"
-        title="A modern platform for managing users with confidence."
-        description="A full-stack authentication and user management system designed around security, efficient administration, and a clear user experience."
+        eyebrow="User Management System"
+        title="Secure user management, built for the real world."
+        description="A full-stack authentication and administration platform built with the MERN stack, designed around security, usability, and complete user lifecycle management."
+        backgroundImage={homeHeroImage}
+        imagePosition="center"
       >
         <div className="flex flex-col sm:flex-row gap-3">
           <Link

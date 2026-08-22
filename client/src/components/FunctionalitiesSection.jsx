@@ -65,7 +65,7 @@ const FunctionalitiesSection = () => {
               key={capability.title}
               className="bg-white border border-sharkLight-200 rounded-xl p-6 hover:shadow-md transition duration-200"
             >
-              <div className="w-11 h-11 rounded-lg bg-sharkLight-100 flex items-center justify-center text-shark text-lg mb-5">
+              <div className="w-11 h-11 rounded-lg bg-shark text-light flex items-center justify-center text-lg mb-5">
                 {capability.icon}
               </div>
 

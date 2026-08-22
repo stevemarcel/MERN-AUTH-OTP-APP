@@ -13,10 +13,14 @@ import {
   FaCode,
 } from "react-icons/fa";
 
+import Hero from "../components/Hero";
+
 import { SiRedux, SiTailwindcss, SiExpress, SiMongodb, SiReact, SiNodedotjs } from "react-icons/si";
 import { Link } from "react-router-dom";
 
+// Images
 import myProfilePhoto from "../assets/img/about/my-photo.avif";
+import aboutHeroImage from "../assets/img/hero/about-hero.avif";
 
 const AboutPage = () => {
   const features = [
@@ -94,7 +98,7 @@ const AboutPage = () => {
       {/* =========================================================
           HERO
       ========================================================= */}
-      <section className="relative overflow-hidden bg-sharkDark-300 text-light">
+      {/* <section className="relative overflow-hidden bg-sharkDark-300 text-light">
         <div className="absolute inset-0 bg-gradient-to-br from-sharkDark-300 via-shark to-sharkDark-400 opacity-95" />
 
         <div className="relative w-[90%] max-w-6xl mx-auto py-20 md:py-28">
@@ -132,7 +136,37 @@ const AboutPage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
+
+      {/* Hero */}
+      <Hero
+        eyebrow="About the Project"
+        title={
+          <>
+            Built to make user management{" "}
+            <span className="text-sharkLight-300">secure and simple.</span>
+          </>
+        }
+        description="A full-stack authentication and user management application built to explore secure authentication, account management, administrative workflows, and a modern user experience."
+        backgroundImage={aboutHeroImage}
+      >
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link
+            to="/register"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-light text-shark font-semibold rounded-md hover:bg-sharkLight-100 transition duration-200"
+          >
+            Create an Account
+            <FaArrowRight />
+          </Link>
+
+          <Link
+            to="/features"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-sharkLight-300/40 text-light font-semibold rounded-md hover:bg-light/10 transition duration-200"
+          >
+            Explore Features
+          </Link>
+        </div>
+      </Hero>
 
       {/* =========================================================
           WHY I BUILT IT

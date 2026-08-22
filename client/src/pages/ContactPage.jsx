@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useSendContactMessageMutation } from "../slices/contactApiSlice";
 
+import { Link } from "react-router-dom";
+
+import contactHeroImage from "../assets/img/hero/contact-hero.avif";
+
+import Hero from "../components/Hero";
+
 import {
   FaEnvelope,
   FaMapMarkerAlt,
@@ -99,27 +105,36 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen bg-light text-shark">
       {/* Hero */}
-      <section className="bg-sharkDark-300 text-light py-20 md:py-28">
-        <div className="w-[90%] max-w-6xl mx-auto">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sharkLight-300 mb-4">
-              Get in touch
-            </p>
+      <Hero
+        eyebrow="Get in touch"
+        title={
+          <>
+            Let&apos;s Start a <span className="text-sharkLight-300">Conversation.</span>
+          </>
+        }
+        description="Have a question about the project, want to discuss an idea, or simply want to connect? I'd be happy to hear from you."
+        backgroundImage={contactHeroImage}
+      >
+        <div className="flex flex-col sm:flex-row gap-3">
+          <a
+            href="#contact"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-light text-shark font-semibold rounded-md hover:bg-sharkLight-100 transition duration-200"
+          >
+            Reach Out
+            <FaArrowRight />
+          </a>
 
-            <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-              Let&apos;s Start a Conversation.
-            </h1>
-
-            <p className="mt-6 text-base md:text-lg text-sharkLight-100/80 leading-relaxed max-w-2xl">
-              Have a question about the project, want to discuss an idea, or simply want to connect?
-              I&apos;d be happy to hear from you.
-            </p>
-          </div>
+          <Link
+            to="/features"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-sharkLight-300/40 text-light font-semibold rounded-md hover:bg-light/10 transition duration-200"
+          >
+            Explore Features
+          </Link>
         </div>
-      </section>
+      </Hero>
 
       {/* Contact Section */}
-      <main className="w-[90%] max-w-6xl mx-auto py-16 md:py-20">
+      <main id="contact" className="w-[90%] max-w-6xl mx-auto py-16 md:py-20">
         <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-16">
           {/* Contact Information */}
           <section>
