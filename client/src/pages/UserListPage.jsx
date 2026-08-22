@@ -266,7 +266,7 @@ const UserListPage = () => {
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage); //
 
   return (
-    <div className="px-6 mb-5 min-h-[80vh] w-[90%]md:w-full mx-auto">
+    <div className="mb-5 min-h-[80vh] w-[90%] md:w-full mx-auto">
       <div className="flex flex-col mb-4 md:flex-row md:justify-between">
         <div className="flex items-center w-full mb-4 md:mb-0">
           {/* <BackButton />  */}
@@ -313,27 +313,32 @@ const UserListPage = () => {
       </div>
 
       {/* Search Bar and Pagination */}
-      <div className="flex gap-1 mb-4 items-center">
-        {/* Filter Dropdown */}
-        <SearchFilterDropdown
-          searchFilter={searchFilter} //
-          setSearchFilter={setSearchFilter} //
-          options={filterOptions} //
-        />
+      <div className="flex flex-col gap-2 mb-4 md:flex-row md:items-center">
+        {/* Filter + Search */}
+        <div className="flex gap-1 flex-1 min-w-0">
+          {/* Filter Dropdown */}
+          <SearchFilterDropdown
+            searchFilter={searchFilter}
+            setSearchFilter={setSearchFilter}
+            options={filterOptions}
+          />
 
-        {/* Search Input */}
-        <input
-          type="text"
-          placeholder="Search users..."
-          value={searchTerm} //
-          onChange={(e) => setSearchTerm(e.target.value)} //
-          className="px-3 py-2 rounded border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400 flex-grow"
-        />
-        <div className="">
+          {/* Search Input */}
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="min-w-0 flex-1 px-3 py-2 rounded border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400"
+          />
+        </div>
+
+        {/* Pagination */}
+        <div className="w-full flex justify-center md:w-auto">
           <UserTablePaginationControls
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage} // Pass setter as handler
+            onPageChange={setCurrentPage}
           />
         </div>
       </div>

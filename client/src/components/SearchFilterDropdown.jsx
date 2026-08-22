@@ -34,7 +34,7 @@ const SearchFilterDropdown = ({ searchFilter, setSearchFilter, options }) => {
     <div className="relative" ref={dropdownRef}>
       <button
         type="button"
-        className="px-3 py-2 flex items-center justify-center md:justify-between w-16 md:w-44 rounded bg-shark text-light border border-sharkLight-100 focus:outline-none focus:ring-1 focus:ring-sharkDark-400 focus:ring-opacity-50 transition-colors duration-200"
+        className="px-3 py-3 md:py-2 flex items-center justify-center md:justify-between w-16 md:w-44 rounded bg-shark text-light border border-sharkLight-100 focus:outline-none focus:ring-1 focus:ring-sharkDark-400 focus:ring-opacity-50 transition-colors duration-200"
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -86,7 +86,7 @@ SearchFilterDropdown.propTypes = {
       value: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
       icon: PropTypes.element,
-    })
+    }),
   ).isRequired,
 };
 
