@@ -164,8 +164,7 @@ const UserEditPage = () => {
                   <FaUserEdit />
                 </div>
               )}{" "}
-              {mode === "view" ? "" : "Edit"} {userData.firstName} {userData.lastName}{" "}
-              {mode === "view" ? "User" : ""}
+              {mode === "view" ? "" : "Edit"} {userData.firstName} {userData.lastName}
             </div>
           </div>
           <div className="flex mx-auto justify-center text-shark">

@@ -6,7 +6,7 @@ const ProductListPage = () => {
       <div className="flex items-center mb-4">
         <BackButton />
         <div></div>
-        <h2 className="text-2xl font-bold text-shark flex items-center justify-center w-full">
+        <h2 className="text-2xl font-bold text-shark flex items-center justify-center w-full uppercase">
           All Products
         </h2>
       </div>

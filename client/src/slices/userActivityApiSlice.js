@@ -13,6 +13,15 @@ export const userActivityApiSlice = apiSlice.injectEndpoints({
       providesTags: ["UserActivity"],
     }),
 
+    // Get all user activities
+    getAllUserActivities: builder.query({
+      query: () => ({
+        url: `${USER_ACTIVITIES_URL}/all`,
+        method: "GET",
+      }),
+      providesTags: ["UserActivity"],
+    }),
+
     // Get activities for a specific user
     getUserActivities: builder.query({
       query: (userId) => ({
@@ -24,4 +33,8 @@ export const userActivityApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useGetRecentUserActivitiesQuery, useGetUserActivitiesQuery } = userActivityApiSlice;
+export const {
+  useGetRecentUserActivitiesQuery,
+  useGetAllUserActivitiesQuery,
+  useGetUserActivitiesQuery,
+} = userActivityApiSlice;

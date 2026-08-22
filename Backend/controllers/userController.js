@@ -3,6 +3,7 @@ import asyncHandler from "express-async-handler";
 // Import necessary models
 import User from "../models/userModels.js";
 import EmailVerifyToken from "../models/emailVerifyTokenModel.js";
+import UserActivity from "../models/userActivityModel.js";
 
 // Import utility functions
 import { PLACEHOLDER_PROFILE_IMAGE } from "../utils/fileUpload.js";
@@ -673,11 +674,22 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
 // @ACCESS      Private/Admin
 const deleteUserByAdmin = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
+
   if (user) {
-    // Delete their profile image from upload folder when user is deleted
+    // Create activity BEFORE deleting the user
+    await UserActivity.create({
+      user: user._id,
+      action: "deleted",
+      performedBy: req.user._id,
+      description: `${req.user.firstName} ${req.user.lastName} deleted ${user.firstName} ${user.lastName}`,
+    });
+
+    // Delete their profile image from upload folder
     removeOldProfileImage(user.profile);
 
+    // Delete user
     await user.deleteOne();
+
     res.json({ message: `${user.firstName}'s profile deleted` });
   } else {
     res.status(404);

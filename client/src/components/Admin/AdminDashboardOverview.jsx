@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 import {
   PieChart,
   Pie,
@@ -41,6 +42,8 @@ CustomTooltip.propTypes = {
 
 // const AdminDashboardOverview = ({ stats }) => {
 const AdminDashboardOverview = () => {
+  const navigate = useNavigate();
+
   const { data: usersData, isLoading: isUsersLoading, isError: isUsersError } = useGetUsersQuery();
 
   const {
@@ -68,8 +71,6 @@ const AdminDashboardOverview = () => {
 
   const users = usersData?.users || [];
   const activities = activityData?.activities || [];
-
-  console.log("Recent Activities:", activities);
 
   const now = new Date();
 
@@ -282,7 +283,11 @@ const AdminDashboardOverview = () => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold">Recent Activity</h3>
 
-          <button type="button" className="text-sm font-semibold text-shark hover:underline">
+          <button
+            type="button"
+            onClick={() => navigate("/admin/activities")}
+            className="text-sm font-semibold text-shark hover:underline"
+          >
             View All
           </button>
         </div>

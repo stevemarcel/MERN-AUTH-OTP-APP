@@ -17,6 +17,22 @@ const getRecentUserActivities = asyncHandler(async (req, res) => {
   });
 });
 
+// @DESCRIPTION Get all user activities
+// @ROUTE       GET /api/user-activities/all
+// @ACCESS      Private/Admin
+
+const getAllUserActivities = asyncHandler(async (req, res) => {
+  const activities = await UserActivity.find()
+    .populate("user", "firstName lastName username profile")
+    .populate("performedBy", "firstName lastName username")
+    .sort({ createdAt: -1 });
+
+  res.status(200).json({
+    message: "All user activities retrieved successfully",
+    activities,
+  });
+});
+
 // @DESCRIPTION Get activities for a specific user
 // @ROUTE       GET /api/user-activities/:userId
 // @ACCESS      Private/Admin
@@ -34,4 +50,4 @@ const getUserActivities = asyncHandler(async (req, res) => {
   });
 });
 
-export { getRecentUserActivities, getUserActivities };
+export { getRecentUserActivities, getUserActivities, getAllUserActivities };

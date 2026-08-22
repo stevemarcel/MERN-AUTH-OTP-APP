@@ -1,9 +1,10 @@
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle, FaHistory } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { IoIosEye } from "react-icons/io";
 import Loader from "./Loader";
+
 import UserTablePaginationControls from "./UserTablePaginationControls";
 
 const UserTable = ({
@@ -128,7 +129,7 @@ const UserTable = ({
                     </div>
                   </td>
                   <td className="p-2">
-                    <div className="flex gap-2">
+                    <div className="flex gap-1">
                       {/* View/Edit User Button */}
                       <div className="group relative">
                         <Link
@@ -147,6 +148,22 @@ const UserTable = ({
                           {`View ${user.firstName}`}
                         </span>
                       </div>
+
+                      {/* User Activity Button */}
+                      <div className="group relative">
+                        <Link
+                          to={`/admin/user/${user._id}/activities`}
+                          className="flex items-center justify-center p-2 bg-sharkLight-400 hover:bg-sharkLight-500 text-white rounded"
+                        >
+                          <FaHistory />
+                        </Link>
+
+                        {/* Tooltip */}
+                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-sharkDark-300 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-10 pointer-events-none">
+                          {`${user.firstName}'s Activity`}
+                        </span>
+                      </div>
+
                       {/* Delete User Button */}
                       <div className="group relative">
                         <button
