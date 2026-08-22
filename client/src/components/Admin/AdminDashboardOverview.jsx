@@ -1,10 +1,23 @@
 import PropTypes from "prop-types";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts"; // For charts
-import { FaUsers, FaCheckCircle, FaTimesCircle, FaUserShield } from "react-icons/fa"; // Icons for cards
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from "recharts"; // For charts
+import { FaUsers, FaCheckCircle, FaUserShield, FaUserPlus } from "react-icons/fa";
 
 import { useGetUsersQuery } from "../../slices/usersApiSlice"; // Redux Toolkit Query for fetching users
-
 import Loader from "../Loader";
+
+const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AF19FF", "#FF1942"]; // Chart colors
 
@@ -28,16 +41,6 @@ CustomTooltip.propTypes = {
 const AdminDashboardOverview = () => {
   const { data: usersData, isLoading: isUsersLoading, isError: isUsersError } = useGetUsersQuery();
 
-  const users = usersData?.users || [];
-
-  const stats = {
-    totalUsers: users.length,
-    verifiedUsers: users.filter((user) => user.emailVerified).length,
-    unverifiedUsers: users.filter((user) => !user.emailVerified).length,
-    adminUsers: users.filter((user) => user.isAdmin).length,
-    nonAdminUsers: users.filter((user) => !user.isAdmin).length,
-  };
-
   if (isUsersLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -55,6 +58,49 @@ const AdminDashboardOverview = () => {
     );
   }
 
+  const users = usersData?.users || [];
+
+  const now = new Date();
+
+  const stats = {
+    totalUsers: users.length,
+    verifiedUsers: users.filter((user) => user.emailVerified).length,
+    unverifiedUsers: users.filter((user) => !user.emailVerified).length,
+    adminUsers: users.filter((user) => user.isAdmin).length,
+    nonAdminUsers: users.filter((user) => !user.isAdmin).length,
+    adminCreatedUsers: users.filter((user) => user.isAdminCreatingUser).length,
+    selfRegisteredUsers: users.filter((user) => !user.isAdminCreatingUser).length,
+
+    newUsersThisMonth: users.filter((user) => {
+      const date = new Date(user.createdAt);
+
+      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    }).length,
+  };
+
+  // Data for Registration Trend Line Chart
+  const registrationTrendData = Array.from({ length: 6 }, (_, index) => {
+    const date = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1);
+
+    const month = date.toLocaleString("en-US", {
+      month: "short",
+    });
+
+    const year = date.getFullYear();
+    const monthNumber = date.getMonth();
+
+    const count = users.filter((user) => {
+      const createdAt = new Date(user.createdAt);
+
+      return createdAt.getMonth() === monthNumber && createdAt.getFullYear() === year;
+    }).length;
+
+    return {
+      month,
+      users: count,
+    };
+  });
+
   // Data for Verified vs. Unverified Users Pie Chart
   const verificationData = [
     { name: "Verified Users", value: stats.verifiedUsers },
@@ -62,10 +108,31 @@ const AdminDashboardOverview = () => {
   ].filter((item) => item.value > 0); // Only include if value > 0
 
   // Data for Admin vs. Non-Admin Users Pie Chart
-  const adminStatusData = [
-    { name: "Admin Users", value: stats.adminUsers },
-    { name: "Regular Users", value: stats.nonAdminUsers },
-  ].filter((item) => item.value > 0); // Only include if value > 0
+  const registrationSourceData = [
+    {
+      name: "Self Registered",
+      value: stats.selfRegisteredUsers,
+    },
+    {
+      name: "Admin Created",
+      value: stats.adminCreatedUsers,
+    },
+  ].filter((item) => item.value > 0);
+
+  const recentUsers = [...users]
+    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+    .slice(0, 6);
+
+  const formatActivityDate = (date) => {
+    return new Intl.DateTimeFormat("en-US", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(new Date(date));
+  };
 
   return (
     <div className="p-4 bg-white rounded shadow-md text-shark">
@@ -73,33 +140,70 @@ const AdminDashboardOverview = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+        {/* Total Users Card */}
         <div className="bg-blue-100 p-6 rounded-lg shadow-sm flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-blue-800">Total Users</h3>
             <p className="text-3xl font-bold text-blue-900">{stats.totalUsers}</p>
           </div>
+
           <FaUsers className="text-blue-600 text-4xl" />
         </div>
+
+        {/* New This Month Card */}
+        <div className="bg-orange-100 p-6 rounded-lg shadow-sm flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-orange-800">New This Month</h3>
+            <p className="text-3xl font-bold text-orange-900">{stats.newUsersThisMonth}</p>
+          </div>
+
+          <FaUserPlus className="text-orange-600 text-4xl" />
+        </div>
+
+        {/* Verified Users Card */}
         <div className="bg-green-100 p-6 rounded-lg shadow-sm flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-green-800">Verified Users</h3>
             <p className="text-3xl font-bold text-green-900">{stats.verifiedUsers}</p>
           </div>
+
           <FaCheckCircle className="text-green-600 text-4xl" />
         </div>
-        <div className="bg-red-100 p-6 rounded-lg shadow-sm flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-red-800">Unverified Users</h3>
-            <p className="text-3xl font-bold text-red-900">{stats.unverifiedUsers}</p>
-          </div>
-          <FaTimesCircle className="text-red-600 text-4xl" />
-        </div>
+
+        {/* Admin Users Card */}
         <div className="bg-purple-100 p-6 rounded-lg shadow-sm flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-purple-800">Admin Users</h3>
             <p className="text-3xl font-bold text-purple-900">{stats.adminUsers}</p>
           </div>
+
           <FaUserShield className="text-purple-600 text-4xl" />
+        </div>
+      </div>
+
+      {/* User Registration Trend Chart */}
+      <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm mb-6">
+        <h3 className="text-xl font-semibold mb-4">User Registration Trend</h3>
+
+        <div className="w-full h-[280px] sm:h-[350px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={registrationTrendData}>
+              <CartesianGrid strokeDasharray="3 3" />
+
+              <XAxis dataKey="month" />
+              <YAxis allowDecimals={false} />
+              <Tooltip />
+
+              <Line
+                type="monotone"
+                dataKey="users"
+                stroke="#0088FE"
+                strokeWidth={3}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
@@ -134,31 +238,30 @@ const AdminDashboardOverview = () => {
           </div>
         )}
 
-        {adminStatusData.length > 0 && (
+        {registrationSourceData.length > 0 && (
           <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm">
-            <h3 className="text-xl font-semibold mb-4 text-center">Admin vs. Regular Users</h3>
+            <h3 className="text-xl font-semibold mb-4 text-center">Registration Source</h3>
 
             <div className="w-full h-[260px] sm:h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={adminStatusData}
+                    data={registrationSourceData}
                     cx="50%"
                     cy="45%"
                     outerRadius="65%"
-                    fill="#82ca9d"
                     dataKey="value"
-                    labelLine={false}
                   >
-                    {adminStatusData.map((entry, index) => (
+                    {registrationSourceData.map((entry, index) => (
                       <Cell
-                        key={`cell-admin-${index}`}
+                        key={`cell-source-${index}`}
                         fill={COLORS[(index + 2) % COLORS.length]}
                       />
                     ))}
                   </Pie>
 
                   <Tooltip content={<CustomTooltip />} />
+
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -167,7 +270,49 @@ const AdminDashboardOverview = () => {
         )}
       </div>
 
-      {/* Add more dashboard elements here as needed */}
+      <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-semibold">Recent Users</h3>
+
+          <button type="button" className="text-sm font-semibold text-shark hover:underline">
+            View All
+          </button>
+        </div>
+
+        <div className="divide-y divide-gray-200">
+          {recentUsers.map((user) => (
+            <div key={user._id} className="flex items-center justify-between py-3 gap-3">
+              <div className="flex items-center min-w-0">
+                <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                  <img
+                    src={`${BACKEND_BASE_URL}${user.profile}`}
+                    alt={`${user.firstName} ${user.lastName}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                <div className="ml-3 min-w-0">
+                  <p className="font-semibold truncate">
+                    {user.firstName} {user.lastName}
+                  </p>
+
+                  <p className="text-sm text-sharkLight-300 truncate">@{user.username}</p>
+                </div>
+              </div>
+
+              <div className="text-right flex-shrink-0">
+                <p className="text-sm font-medium">
+                  {new Date(user.updatedAt).getTime() > new Date(user.createdAt).getTime()
+                    ? "Updated"
+                    : "Joined"}
+                </p>
+
+                <p className="text-xs text-sharkLight-300">{formatActivityDate(user.updatedAt)}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
