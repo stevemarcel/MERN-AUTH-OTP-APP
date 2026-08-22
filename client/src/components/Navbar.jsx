@@ -22,15 +22,14 @@ import { apiSlice } from "../slices/apiSlice";
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
 const Navbar = () => {
-  // !  --- LOCAL STATE MANAGEMENT ---
-  const [mobileNavOpen, setMobileNavOpen] = useState(false); // State to manage the navbar's visibility
-  const [showDropdown, setShowDropdown] = useState(false); // Dropdown visibility state
+  // ! --- LOCAL STATE MANAGEMENT ---
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  //Get user
+  // ! --- GET USER ---
   const { userInfo } = useSelector((state) => state.auth);
 
-  // !   --- NAVIGATION AND USER ITEMS ARRAYS ---
-  // * 1. Array containing navigation items
+  // ! --- NAVIGATION ITEMS ---
   const navItems = [
     { id: 1, text: "Home", link: "/" },
     { id: 2, text: "Features", link: "/features" },
@@ -38,15 +37,34 @@ const Navbar = () => {
     { id: 4, text: "Contact", link: "/contact" },
   ];
 
-  // * 2. Array containing profile items when logged in
+  // ! --- PROFILE ITEMS ---
   const profileItems = [
-    { id: 1, text: "Profile", link: "/profile", icon: <FaUser /> },
-    { id: 2, text: "Notifications", link: "/notification", icon: <FaBell /> },
-    { id: 3, text: "Admin Page", link: "/admin", icon: <FaUserLock /> },
-    { id: 4, text: "Logout", icon: <FaSignOutAlt /> },
+    {
+      id: 1,
+      text: "Profile",
+      link: "/profile",
+      icon: <FaUser />,
+    },
+    {
+      id: 2,
+      text: "Notifications",
+      link: "/notification",
+      icon: <FaBell />,
+    },
+    {
+      id: 3,
+      text: "Admin Page",
+      link: "/admin",
+      icon: <FaUserLock />,
+    },
+    {
+      id: 4,
+      text: "Logout",
+      icon: <FaSignOutAlt />,
+    },
   ];
 
-  // * 3. Array containing get started items when not logged in
+  // ! --- GET STARTED ITEMS ---
   const getStartedItems = [
     {
       id: 1,
@@ -67,46 +85,44 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // !   --- LOGOUT ---
+  // ! --- LOGOUT ---
   const [logoutApiCall] = useLogoutMutation();
-  // * 1. Handler for logout action
+
   const logoutHandler = async () => {
     try {
       await logoutApiCall().unwrap();
 
-      // Clear Redux authentication state
       dispatch(deleteCredentials());
-
-      // Clear RTK Query cache
       dispatch(apiSlice.util.resetApiState());
 
-      // Redirect to login
+      setShowDropdown(false);
+      setMobileNavOpen(false);
+
       navigate("/login");
     } catch (err) {
       console.log(err);
     }
   };
 
-  // * 2. Toggle function to handle the dropdown display
+  // ! --- DROPDOWN TOGGLE ---
   const toggleDropdown = () => {
     setShowDropdown((prev) => !prev);
     setMobileNavOpen(false);
   };
 
-  // * 3. Choose Account menu items depending on if user is logged in or not
-  const getDropdownItems = () => {
-    return userInfo ? profileItems : getStartedItems;
-  };
-
-  // * 4. Toggle function to handle the navbar's display
+  // ! --- MOBILE NAV TOGGLE ---
   const toggleMobileNav = () => {
     setMobileNavOpen((prev) => !prev);
     setShowDropdown(false);
   };
 
-  // * 5. Close dropdown on outside click
+  // ! --- GET DROPDOWN ITEMS ---
+  const getDropdownItems = () => {
+    return userInfo ? profileItems : getStartedItems;
+  };
+
+  // ! --- CLOSE DROPDOWN WHEN CLICKING OUTSIDE ---
   useEffect(() => {
-    // Add event listener on component mount
     const handleClickOutside = (event) => {
       if (!event.target.closest(".rightNavButton")) {
         setShowDropdown(false);
@@ -114,221 +130,440 @@ const Navbar = () => {
     };
 
     document.addEventListener("click", handleClickOutside);
-    // Cleanup function to remove listener on unmount
-    return () => document.removeEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
   }, []);
 
-  // * 6. Generate dropdown items based on user info
+  // ! --- DROPDOWN LIST ---
   const dropdownList = getDropdownItems().map((item) => {
     const isHidden = userInfo && item.text === "Admin Page" && !userInfo.isAdmin;
 
     if (item.text === "Logout") {
       return (
-        <li
-          key={item.id}
-          className={`cursor-pointer hover:bg-red-100 hover:text-red-500 px-4 py-2 text-shark flex items-center transition-all duration-200 ${
-            isHidden ? "hidden" : ""
-          }`}
-        >
+        <li key={item.id} className={`${isHidden ? "hidden" : ""}`}>
           <button
             type="button"
             onClick={logoutHandler}
-            className="flex items-center text-left w-full"
+            className="
+              w-full
+              flex
+              items-center
+              gap-3
+              px-4
+              py-3
+              text-sm
+              text-shark
+              hover:bg-red-50
+              hover:text-red-500
+              transition-colors
+              duration-200
+            "
           >
-            <div>{item.icon}</div>
-            <div className="ml-2">{item.text}</div>
+            <span className="text-base">{item.icon}</span>
+            <span>{item.text}</span>
           </button>
         </li>
       );
     }
 
     return (
-      <Link
-        to={item.link}
-        key={item.id}
-        onClick={() => {
-          setShowDropdown(false);
-          if (mobileNavOpen) {
+      <li key={item.id} className={`${isHidden ? "hidden" : ""}`}>
+        <Link
+          to={item.link}
+          onClick={() => {
+            setShowDropdown(false);
             setMobileNavOpen(false);
-          }
-        }}
-      >
-        <li
-          className={`hover:bg-sharkLight-100 px-4 py-2 text-shark flex items-center transition-all duration-200 ${
-            isHidden ? "hidden" : ""
-          }`}
+          }}
+          className="
+            flex
+            items-center
+            gap-3
+            px-4
+            py-3
+            text-sm
+            text-shark
+            hover:bg-sharkLight-100
+            transition-colors
+            duration-200
+          "
         >
-          <div className="flex items-center text-left">
-            <div>{item.icon}</div>
-            <div className="ml-2">{item.text}</div>
-          </div>
-        </li>
-      </Link>
+          <span className="text-base">{item.icon}</span>
+          <span>{item.text}</span>
+        </Link>
+      </li>
     );
   });
 
   return (
-    <div className="bg-sharkLight-100 text-shark fixed top-0 left-0 w-full shadow-lg z-50 transition-all duration-300 h-20	">
-      <nav className="md:w-[90%] mx-auto p-4 flex justify-between items-center">
-        {/* Logo */}
-        <div className="logo">
-          <Link to="/" className="text-xl font-bold cursor-pointer">
-            MERN-AUTH-OTP
+    <>
+      {/* =========================
+          DESKTOP / MAIN NAVBAR
+      ========================== */}
+      <header
+        className="
+          fixed
+          top-0
+          left-0
+          w-full
+          z-50
+          bg-light/95
+          backdrop-blur-md
+          border-b
+          border-sharkLight-200
+        "
+      >
+        <nav
+          className="
+            w-[92%]
+            max-w-7xl
+            mx-auto
+            h-20
+            flex
+            items-center
+            justify-between
+          "
+        >
+          {/* Logo */}
+          <Link
+            to="/"
+            className="
+              flex
+              items-center
+              gap-2
+              text-xl
+              font-bold
+              text-shark
+              tracking-tight
+              hover:text-sharkDark-300
+              transition-colors
+              duration-200
+            "
+          >
+            MERN AUTH OTP APP
           </Link>
-        </div>
 
-        {/* Nav bar items */}
-        <ul className="md:flex hidden gap-x-4">
-          {navItems.map((navItem) => (
-            <li key={navItem.id}>
-              <NavLink
-                to={navItem.link}
-                className={({ isActive }) => {
-                  return isActive
-                    ? "font-bold hover:text-sharkDark-300 underline underline-offset-4 duration-200"
-                    : "hover:text-sharkLight-300 p-4 rounded-sm duration-200";
-                }}
-              >
-                {navItem.text}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-
-        {/* Right Button */}
-        <div className="flex items-center">
-          <div className="relative md:flex hidden">
-            <button
-              type="button"
-              className="rightNavButton flex items-center px-4 py-2 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none rounded duration-200"
-              onClick={toggleDropdown}
-            >
-              {userInfo ? (
-                <div className="flex items-center">
-                  <img
-                    src={`${BACKEND_BASE_URL}${userInfo.profile}`}
-                    alt="Profile Picture"
-                    className="w-6 h-6 mr-2 object-cover rounded-full"
-                  />
-                  <span>{userInfo.firstName}</span>
-                </div>
-              ) : (
-                <span>
-                  Get Started <FaRocket className="inline-block mx-2" />
-                </span>
-              )}
-
-              <FaCaretDown
-                className={`ml-2 transform transition-transform duration-200 ${
-                  showDropdown ? "rotate-180" : "rotate-0"
-                }`}
-              />
-            </button>
-
-            {showDropdown && (
-              <ul
-                role="listbox"
-                className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2 duration-200"
-              >
-                {dropdownList}
-              </ul>
-            )}
-          </div>
-
-          {/* Additional right buttons only on small screens */}
-          <div className="md:hidden flex items-center text-3xl cursor-pointer">
-            {userInfo ? (
-              <div className="relative">
-                <button
-                  type="button"
-                  className="rightNavButton relative rounded-full"
-                  onClick={toggleDropdown}
+          {/* Desktop Navigation */}
+          <ul className="hidden md:flex items-center gap-2">
+            {navItems.map((navItem) => (
+              <li key={navItem.id}>
+                <NavLink
+                  to={navItem.link}
+                  className={({ isActive }) =>
+                    `
+                    relative
+                    block
+                    px-4
+                    py-2
+                    text-sm
+                    font-medium
+                    rounded-md
+                    transition-all
+                    duration-200
+                    ${
+                      isActive
+                        ? "text-shark bg-sharkLight-100"
+                        : "text-sharkLight-500 hover:text-shark hover:bg-sharkLight-100/70"
+                    }
+                    `
+                  }
                 >
-                  <div className="flex w-8 h-8 items-center border-2 overflow-hidden border-shark rounded-full">
+                  {navItem.text}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+
+          {/* Right Section */}
+          <div className="flex items-center gap-3">
+            {/* Desktop Account Button */}
+            <div className="relative hidden md:block">
+              <button
+                type="button"
+                className="
+                  rightNavButton
+                  flex
+                  items-center
+                  gap-2
+                  px-4
+                  py-2.5
+                  bg-shark
+                  text-light
+                  text-sm
+                  font-medium
+                  rounded-md
+                  shadow-sm
+                  hover:bg-sharkDark-100
+                  hover:shadow-md
+                  transition-all
+                  duration-200
+                  focus:outline-none
+                "
+                onClick={toggleDropdown}
+              >
+                {userInfo ? (
+                  <>
+                    <img
+                      src={`${BACKEND_BASE_URL}${userInfo.profile}`}
+                      alt="Profile Picture"
+                      className="
+                        w-7
+                        h-7
+                        rounded-full
+                        object-cover
+                        border-2
+                        border-light/30
+                      "
+                    />
+
+                    <span>{userInfo.firstName}</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Get Started</span>
+                    <FaRocket className="text-sm" />
+                  </>
+                )}
+
+                <FaCaretDown
+                  className={`
+                    ml-1
+                    text-xs
+                    transition-transform
+                    duration-200
+                    ${showDropdown ? "rotate-180" : "rotate-0"}
+                  `}
+                />
+              </button>
+
+              {/* Desktop Dropdown */}
+              {showDropdown && (
+                <div
+                  className="
+                    absolute
+                    top-full
+                    right-0
+                    mt-3
+                    w-52
+                    bg-light
+                    border
+                    border-sharkLight-200
+                    rounded-md
+                    shadow-xl
+                    overflow-hidden
+                    py-1
+                  "
+                >
+                  <ul role="listbox">{dropdownList}</ul>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Account / Menu */}
+            <div className="md:hidden flex items-center gap-2">
+              {/* User Profile */}
+              {userInfo && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    className="
+                      rightNavButton
+                      w-9
+                      h-9
+                      rounded-full
+                      overflow-hidden
+                      border-2
+                      border-shark
+                      focus:outline-none
+                    "
+                    onClick={toggleDropdown}
+                  >
                     <img
                       src={`${BACKEND_BASE_URL}${userInfo.profile}`}
                       alt="Profile Picture"
                       className="w-full h-full object-cover"
                     />
-                  </div>
-                </button>
+                  </button>
 
-                {showDropdown && (
-                  <ul className="absolute text-base top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2 duration-200">
-                    {dropdownList}
-                  </ul>
-                )}
-              </div>
-            ) : null}
+                  {showDropdown && (
+                    <div
+                      className="
+                        absolute
+                        top-full
+                        right-0
+                        mt-3
+                        w-52
+                        bg-light
+                        border
+                        border-sharkLight-200
+                        rounded-md
+                        shadow-xl
+                        overflow-hidden
+                        py-1
+                      "
+                    >
+                      <ul>{dropdownList}</ul>
+                    </div>
+                  )}
+                </div>
+              )}
 
-            {/* Mobile Hamburger Nav */}
-            <button type="button" className="ml-5 flex items-center" onClick={toggleMobileNav}>
-              {mobileNavOpen ? <FaTimes /> : <FaBars />}
-            </button>
+              {/* Hamburger */}
+              <button
+                type="button"
+                onClick={toggleMobileNav}
+                className="
+                  w-10
+                  h-10
+                  flex
+                  items-center
+                  justify-center
+                  text-xl
+                  text-shark
+                  rounded-md
+                  hover:bg-sharkLight-100
+                  transition-colors
+                  duration-200
+                "
+                aria-label="Toggle navigation"
+              >
+                {mobileNavOpen ? <FaTimes /> : <FaBars />}
+              </button>
+            </div>
           </div>
-        </div>
-      </nav>
+        </nav>
+      </header>
 
-      {/* Mobile Nav */}
+      {/* =========================
+          MOBILE NAVIGATION
+      ========================== */}
       <div
-        className={
-          mobileNavOpen
-            ? "fixed h-[200%] w-screen md:hidden bg-sharkDark-300/50 backdrop-blur-sm top-20 left-0 transition-all duration-500 ease-in"
-            : "absolute top-[-490px]"
-        }
+        className={`
+          fixed
+          inset-0
+          z-40
+          md:hidden
+          transition-all
+          duration-300
+          ${
+            mobileNavOpen
+              ? "visible bg-shark/30 backdrop-blur-sm"
+              : "invisible bg-transparent pointer-events-none"
+          }
+        `}
         onClick={toggleMobileNav}
       >
-        <div className={mobileNavOpen ? "text-shark bg-light/85 transition-all" : ""}>
-          <ul className="mx-auto flex flex-col p-4">
-            {userInfo ? (
-              ""
-            ) : (
-              <li className="relative flex items-center my-2 cursor-pointer justify-end">
+        <div
+          className={`
+            absolute
+            top-20
+            left-0
+            w-full
+            bg-light
+            border-b
+            border-sharkLight-200
+            shadow-lg
+            transition-all
+            duration-300
+            ${mobileNavOpen ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"}
+          `}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="w-[92%] mx-auto py-5">
+            {/* Mobile Get Started */}
+            {!userInfo && (
+              <div className="relative mb-4">
                 <button
                   type="button"
-                  className="flex md:hidden items-center justify-center px-6 py-3 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none rounded"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowDropdown((prev) => !prev);
-                  }}
+                  className="
+                    w-full
+                    flex
+                    items-center
+                    justify-between
+                    px-4
+                    py-3
+                    bg-shark
+                    text-light
+                    text-sm
+                    font-medium
+                    rounded-md
+                    hover:bg-sharkDark-100
+                    transition-colors
+                    duration-200
+                  "
+                  onClick={() => setShowDropdown((prev) => !prev)}
                 >
-                  Get Started
-                  <div className="ml-2">
-                    <FaCaretDown
-                      className={`transform transition-transform duration-200 ${
-                        showDropdown ? "rotate-180" : "rotate-0"
-                      }`}
-                    />
-                  </div>
+                  <span className="flex items-center gap-2">
+                    <FaRocket />
+                    Get Started
+                  </span>
+
+                  <FaCaretDown
+                    className={`
+                      transition-transform
+                      duration-200
+                      ${showDropdown ? "rotate-180" : "rotate-0"}
+                    `}
+                  />
                 </button>
 
                 {showDropdown && (
-                  <ul
-                    className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2 z-50"
-                    onClick={(e) => e.stopPropagation()}
+                  <div
+                    className="
+                      mt-2
+                      bg-light
+                      border
+                      border-sharkLight-200
+                      rounded-md
+                      shadow-md
+                      overflow-hidden
+                    "
                   >
-                    {dropdownList}
-                  </ul>
+                    <ul>{dropdownList}</ul>
+                  </div>
                 )}
-              </li>
+              </div>
             )}
-            {navItems.map((navItem) => (
-              <NavLink
-                to={navItem.link}
-                key={navItem.id}
-                className={({ isActive }) => {
-                  return isActive
-                    ? "bg-sharkLight-200/50 border-l-4 border-shark p-4 mb-2 "
-                    : "p-4 mb-2 cursor-pointer hover:bg-sharkLight-200/50 duration-200";
-                }}
-              >
-                <li>{navItem.text}</li>
-              </NavLink>
-            ))}
-          </ul>
+
+            {/* Mobile Links */}
+            <ul className="flex flex-col gap-1">
+              {navItems.map((navItem) => (
+                <li key={navItem.id}>
+                  <NavLink
+                    to={navItem.link}
+                    onClick={() => {
+                      setMobileNavOpen(false);
+                      setShowDropdown(false);
+                    }}
+                    className={({ isActive }) =>
+                      `
+                      flex
+                      items-center
+                      px-4
+                      py-3.5
+                      text-sm
+                      font-medium
+                      rounded-md
+                      transition-all
+                      duration-200
+                      ${
+                        isActive
+                          ? "bg-sharkLight-100 text-shark"
+                          : "text-sharkLight-500 hover:bg-sharkLight-100/70 hover:text-shark"
+                      }
+                      `
+                    }
+                  >
+                    {navItem.text}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -2,7 +2,7 @@ import BackButton from "../components/BackButton";
 
 const ProductListPage = () => {
   return (
-    <div className="h-[50vh] w-[90%] mx-auto py-10">
+    <div className="h-[50vh] w-[90%] mx-auto">
       <div className="flex items-center mb-4">
         <BackButton />
         <div></div>

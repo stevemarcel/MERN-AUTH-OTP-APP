@@ -33,7 +33,7 @@ const AdminSidebar = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
   return (
     <>
       {/* Mobile navigation */}
-      <div className="md:hidden bg-sharkLight-100 fixed z-40 w-full">
+      <div className="md:hidden bg-sharkLight-100 fixed z-35 w-full">
         <nav className="flex justify-between">
           <ul className="md:hidden flex gap-x-1 items-center">
             {sidebarItems.map((item) => (
