@@ -1,9 +1,15 @@
 import asyncHandler from "express-async-handler";
-import genToken from "../utils/genToken.js";
+
+// Import necessary models
 import User from "../models/userModels.js";
 import EmailVerifyToken from "../models/emailVerifyTokenModel.js";
-import sendEmail from "../utils/sendEmail.js";
+
+// Import utility functions
 import { PLACEHOLDER_PROFILE_IMAGE } from "../utils/fileUpload.js";
+import genToken from "../utils/genToken.js";
+import sendEmail from "../utils/sendEmail.js";
+import logUserActivity from "../utils/userActivityLogger.js";
+
 import bcrypt from "bcryptjs";
 import fs from "fs";
 import path from "path";
@@ -58,6 +64,17 @@ const registerUser = asyncHandler(async (req, res) => {
 
   if (user) {
     const isAdminCreatingUser = user.isAdminCreatingUser;
+
+    // Log user registration activity
+    await logUserActivity({
+      user: user._id,
+      action: "registered",
+      performedBy: isAdminCreatingUser ? req.user?._id : null,
+      description: isAdminCreatingUser
+        ? `${user.firstName} ${user.lastName} was created by an admin`
+        : `${user.firstName} ${user.lastName} registered`,
+    });
+
     let message;
 
     if (isAdminCreatingUser) {
@@ -163,6 +180,14 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
     // Mark user's email as verified
     user.emailVerified = true;
     await user.save();
+
+    // Log user activity for email verification
+    await logUserActivity({
+      user: user._id,
+      action: "email_verified",
+      performedBy: user._id,
+      description: `${user.firstName} ${user.lastName} verified their email`,
+    });
 
     if (process.env.NODE_ENV === "development") {
       console.log("Email Verified", user.emailVerified);
@@ -351,6 +376,14 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
       const updatedUser = await user.save();
 
+      // Log user activity for password change
+      await logUserActivity({
+        user: updatedUser._id,
+        action: "password_changed",
+        performedBy: updatedUser._id,
+        description: `${updatedUser.firstName} ${updatedUser.lastName} changed their password`,
+      });
+
       res.status(200).json({
         message: "Password updated successfully.",
         _id: updatedUser._id,
@@ -369,6 +402,33 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     // --- General Profile Update Flow ---
     else {
       const oldProfilePath = user.profile;
+
+      // Track which profile fields were changed
+      const changedFields = [];
+
+      if (req.body.firstName !== undefined && req.body.firstName !== user.firstName) {
+        changedFields.push("first name");
+      }
+
+      if (req.body.lastName !== undefined && req.body.lastName !== user.lastName) {
+        changedFields.push("last name");
+      }
+
+      if (req.body.email !== undefined && req.body.email !== user.email) {
+        changedFields.push("email");
+      }
+
+      if (req.body.username !== undefined && req.body.username !== user.username) {
+        changedFields.push("username");
+      }
+
+      if (req.body.address !== undefined && req.body.address !== user.address) {
+        changedFields.push("address");
+      }
+
+      if (req.body.mobile !== undefined && Number(req.body.mobile) !== Number(user.mobile)) {
+        changedFields.push("phone number");
+      }
 
       user.firstName = req.body.firstName || user.firstName;
       user.lastName = req.body.lastName || user.lastName;
@@ -394,6 +454,33 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       }
 
       const updatedUser = await user.save();
+
+      // Log profile picture activity separately
+      if (req.file || req.body.profile === null) {
+        await logUserActivity({
+          user: updatedUser._id,
+          action: "profile_picture_updated",
+          performedBy: updatedUser._id,
+          description: `${updatedUser.firstName} ${updatedUser.lastName} updated their profile picture`,
+        });
+      }
+
+      // Log specific profile field changes
+      if (changedFields.length > 0) {
+        const description =
+          changedFields.length === 1
+            ? `${updatedUser.firstName} ${updatedUser.lastName} updated their ${changedFields[0]}`
+            : `${updatedUser.firstName} ${updatedUser.lastName} updated their ${changedFields
+                .slice(0, -1)
+                .join(", ")} and ${changedFields[changedFields.length - 1]}`;
+
+        await logUserActivity({
+          user: updatedUser._id,
+          action: "profile_updated",
+          performedBy: updatedUser._id,
+          description,
+        });
+      }
 
       res.status(200).json({
         _id: updatedUser._id,
@@ -425,16 +512,74 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
   if (user) {
     const oldProfilePath = user.profile;
 
+    const isAdminValue =
+      req.body.isAdmin !== undefined
+        ? req.body.isAdmin === "true" || req.body.isAdmin === true
+        : user.isAdmin;
+
+    const emailVerifiedValue =
+      req.body.emailVerified !== undefined
+        ? req.body.emailVerified === "true" || req.body.emailVerified === true
+        : user.emailVerified;
+
+    const isAdminCreatingUserValue =
+      req.body.isAdminCreatingUser !== undefined
+        ? req.body.isAdminCreatingUser === "true" || req.body.isAdminCreatingUser === true
+        : user.isAdminCreatingUser;
+
+    const changedFields = [];
+
+    // Track admin status change separately
+    let adminStatusChange = null;
+
+    if (req.body.isAdmin !== undefined && isAdminValue !== user.isAdmin) {
+      adminStatusChange = isAdminValue
+        ? `${req.user.firstName} ${req.user.lastName} made ${user.firstName} ${user.lastName} an admin user`
+        : `${req.user.firstName} ${req.user.lastName} made ${user.firstName} ${user.lastName} a regular user`;
+    }
+
+    // Track other changed fields
+    if (req.body.firstName !== undefined && req.body.firstName !== user.firstName) {
+      changedFields.push("first name");
+    }
+
+    if (req.body.lastName !== undefined && req.body.lastName !== user.lastName) {
+      changedFields.push("last name");
+    }
+
+    if (req.body.email !== undefined && req.body.email !== user.email) {
+      changedFields.push("email");
+    }
+
+    if (req.body.emailVerified !== undefined && emailVerifiedValue !== user.emailVerified) {
+      changedFields.push("email verification");
+    }
+
+    if (
+      req.body.isAdminCreatingUser !== undefined &&
+      req.body.isAdminCreatingUser !== user.isAdminCreatingUser
+    ) {
+      changedFields.push("registration source");
+    }
+
+    if (req.body.username !== undefined && req.body.username !== user.username) {
+      changedFields.push("username");
+    }
+
+    if (req.body.address !== undefined && req.body.address !== user.address) {
+      changedFields.push("address");
+    }
+
+    if (req.body.mobile !== undefined && Number(req.body.mobile) !== Number(user.mobile)) {
+      changedFields.push("phone number");
+    }
+
     user.firstName = req.body.firstName || user.firstName;
     user.lastName = req.body.lastName || user.lastName;
     user.email = req.body.email || user.email;
-    user.emailVerified =
-      req.body.emailVerified !== undefined ? req.body.emailVerified : user.emailVerified;
-    user.isAdminCreatingUser =
-      req.body.isAdminCreatingUser !== undefined
-        ? req.body.isAdminCreatingUser
-        : user.isAdminCreatingUser;
-    user.isAdmin = req.body.isAdmin !== undefined ? req.body.isAdmin : user.isAdmin;
+    user.emailVerified = emailVerifiedValue;
+    user.isAdminCreatingUser = isAdminCreatingUserValue;
+    user.isAdmin = isAdminValue;
     user.username = req.body.username || user.username;
     user.profile = req.body.profile || user.profile;
     user.address = req.body.address || user.address;
@@ -456,6 +601,43 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
     }
 
     const updatedUser = await user.save();
+
+    // Log profile picture update separately
+    if (req.file || req.body.profile === null) {
+      await logUserActivity({
+        user: updatedUser._id,
+        action: "profile_picture_updated",
+        performedBy: req.user._id,
+        description: `${req.user.firstName} ${req.user.lastName} updated ${updatedUser.firstName} ${updatedUser.lastName}'s profile picture`,
+      });
+    }
+
+    // Log admin status change separately
+    if (adminStatusChange) {
+      await logUserActivity({
+        user: updatedUser._id,
+        action: "admin_updated",
+        performedBy: req.user._id,
+        description: adminStatusChange,
+      });
+    }
+
+    // Log other specific admin profile field changes
+    if (changedFields.length > 0) {
+      const description =
+        changedFields.length === 1
+          ? `${req.user.firstName} ${req.user.lastName} updated ${updatedUser.firstName} ${updatedUser.lastName}'s ${changedFields[0]}`
+          : `${req.user.firstName} ${req.user.lastName} updated ${updatedUser.firstName} ${updatedUser.lastName}'s ${changedFields
+              .slice(0, -1)
+              .join(", ")} and ${changedFields[changedFields.length - 1]}`;
+
+      await logUserActivity({
+        user: updatedUser._id,
+        action: "admin_updated",
+        performedBy: req.user._id,
+        description,
+      });
+    }
 
     let message;
 

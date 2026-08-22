@@ -14,8 +14,10 @@ import {
 } from "recharts"; // For charts
 import { FaUsers, FaCheckCircle, FaUserShield, FaUserPlus } from "react-icons/fa";
 
-import { useGetUsersQuery } from "../../slices/usersApiSlice"; // Redux Toolkit Query for fetching users
 import Loader from "../Loader";
+
+import { useGetUsersQuery } from "../../slices/usersApiSlice"; // Redux Toolkit Query for fetching users
+import { useGetRecentUserActivitiesQuery } from "../../slices/userActivityApiSlice";
 
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
@@ -41,6 +43,12 @@ CustomTooltip.propTypes = {
 const AdminDashboardOverview = () => {
   const { data: usersData, isLoading: isUsersLoading, isError: isUsersError } = useGetUsersQuery();
 
+  const {
+    data: activityData,
+    isLoading: isActivitiesLoading,
+    isError: isActivitiesError,
+  } = useGetRecentUserActivitiesQuery();
+
   if (isUsersLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -59,6 +67,9 @@ const AdminDashboardOverview = () => {
   }
 
   const users = usersData?.users || [];
+  const activities = activityData?.activities || [];
+
+  console.log("Recent Activities:", activities);
 
   const now = new Date();
 
@@ -118,10 +129,6 @@ const AdminDashboardOverview = () => {
       value: stats.adminCreatedUsers,
     },
   ].filter((item) => item.value > 0);
-
-  const recentUsers = [...users]
-    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-    .slice(0, 6);
 
   const formatActivityDate = (date) => {
     return new Intl.DateTimeFormat("en-US", {
@@ -208,7 +215,7 @@ const AdminDashboardOverview = () => {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {verificationData.length > 0 && (
           <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm">
             <h3 className="text-xl font-semibold mb-4 text-center">User Verification Status</h3>
@@ -270,61 +277,72 @@ const AdminDashboardOverview = () => {
         )}
       </div>
 
-      <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm">
+      {/* Recent User Activity */}
+      <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm mt-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold">Recent Users</h3>
+          <h3 className="text-xl font-semibold">Recent Activity</h3>
 
           <button type="button" className="text-sm font-semibold text-shark hover:underline">
             View All
           </button>
         </div>
 
-        <div className="divide-y divide-gray-200">
-          {recentUsers.map((user) => (
-            <div key={user._id} className="flex items-center justify-between py-3 gap-3">
-              <div className="flex items-center min-w-0">
-                <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-                  <img
-                    src={`${BACKEND_BASE_URL}${user.profile}`}
-                    alt={`${user.firstName} ${user.lastName}`}
-                    className="w-full h-full object-cover"
-                  />
+        {isActivitiesLoading ? (
+          <div className="flex justify-center items-center py-8">
+            <Loader />
+            <span className="ml-2 text-shark">Loading recent activity...</span>
+          </div>
+        ) : isActivitiesError ? (
+          <div className="text-center text-red-600 py-6">
+            Error loading recent activity. Please try again.
+          </div>
+        ) : activities.length === 0 ? (
+          <div className="text-center text-sharkLight-300 py-6">No recent activity found.</div>
+        ) : (
+          <div className="divide-y divide-gray-200">
+            {activities.map((activity) => (
+              <div key={activity._id} className="flex items-center justify-between py-3 gap-4">
+                <div className="flex items-center min-w-0">
+                  {/* User Profile */}
+                  <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                    <img
+                      src={
+                        activity.user?.profile
+                          ? `${BACKEND_BASE_URL}${activity.user.profile}`
+                          : `${BACKEND_BASE_URL}/uploads/profiles/placeholder.png`
+                      }
+                      alt={
+                        activity.user
+                          ? `${activity.user.firstName} ${activity.user.lastName}`
+                          : "User"
+                      }
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Activity Description */}
+                  <div className="ml-3 min-w-0">
+                    <p className="text-sm font-medium text-shark">{activity.description}</p>
+
+                    <p className="text-xs text-sharkLight-300 mt-1">
+                      {activity.action.replaceAll("_", " ")}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="ml-3 min-w-0">
-                  <p className="font-semibold truncate">
-                    {user.firstName} {user.lastName}
+                {/* Activity Date */}
+                <div className="text-right flex-shrink-0">
+                  <p className="text-xs text-sharkLight-300">
+                    {formatActivityDate(activity.createdAt)}
                   </p>
-
-                  <p className="text-sm text-sharkLight-300 truncate">@{user.username}</p>
                 </div>
               </div>
-
-              <div className="text-right flex-shrink-0">
-                <p className="text-sm font-medium">
-                  {new Date(user.updatedAt).getTime() > new Date(user.createdAt).getTime()
-                    ? "Updated"
-                    : "Joined"}
-                </p>
-
-                <p className="text-xs text-sharkLight-300">{formatActivityDate(user.updatedAt)}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 };
-
-// AdminDashboardOverview.propTypes = {
-//   stats: PropTypes.shape({
-//     totalUsers: PropTypes.number.isRequired,
-//     verifiedUsers: PropTypes.number.isRequired,
-//     unverifiedUsers: PropTypes.number.isRequired,
-//     adminUsers: PropTypes.number.isRequired,
-//     nonAdminUsers: PropTypes.number.isRequired,
-//   }).isRequired,
-// };
 
 export default AdminDashboardOverview;

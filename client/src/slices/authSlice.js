@@ -25,10 +25,6 @@ const authSlice = createSlice({
     setAuthChecked: (state) => {
       state.authChecked = true;
     },
-    // getCredentials: (state, action) => {
-    //   state.userInfo = action.payload;
-    //   localStorage.getItem("userInfo", JSON.stringify(action.payload));
-    // },
 
     // * Function to delete user information from local storage on logout. This is an ACTION.
     deleteCredentials: (state) => {
@@ -51,13 +47,7 @@ const authSlice = createSlice({
   },
 });
 
-export const {
-  setCredentials,
-  setAuthChecked,
-  // getCredentials,
-  deleteCredentials,
-  setOTPData,
-  deleteOTPData,
-} = authSlice.actions;
+export const { setCredentials, setAuthChecked, deleteCredentials, setOTPData, deleteOTPData } =
+  authSlice.actions;
 
 export default authSlice.reducer;

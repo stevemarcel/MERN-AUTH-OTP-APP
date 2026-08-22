@@ -5,10 +5,14 @@ import express from "express";
 // import dotenv from "dotenv";
 import colors from "colors";
 import cookieParser from "cookie-parser";
-import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import connectDB from "./config/db.js";
-import userRoutes from "./routes/userRoutes.js";
 import { fileURLToPath } from "url";
+
+import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
+
+// Routes Import
+import userRoutes from "./routes/userRoutes.js";
+import userActivityRoutes from "./routes/userActivityRoutes.js";
 
 // dotenv.config();
 
@@ -32,7 +36,9 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Making the 'email-assets' folder publicly accessible.
 app.use("/email-assets", express.static(path.join(__dirname, "email-assets")));
 
+// API Routes
 app.use("/api/users", userRoutes);
+app.use("/api/user-activities", userActivityRoutes);
 
 if (process.env.NODE_ENV === "production") {
   const __dirname = path.resolve();

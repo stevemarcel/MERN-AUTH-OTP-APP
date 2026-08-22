@@ -331,9 +331,9 @@ const UserEditPage = () => {
                     />
                   </div>
 
-                  <div className=" flex flex-row text-xs md:text-sm justify-between gap-2 mt-2">
+                  <div className="flex flex-row text-xs md:text-sm justify-between gap-2 mt-2">
+                    {/* Admin Status */}
                     <div className="flex items-center">
-                      {/* Admin Level Icons */}
                       {isAdmin ? (
                         <div className="mr-1">
                           <FaUserLock />
@@ -347,20 +347,21 @@ const UserEditPage = () => {
                       <label htmlFor="isAdmin" className="font-medium text-sm">
                         {isAdmin ? "Admin User" : "Regular User"}
                       </label>
-                      <input
-                        type="checkbox"
-                        id="isAdmin"
-                        name="isAdmin"
-                        checked={isAdmin}
-                        onChange={(e) => setIsAdmin(e.target.checked)}
-                        className={`h-4 w-4 ml-1 md:ml-3 p-3 rounded text-xs accent-green-600 ${
-                          mode === "edit" ? "flex" : "hidden"
-                        }`}
-                      />
+
+                      {mode === "edit" && (
+                        <input
+                          type="checkbox"
+                          id="isAdmin"
+                          name="isAdmin"
+                          checked={isAdmin}
+                          onChange={(e) => setIsAdmin(e.target.checked)}
+                          className="h-4 w-4 ml-1 md:ml-3 rounded accent-green-600"
+                        />
+                      )}
                     </div>
 
+                    {/* Email Verification */}
                     <div className="flex items-center">
-                      {/* Verification Icons */}
                       {emailVerified ? (
                         <div className="mr-1 text-green-600">
                           <MdVerified />
@@ -371,22 +372,22 @@ const UserEditPage = () => {
                         </div>
                       )}
 
-                      <label htmlFor="emailVerified" className="font-medium text-sm ">
+                      <label htmlFor="emailVerified" className="font-medium text-sm">
                         {emailVerified ? "Email Verified" : "Email Not Verified"}
                       </label>
-                      <input
-                        type="checkbox"
-                        id="emailVerified"
-                        name="emailVerified"
-                        checked={emailVerified}
-                        onChange={(e) => setEmailVerified(e.target.checked)}
-                        className={`h-4 w-4 ml-1 md:ml-3 p-3 rounded text-xs accent-green-600 ${
-                          mode === "edit" ? "flex" : "hidden"
-                        }`}
-                      />
+
+                      {mode === "edit" && (
+                        <input
+                          type="checkbox"
+                          id="emailVerified"
+                          name="emailVerified"
+                          checked={emailVerified}
+                          onChange={(e) => setEmailVerified(e.target.checked)}
+                          className="h-4 w-4 ml-1 md:ml-3 rounded accent-green-600"
+                        />
+                      )}
                     </div>
                   </div>
-
                   <div className="flex gap-3 text-xs md:text-sm mt-4 md:mt-14">
                     <button
                       type={mode === "edit" ? "submit" : "button"} // Submit button in edit mode
