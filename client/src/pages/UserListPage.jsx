@@ -266,7 +266,7 @@ const UserListPage = () => {
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage); //
 
   return (
-    <div className="mb-5 min-h-[80vh] w-[90%] md:w-full mx-auto">
+    <div className="mb-5 min-h-[80vh] w-full mx-auto">
       <div className="flex flex-col mb-4 md:flex-row md:justify-between">
         <div className="flex items-center w-full mb-4 md:mb-0">
           {/* <BackButton />  */}
