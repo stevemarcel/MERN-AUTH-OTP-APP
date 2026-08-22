@@ -143,7 +143,16 @@ const Navbar = () => {
     }
 
     return (
-      <Link to={item.link} key={item.id} onClick={mobileNavOpen ? toggleMobileNav : null}>
+      <Link
+        to={item.link}
+        key={item.id}
+        onClick={() => {
+          setShowDropdown(false);
+          if (mobileNavOpen) {
+            setMobileNavOpen(false);
+          }
+        }}
+      >
         <li
           className={`hover:bg-sharkLight-100 px-4 py-2 text-shark flex items-center transition-all duration-200 ${
             isHidden ? "hidden" : ""
@@ -279,8 +288,8 @@ const Navbar = () => {
                   type="button"
                   className="flex md:hidden items-center justify-center px-6 py-3 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none rounded"
                   onClick={(e) => {
-                    toggleDropdown();
                     e.stopPropagation();
+                    setShowDropdown((prev) => !prev);
                   }}
                 >
                   Get Started
@@ -294,7 +303,10 @@ const Navbar = () => {
                 </button>
 
                 {showDropdown && (
-                  <ul className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2">
+                  <ul
+                    className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2 z-50"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {dropdownList}
                   </ul>
                 )}
