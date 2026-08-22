@@ -20,16 +20,16 @@ import {
 } from "../slices/usersApiSlice";
 
 // --- LOCAL COMPONENTS IMPORTS ---
-import Loader from "./Loader";
+import Loader from "../components/Loader";
 // import BackButton from "../components/BackButton";
-import SearchFilterDropdown from "./SearchFilterDropdown";
-import UserTablePaginationControls from "./UserTablePaginationControls";
-import ConfirmationModal from "./ConfirmationModal";
-import UserTable from "./UserTable";
+import SearchFilterDropdown from "../components/SearchFilterDropdown";
+import UserTablePaginationControls from "../components/UserTablePaginationControls";
+import ConfirmationModal from "../components/ConfirmationModal";
+import UserTable from "../components/UserTable";
 
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
-const UserList = () => {
+const UserListPage = () => {
   // ! --- REACT QUERY API CALLS ---
   const { data, isLoading: isGettingUsers, refetch } = useGetUsersQuery();
   const [registerApiCall, { isLoading: isRegisteringUser }] = useRegisterMutation();
@@ -383,4 +383,4 @@ const UserList = () => {
   );
 };
 
-export default UserList;
+export default UserListPage;

@@ -89,7 +89,8 @@ const Navbar = () => {
 
   // * 2. Toggle function to handle the dropdown display
   const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
+    setShowDropdown((prev) => !prev);
+    setMobileNavOpen(false);
   };
 
   // * 3. Choose Account menu items depending on if user is logged in or not
@@ -99,7 +100,8 @@ const Navbar = () => {
 
   // * 4. Toggle function to handle the navbar's display
   const toggleMobileNav = () => {
-    setMobileNavOpen(!mobileNavOpen);
+    setMobileNavOpen((prev) => !prev);
+    setShowDropdown(false);
   };
 
   // * 5. Close dropdown on outside click
@@ -186,37 +188,35 @@ const Navbar = () => {
 
         {/* Right Button */}
         <div className="flex items-center">
-          <button
-            className="rightNavButton md:flex hidden items-center px-4 py-2 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none relative rounded duration-200"
-            onClick={() => {
-              toggleDropdown(); // Toggle dropdown on button click
-            }}
-          >
-            {userInfo ? (
-              <div className="flex items-center">
-                <img
-                  src={userInfo ? `${BACKEND_BASE_URL}${userInfo.profile}` : ""}
-                  alt="Profile Picture"
-                  className="w-6 h-6 mr-2 object-cover rounded-full"
-                />
-                <span>{userInfo.firstName}</span>
-              </div>
-            ) : (
-              <>
-                <span className="">
+          <div className="relative md:flex hidden">
+            <button
+              type="button"
+              className="rightNavButton flex items-center px-4 py-2 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none rounded duration-200"
+              onClick={toggleDropdown}
+            >
+              {userInfo ? (
+                <div className="flex items-center">
+                  <img
+                    src={`${BACKEND_BASE_URL}${userInfo.profile}`}
+                    alt="Profile Picture"
+                    className="w-6 h-6 mr-2 object-cover rounded-full"
+                  />
+                  <span>{userInfo.firstName}</span>
+                </div>
+              ) : (
+                <span>
                   Get Started <FaRocket className="inline-block mx-2" />
                 </span>
-              </>
-            )}
+              )}
 
-            <FaCaretDown
-              className={`md:ml-2 ml-1 transform transition-transform duration-200 ${
-                showDropdown ? "rotate-180" : "rotate-0"
-              }`}
-            />
+              <FaCaretDown
+                className={`ml-2 transform transition-transform duration-200 ${
+                  showDropdown ? "rotate-180" : "rotate-0"
+                }`}
+              />
+            </button>
 
             {showDropdown && (
-              // Render dropdown only if visible
               <ul
                 role="listbox"
                 className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2 duration-200"
@@ -224,38 +224,36 @@ const Navbar = () => {
                 {dropdownList}
               </ul>
             )}
-          </button>
+          </div>
 
           {/* Additional right buttons only on small screens */}
-          <div className="md:hidden text-3xl cursor-pointer">
-            {/* User icon button only when user logged in on small screens */}
+          <div className="md:hidden flex items-center text-3xl cursor-pointer">
             {userInfo ? (
-              <button
-                className="rightNavButton relative rounded-full"
-                onClick={() => {
-                  toggleDropdown(); // Toggle dropdown on button click
-                }}
-              >
-                <div className="flex w-8 h-8 items-center border-2 overflow-hidden border-shark rounded-full">
-                  <img
-                    src={userInfo ? `${BACKEND_BASE_URL}${userInfo.profile}` : ""}
-                    alt="Profile Picture"
-                    className="w-full h-full object-cover "
-                  />
-                </div>
+              <div className="relative">
+                <button
+                  type="button"
+                  className="rightNavButton relative rounded-full"
+                  onClick={toggleDropdown}
+                >
+                  <div className="flex w-8 h-8 items-center border-2 overflow-hidden border-shark rounded-full">
+                    <img
+                      src={`${BACKEND_BASE_URL}${userInfo.profile}`}
+                      alt="Profile Picture"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </button>
+
                 {showDropdown && (
-                  // Render dropdown only if visible
-                  <ul className="absolute text-base top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2  duration-200">
+                  <ul className="absolute text-base top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2 duration-200">
                     {dropdownList}
                   </ul>
                 )}
-              </button>
-            ) : (
-              ""
-            )}
+              </div>
+            ) : null}
 
             {/* Mobile Hamburger Nav */}
-            <button className="ml-5" onClick={toggleMobileNav}>
+            <button type="button" className="ml-5 flex items-center" onClick={toggleMobileNav}>
               {mobileNavOpen ? <FaTimes /> : <FaBars />}
             </button>
           </div>
@@ -276,25 +274,30 @@ const Navbar = () => {
             {userInfo ? (
               ""
             ) : (
-              <li className="flex items-center my-2 cursor-pointer justify-end">
+              <li className="relative flex items-center my-2 cursor-pointer justify-end">
                 <button
-                  className=" flex md:hidden items-center justify-center px-6 py-3 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none relative rounded"
+                  type="button"
+                  className="flex md:hidden items-center justify-center px-6 py-3 bg-shark text-light hover:bg-sharkDark-100 focus:outline-none rounded"
                   onClick={(e) => {
-                    toggleDropdown(); // Toggle dropdown on button click
-                    e.stopPropagation(); // Prevent event bubbling
+                    toggleDropdown();
+                    e.stopPropagation();
                   }}
                 >
                   Get Started
                   <div className="ml-2">
-                    <FaCaretDown />
+                    <FaCaretDown
+                      className={`transform transition-transform duration-200 ${
+                        showDropdown ? "rotate-180" : "rotate-0"
+                      }`}
+                    />
                   </div>
-                  {showDropdown && (
-                    // Render dropdown only if visible
-                    <ul className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2">
-                      {dropdownList}
-                    </ul>
-                  )}
                 </button>
+
+                {showDropdown && (
+                  <ul className="absolute top-full right-0 bg-light shadow-md rounded-md w-auto overflow-hidden mt-2">
+                    {dropdownList}
+                  </ul>
+                )}
               </li>
             )}
             {navItems.map((navItem) => (

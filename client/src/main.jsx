@@ -31,11 +31,13 @@ import DummyListPage from "./pages/DummyListPage.jsx";
 import FeaturesPage from "./pages/FeaturesPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
+import UserListPage from "./pages/UserListPage.jsx";
 
 // Components Import
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import AdminRoute from "./components/AdminRoute.jsx";
-import AdminLayout from "./components/Admin/AdminLayout";
+import AdminDashboardOverview from "./components/Admin/AdminDashboardOverview.jsx";
+// import AdminLayout from "./components/Admin/AdminLayout";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -57,15 +59,16 @@ const router = createBrowserRouter(
         <Route path="/resetPassword" element={<ResetPasswordPage />} />
 
         {/* Admin Routes */}
-        <Route element={<AdminRoute />}>
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminPage />} />
-
-            <Route path="user/:userId/edit" element={<UserEditPage />} />
-            <Route path="user/:userId/create" element={<CreateNewUserPage />} />
+        <Route path="" element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminPage />}>
+            <Route index element={<AdminDashboardOverview />} />
+            <Route path="users" element={<UserListPage />} />
             <Route path="products" element={<ProductListPage />} />
             <Route path="dummyitems" element={<DummyListPage />} />
           </Route>
+
+          <Route path="/admin/user/:userId/edit" element={<UserEditPage />} />
+          <Route path="/admin/user/:userId/create" element={<CreateNewUserPage />} />
         </Route>
       </Route>
     </Route>,

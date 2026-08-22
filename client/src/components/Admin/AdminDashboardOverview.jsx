@@ -2,6 +2,10 @@ import PropTypes from "prop-types";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts"; // For charts
 import { FaUsers, FaCheckCircle, FaTimesCircle, FaUserShield } from "react-icons/fa"; // Icons for cards
 
+import { useGetUsersQuery } from "../../slices/usersApiSlice"; // Redux Toolkit Query for fetching users
+
+import Loader from "../Loader";
+
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AF19FF", "#FF1942"]; // Chart colors
 
 const CustomTooltip = ({ active, payload }) => {
@@ -20,7 +24,37 @@ CustomTooltip.propTypes = {
   payload: PropTypes.array,
 };
 
-const AdminDashboardOverview = ({ stats }) => {
+// const AdminDashboardOverview = ({ stats }) => {
+const AdminDashboardOverview = () => {
+  const { data: usersData, isLoading: isUsersLoading, isError: isUsersError } = useGetUsersQuery();
+
+  const users = usersData?.users || [];
+
+  const stats = {
+    totalUsers: users.length,
+    verifiedUsers: users.filter((user) => user.emailVerified).length,
+    unverifiedUsers: users.filter((user) => !user.emailVerified).length,
+    adminUsers: users.filter((user) => user.isAdmin).length,
+    nonAdminUsers: users.filter((user) => !user.isAdmin).length,
+  };
+
+  if (isUsersLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader />
+        <span className="ml-2 text-shark">Loading dashboard data...</span>
+      </div>
+    );
+  }
+
+  if (isUsersError) {
+    return (
+      <div className="text-center text-red-600 p-4">
+        Error loading user data for dashboard. Please try again.
+      </div>
+    );
+  }
+
   // Data for Verified vs. Unverified Users Pie Chart
   const verificationData = [
     { name: "Verified Users", value: stats.verifiedUsers },
@@ -129,14 +163,14 @@ const AdminDashboardOverview = ({ stats }) => {
   );
 };
 
-AdminDashboardOverview.propTypes = {
-  stats: PropTypes.shape({
-    totalUsers: PropTypes.number.isRequired,
-    verifiedUsers: PropTypes.number.isRequired,
-    unverifiedUsers: PropTypes.number.isRequired,
-    adminUsers: PropTypes.number.isRequired,
-    nonAdminUsers: PropTypes.number.isRequired,
-  }).isRequired,
-};
+// AdminDashboardOverview.propTypes = {
+//   stats: PropTypes.shape({
+//     totalUsers: PropTypes.number.isRequired,
+//     verifiedUsers: PropTypes.number.isRequired,
+//     unverifiedUsers: PropTypes.number.isRequired,
+//     adminUsers: PropTypes.number.isRequired,
+//     nonAdminUsers: PropTypes.number.isRequired,
+//   }).isRequired,
+// };
 
 export default AdminDashboardOverview;
