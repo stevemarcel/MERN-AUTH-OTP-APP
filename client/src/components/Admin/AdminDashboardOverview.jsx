@@ -20,7 +20,7 @@ import Loader from "../Loader";
 import { useGetUsersQuery } from "../../slices/usersApiSlice"; // Redux Toolkit Query for fetching users
 import { useGetRecentUserActivitiesQuery } from "../../slices/userActivityApiSlice";
 
-import { getProfileImageUrl } from "../utils/profileImageUrl";
+import { getProfileImageUrl } from "../../utils/profileImageUrl";
 
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
