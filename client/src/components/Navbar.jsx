@@ -19,6 +19,8 @@ import { useLogoutMutation } from "../slices/usersApiSlice";
 import { deleteCredentials } from "../slices/authSlice";
 import { apiSlice } from "../slices/apiSlice";
 
+import { getProfileImageUrl } from "../utils/profileImageUrl";
+
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
 const Navbar = () => {
@@ -305,7 +307,7 @@ const Navbar = () => {
                 {userInfo ? (
                   <>
                     <img
-                      src={`${BACKEND_BASE_URL}${userInfo.profile}`}
+                      src={getProfileImageUrl(userInfo.profile, BACKEND_BASE_URL)}
                       alt="Profile Picture"
                       className="
                         w-7
@@ -380,7 +382,7 @@ const Navbar = () => {
                     onClick={toggleDropdown}
                   >
                     <img
-                      src={`${BACKEND_BASE_URL}${userInfo.profile}`}
+                      src={getProfileImageUrl(userInfo.profile, BACKEND_BASE_URL)}
                       alt="Profile Picture"
                       className="w-full h-full object-cover"
                     />

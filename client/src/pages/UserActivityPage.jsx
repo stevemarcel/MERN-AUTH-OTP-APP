@@ -21,6 +21,8 @@ import { MdVerified, MdEmail } from "react-icons/md";
 import Loader from "../components/Loader";
 import BackButton from "../components/BackButton";
 
+import { getProfileImageUrl } from "../utils/profileImageUrl";
+
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
 const UserActivityPage = () => {
@@ -154,11 +156,7 @@ const UserActivityPage = () => {
               {/* User Profile Picture */}
               <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-sharkLight-100 flex-shrink-0">
                 <img
-                  src={
-                    activities[0].user.profile
-                      ? `${BACKEND_BASE_URL}${activities[0].user.profile}`
-                      : `${BACKEND_BASE_URL}/uploads/profiles/placeholder.png`
-                  }
+                  src={getProfileImageUrl(activities[0].user.profile, BACKEND_BASE_URL)}
                   alt={`${activities[0].user.firstName} ${activities[0].user.lastName}`}
                   className="w-full h-full object-cover"
                 />

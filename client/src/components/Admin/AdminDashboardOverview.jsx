@@ -20,6 +20,8 @@ import Loader from "../Loader";
 import { useGetUsersQuery } from "../../slices/usersApiSlice"; // Redux Toolkit Query for fetching users
 import { useGetRecentUserActivitiesQuery } from "../../slices/userActivityApiSlice";
 
+import { getProfileImageUrl } from "../utils/profileImageUrl";
+
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AF19FF", "#FF1942"]; // Chart colors
@@ -311,11 +313,7 @@ const AdminDashboardOverview = () => {
                   {/* User Profile */}
                   <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
                     <img
-                      src={
-                        activity.user?.profile
-                          ? `${BACKEND_BASE_URL}${activity.user.profile}`
-                          : `${BACKEND_BASE_URL}/uploads/profiles/placeholder.png`
-                      }
+                      src={getProfileImageUrl(activity.user?.profile, BACKEND_BASE_URL)}
                       alt={
                         activity.user
                           ? `${activity.user.firstName} ${activity.user.lastName}`
