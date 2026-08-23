@@ -27,15 +27,17 @@ const UserTable = ({
   return (
     <div className="text-shark">
       <div className="w-full p-4 bg-white shadow-md rounded">
-        <table className="w-full">
+        <table className="w-full table-fixed">
           <thead>
             <tr className="text-left border-b border-shark">
-              <th className="p-2">
+              {/* Checkbox */}
+              <th className="p-2 w-10">
                 <input
                   type="checkbox"
                   onChange={handleSelectAll}
                   checked={isAllOnPageSelected}
-                  // This is for the indeterminate state (some selected, but not all on page)
+                  // This is for the indeterminate state
+                  // (some selected, but not all on page)
                   ref={(el) => {
                     if (el) {
                       el.indeterminate = selectedUserIds.size > 0 && !isAllOnPageSelected;
@@ -43,18 +45,31 @@ const UserTable = ({
                   }}
                 />
               </th>
-              <th className="p-2">S/N</th>
-              <th className="p-2">Name</th>
+
+              {/* S/N */}
+              <th className="p-2 w-11">S/N</th>
+
+              {/* Name - takes remaining available space */}
+              <th className="p-2 w-auto">Name</th>
+
+              {/* Email - hidden on mobile */}
               <th className="p-2 md:table-cell hidden">Email</th>
+
+              {/* Member Since - hidden on mobile */}
               <th className="p-2 md:table-cell hidden">Member Since</th>
-              <th className="p-2 md:table-cell hidden ">
+
+              {/* Admin - hidden on mobile */}
+              <th className="p-2 md:table-cell hidden">
                 <div className="flex justify-center">Admin</div>
               </th>
-              <th className="p-2">Options</th>
+
+              {/* Options */}
+              <th className="p-2 w-[120px]">Options</th>
             </tr>
           </thead>
+
           <tbody>
-            {/* Conditional rendering for loading, no users, or user data */}
+            {/* Loading */}
             {isGettingUsers ? (
               <tr>
                 <td colSpan="7" className="text-center p-4">
@@ -63,54 +78,72 @@ const UserTable = ({
                 </td>
               </tr>
             ) : filteredUsersCount === 0 ? (
+              /* No users */
               <tr>
                 <td colSpan="7" className="text-center p-4 text-sharkLight-300 italic">
                   No matching users found.
                 </td>
               </tr>
             ) : (
+              /* Users */
               users.map((user, index) => (
                 <tr
                   key={user._id}
-                  className={`text-left text-xs border-gray-200 transition-all duration-200 
-										hover:bg-sharkLight-100/30 ${
-                      selectedUserIds.has(user._id)
-                        ? "bg-sharkLight-100 border-l-4 border-shark"
-                        : ""
-                    }`}
+                  className={`text-left text-xs border-gray-200 transition-all duration-200
+                hover:bg-sharkLight-100/30
+                ${
+                  selectedUserIds.has(user._id) ? "bg-sharkLight-100 border-l-4 border-shark" : ""
+                }`}
                 >
-                  <td className="p-2">
+                  {/* Checkbox */}
+                  <td className="p-2 w-10">
                     <input
                       type="checkbox"
                       checked={selectedUserIds.has(user._id)}
                       onChange={() => handleSelectUser(user._id)}
                     />
                   </td>
-                  <td className="p-2 text-center">
+
+                  {/* S/N */}
+                  <td className="p-2 w-11 text-center">
                     {index + 1 + (currentPage - 1) * usersPerPage}
                   </td>
+
+                  {/* Name */}
                   <td className="p-2">
-                    <div className="flex gap-2 items-center">
-                      <div className="hidden md:block w-8 h-8 mr-1 rounded-full overflow-hidden">
+                    <div className="flex gap-2 items-center min-w-0 overflow-hidden">
+                      {/* Profile image */}
+                      <div className="hidden md:block w-8 h-8 mr-1 rounded-full overflow-hidden shrink-0">
                         <img
                           src={getProfileImageUrl(user.profile, BACKEND_BASE_URL)}
                           alt="Profile Picture"
                           className="object-cover w-full h-full"
                         />
                       </div>
-                      <div className="flex flex-col">
-                        <span>
+
+                      {/* Name + Username */}
+                      <div className="flex flex-col min-w-0 overflow-hidden">
+                        <span className="truncate" title={`${user.firstName} ${user.lastName}`}>
                           {user.firstName} {user.lastName}
                         </span>
-                        <span className="italic font-mono text-xs">{`@${user.username}`}</span>
+
+                        <span
+                          className="italic font-mono text-xs truncate"
+                          title={`@${user.username}`}
+                        >
+                          {`@${user.username}`}
+                        </span>
                       </div>
                     </div>
                   </td>
+
+                  {/* Email */}
                   <td className="p-2 md:table-cell hidden">
                     <a href={`mailto:${user.email}`}>{user.email}</a>
                   </td>
+
+                  {/* Member Since */}
                   <td className="p-2 md:table-cell hidden">
-                    {/* Member Since Date Formatting */}
                     {new Intl.DateTimeFormat("en-US", {
                       day: "numeric",
                       month: "short",
@@ -120,6 +153,8 @@ const UserTable = ({
                       hour12: true,
                     }).format(new Date(user.createdAt))}
                   </td>
+
+                  {/* Admin */}
                   <td className="p-2 md:table-cell hidden">
                     <div
                       className={`flex justify-center ${
@@ -129,22 +164,25 @@ const UserTable = ({
                       {user.isAdmin ? <FaCheckCircle /> : <FaTimesCircle />}
                     </div>
                   </td>
-                  <td className="p-2">
-                    <div className="flex gap-1">
+
+                  {/* Options */}
+                  <td className="p-2 w-[120px]">
+                    <div className="flex gap-1 justify-center">
                       {/* View/Edit User Button */}
                       <div className="group relative">
                         <Link
                           to={`/admin/user/${user._id}/edit`}
-                          className="flex col-span-2 items-center justify-center p-2 bg-shark hover:bg-sharkDark-300 text-white rounded"
+                          className="flex items-center justify-center p-2 bg-shark hover:bg-sharkDark-300 text-white rounded"
                         >
                           <IoIosEye />
                         </Link>
+
                         {/* Tooltip for View */}
                         <span
                           className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2
-                            px-2 py-1 text-xs text-white bg-sharkDark-300 rounded-md
-                            opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                            whitespace-nowrap z-10 pointer-events-none"
+                        px-2 py-1 text-xs text-white bg-sharkDark-300 rounded-md
+                        opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                        whitespace-nowrap z-10 pointer-events-none"
                         >
                           {`View ${user.firstName}`}
                         </span>
@@ -160,7 +198,12 @@ const UserTable = ({
                         </Link>
 
                         {/* Tooltip */}
-                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-sharkDark-300 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-10 pointer-events-none">
+                        <span
+                          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2
+                        px-2 py-1 text-xs text-white bg-sharkDark-300 rounded-md
+                        opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                        whitespace-nowrap z-10 pointer-events-none"
+                        >
                           {`${user.firstName}'s Activity`}
                         </span>
                       </div>
@@ -169,9 +212,9 @@ const UserTable = ({
                       <div className="group relative">
                         <button
                           type="button"
-                          className="flex col-span-2 items-center justify-center p-2 bg-red-800 hover:bg-red-900 text-white rounded"
+                          className="flex items-center justify-center p-2 bg-red-800 hover:bg-red-900 text-white rounded"
                           onClick={() => openSingleDeleteConfirm(user._id)}
-                          disabled={isDeletingUser} // Disable button while deletion is in progress
+                          disabled={isDeletingUser}
                         >
                           {isDeletingUser ? (
                             <div className="text-3xl">
@@ -181,12 +224,13 @@ const UserTable = ({
                             <MdDelete />
                           )}
                         </button>
+
                         {/* Tooltip for Delete */}
                         <span
                           className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2
-                            px-2 py-1 text-xs text-white bg-red-900 rounded-md
-                            opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                            whitespace-nowrap z-10 pointer-events-none"
+                        px-2 py-1 text-xs text-white bg-red-900 rounded-md
+                        opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                        whitespace-nowrap z-10 pointer-events-none"
                         >
                           {`Delete ${user.firstName}`}
                         </span>
@@ -198,6 +242,8 @@ const UserTable = ({
             )}
           </tbody>
         </table>
+
+        {/* Pagination */}
         <div className="flex justify-center md:justify-end mt-4">
           <UserTablePaginationControls
             currentPage={currentPage}

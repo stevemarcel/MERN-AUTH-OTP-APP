@@ -141,41 +141,41 @@ const UserActivityPage = () => {
 
   // ! --- RENDER ---
   return (
-    <div className="p-6 mb-10 min-h-[80vh] w-[95%] mx-auto">
+    <div className="mb-10 min-h-[80vh] w-[95%] mx-auto">
       {/* Header */}
-      <div className="flex items-center mb-6">
+      <div className="flex items-center mb-5">
         <BackButton />
 
         <div className="w-full text-center">
           <h1 className="text-xl md:text-2xl font-bold text-shark uppercase">
             {userId ? "User Activity" : "Recent User Activity"}
           </h1>
-
-          {userId && activities[0]?.user && (
-            <div className="flex items-center justify-center gap-3 mt-2">
-              {/* User Profile Picture */}
-              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-sharkLight-100 flex-shrink-0">
-                <img
-                  src={getProfileImageUrl(activities[0].user.profile, BACKEND_BASE_URL)}
-                  alt={`${activities[0].user.firstName} ${activities[0].user.lastName}`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* User Information */}
-              <div className="text-left">
-                <p className="text-sm font-semibold text-shark">
-                  {activities[0].user.firstName} {activities[0].user.lastName}
-                </p>
-
-                {activities[0].user.username && (
-                  <p className="text-xs text-sharkLight-300">@{activities[0].user.username}</p>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
+
+      {userId && activities[0]?.user && (
+        <div className="flex items-center justify-center gap-3 mb-3">
+          {/* User Profile Picture */}
+          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-sharkLight-100 flex-shrink-0">
+            <img
+              src={getProfileImageUrl(activities[0].user.profile, BACKEND_BASE_URL)}
+              alt={`${activities[0].user.firstName} ${activities[0].user.lastName}`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* User Information */}
+          <div className="text-left">
+            <p className="text-sm font-semibold text-shark">
+              {activities[0].user.firstName} {activities[0].user.lastName}
+            </p>
+
+            {activities[0].user.username && (
+              <p className="text-xs text-sharkLight-300">@{activities[0].user.username}</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Loading */}
       {isLoading ? (
