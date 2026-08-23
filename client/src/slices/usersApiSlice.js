@@ -121,8 +121,12 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         method: "PUT",
         body: formData,
       }),
-      // Invalidate the 'User' tag, specifically for the updated user and the general list.
-      invalidatesTags: (result, error, { userId }) => ["User", { type: "User", id: userId }],
+      // Invalidate both the updated user and recent user activities
+      invalidatesTags: (result, error, { userId }) => [
+        "User",
+        { type: "User", id: userId },
+        "UserActivity",
+      ],
     }),
 
     // * 4. Delete a Single User by ID Mutation
