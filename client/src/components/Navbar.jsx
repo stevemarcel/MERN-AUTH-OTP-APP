@@ -209,7 +209,7 @@ const Navbar = () => {
           top-0
           left-0
           w-full
-          z-50
+          z-[100]
           bg-light/95
           backdrop-blur-md
           border-b
@@ -348,6 +348,7 @@ const Navbar = () => {
                     right-0
                     mt-3
                     w-52
+                    z-[110]
                     bg-light
                     border
                     border-sharkLight-200
@@ -396,6 +397,7 @@ const Navbar = () => {
                         right-0
                         mt-3
                         w-52
+                        z-[110]
                         bg-light
                         border
                         border-sharkLight-200
@@ -444,7 +446,7 @@ const Navbar = () => {
         className={`
           fixed
           inset-0
-          z-40
+          z-[90]
           md:hidden
           transition-all
           duration-300

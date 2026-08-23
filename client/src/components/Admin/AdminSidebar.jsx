@@ -33,7 +33,7 @@ const AdminSidebar = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
   return (
     <>
       {/* Mobile navigation */}
-      <div className="md:hidden bg-sharkLight-100 fixed z-40 w-full">
+      <div className="md:hidden bg-sharkLight-100 fixed z-[80] w-full">
         <nav className="flex justify-between">
           <ul className="md:hidden flex gap-x-1 items-center">
             {sidebarItems.map((item) => (
@@ -66,7 +66,7 @@ const AdminSidebar = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
 
       {/* Desktop / slide-out sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 w-64 bg-sharkDark-500 text-sharkLight-100 shadow-lg z-10
+        className={`fixed inset-y-0 left-0 w-64 bg-sharkDark-500 text-sharkLight-100 shadow-lg
 					transform transition-transform duration-300 ease-in-out
 					md:relative md:translate-x-0 md:w-1/4 lg:w-1/5 xl:w-1/6 md:flex md:flex-col
 					${isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
