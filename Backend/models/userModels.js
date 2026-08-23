@@ -44,6 +44,10 @@ const userSchema = mongoose.Schema(
       type: String,
       default: "/uploads/profiles/placeholder.png",
     },
+    profilePublicId: {
+      type: String,
+      default: null,
+    },
     address: {
       type: String,
       default: "1196B Awolowo Rd, Ikoyi, Lagos.",
@@ -55,7 +59,7 @@ const userSchema = mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 userSchema.pre("save", async function (next) {

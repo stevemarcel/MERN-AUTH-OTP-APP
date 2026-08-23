@@ -12,6 +12,8 @@ import BackButton from "../components/BackButton";
 // Redux Imports
 import { useGetUserByIdQuery, useUpdateUserByAdminMutation } from "../slices/usersApiSlice";
 
+import { getProfileImageUrl } from "../utils/profileImageUrl";
+
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
 const UserEditPage = () => {
@@ -180,13 +182,7 @@ const UserEditPage = () => {
                 >
                   {/* Conditional rendering for image preview or existing profile */}
                   <img
-                    src={
-                      filePreview
-                        ? filePreview
-                        : profile // If profile is a non-empty string, use it
-                          ? `${BACKEND_BASE_URL}${profile}` // Prepend backend URL
-                          : `${BACKEND_BASE_URL}/uploads/profiles/placeholder.png`
-                    }
+                    src={filePreview || getProfileImageUrl(profile, BACKEND_BASE_URL)}
                     alt="Profile"
                     className="object-cover w-full h-full"
                   />

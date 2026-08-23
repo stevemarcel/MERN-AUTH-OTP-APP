@@ -6,6 +6,7 @@ import { IoIosEye } from "react-icons/io";
 import Loader from "./Loader";
 
 import UserTablePaginationControls from "./UserTablePaginationControls";
+import { getProfileImageUrl } from "../utils/profileImageUrl";
 
 const UserTable = ({
   users,
@@ -92,7 +93,7 @@ const UserTable = ({
                     <div className="flex gap-2 items-center">
                       <div className="hidden md:block w-8 h-8 mr-1 rounded-full overflow-hidden">
                         <img
-                          src={`${BACKEND_BASE_URL}${user.profile}`}
+                          src={getProfileImageUrl(user.profile, BACKEND_BASE_URL)}
                           alt="Profile Picture"
                           className="object-cover w-full h-full"
                         />

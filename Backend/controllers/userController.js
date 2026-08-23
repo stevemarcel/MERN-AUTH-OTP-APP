@@ -10,36 +10,40 @@ import { PLACEHOLDER_PROFILE_IMAGE } from "../utils/fileUpload.js";
 import genToken from "../utils/genToken.js";
 import sendEmail from "../utils/sendEmail.js";
 import logUserActivity from "../utils/userActivityLogger.js";
+import {
+  uploadProfileImageToCloudinary,
+  deleteProfileImageFromCloudinary,
+} from "../utils/cloudinaryUtils.js";
 
 import bcrypt from "bcryptjs";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+// import fs from "fs";
+// import path from "path";
+// import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 
 // Define __filename and __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 // Function to remove old profile image from the file system
-const removeOldProfileImage = (oldImagePath) => {
-  if (oldImagePath && oldImagePath !== PLACEHOLDER_PROFILE_IMAGE) {
-    const fullPathToDelete = path.join(__dirname, "..", oldImagePath);
+// const removeOldProfileImage = (oldImagePath) => {
+//   if (oldImagePath && oldImagePath !== PLACEHOLDER_PROFILE_IMAGE) {
+//     const fullPathToDelete = path.join(__dirname, "..", oldImagePath);
 
-    // Check if the file actually exists on the disk before attempting to delete
-    if (fs.existsSync(fullPathToDelete)) {
-      fs.unlink(fullPathToDelete, (err) => {
-        if (err) {
-          console.error(`Error deleting old profile image '${fullPathToDelete}':`, err);
-        } else {
-          console.log(`Successfully deleted old profile image: ${fullPathToDelete}`);
-        }
-      });
-    } else {
-      console.log(`Old profile image not found on disk, skipping deletion: ${fullPathToDelete}`);
-    }
-  }
-};
+//     // Check if the file actually exists on the disk before attempting to delete
+//     if (fs.existsSync(fullPathToDelete)) {
+//       fs.unlink(fullPathToDelete, (err) => {
+//         if (err) {
+//           console.error(`Error deleting old profile image '${fullPathToDelete}':`, err);
+//         } else {
+//           console.log(`Successfully deleted old profile image: ${fullPathToDelete}`);
+//         }
+//       });
+//     } else {
+//       console.log(`Old profile image not found on disk, skipping deletion: ${fullPathToDelete}`);
+//     }
+//   }
+// };
 
 // @DESCRIPTION Register new user
 // @ROUTE       POST /api/users
@@ -402,9 +406,8 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     }
     // --- General Profile Update Flow ---
     else {
-      const oldProfilePath = user.profile;
+      const oldProfilePublicId = user.profilePublicId;
 
-      // Track which profile fields were changed
       const changedFields = [];
 
       if (req.body.firstName !== undefined && req.body.firstName !== user.firstName) {
@@ -439,64 +442,79 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       user.address = req.body.address || user.address;
       user.mobile = req.body.mobile || user.mobile;
 
-      // Profile image update logic: Now checks req.file (from Multer)
-      if (req.file) {
-        // If a new file was uploaded by Multer
-        const newProfilePath = "/uploads/profiles/" + req.file.filename;
+      let newProfilePublicId = null;
 
-        if (newProfilePath !== oldProfilePath) {
-          user.profile = newProfilePath;
-          removeOldProfileImage(oldProfilePath);
+      try {
+        // Upload new profile image to Cloudinary
+        if (req.file) {
+          const uploadedImage = await uploadProfileImageToCloudinary(req.file.buffer);
+
+          user.profile = uploadedImage.secure_url;
+          user.profilePublicId = uploadedImage.public_id;
+
+          newProfilePublicId = uploadedImage.public_id;
         }
-      } else if (req.body.profile === null) {
-        // Handle case where frontend explicitly sends null to clear profile (Delete profile picture)
-        user.profile = PLACEHOLDER_PROFILE_IMAGE;
-        removeOldProfileImage(oldProfilePath);
-      }
 
-      const updatedUser = await user.save();
+        // Remove profile picture
+        else if (req.body.profile === null) {
+          user.profile = PLACEHOLDER_PROFILE_IMAGE;
+          user.profilePublicId = null;
+        }
 
-      // Log profile picture activity separately
-      if (req.file || req.body.profile === null) {
-        await logUserActivity({
-          user: updatedUser._id,
-          action: "profile_picture_updated",
-          performedBy: updatedUser._id,
-          description: `${updatedUser.firstName} ${updatedUser.lastName} updated their profile picture`,
+        const updatedUser = await user.save();
+
+        // Delete previous Cloudinary image only AFTER database save succeeds
+        if (oldProfilePublicId && (req.file || req.body.profile === null)) {
+          await deleteProfileImageFromCloudinary(oldProfilePublicId);
+        }
+
+        if (req.file || req.body.profile === null) {
+          await logUserActivity({
+            user: updatedUser._id,
+            action: "profile_picture_updated",
+            performedBy: updatedUser._id,
+            description: `${updatedUser.firstName} ${updatedUser.lastName} updated their profile picture`,
+          });
+        }
+
+        if (changedFields.length > 0) {
+          const description =
+            changedFields.length === 1
+              ? `${updatedUser.firstName} ${updatedUser.lastName} updated their ${changedFields[0]}`
+              : `${updatedUser.firstName} ${updatedUser.lastName} updated their ${changedFields
+                  .slice(0, -1)
+                  .join(", ")} and ${changedFields[changedFields.length - 1]}`;
+
+          await logUserActivity({
+            user: updatedUser._id,
+            action: "profile_updated",
+            performedBy: updatedUser._id,
+            description,
+          });
+        }
+
+        res.status(200).json({
+          _id: updatedUser._id,
+          message: "Profile updated successfully",
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          email: updatedUser.email,
+          isAdmin: user.isAdmin,
+          emailVerified: user.emailVerified,
+          resetSession: updatedUser.resetSession,
+          username: updatedUser.username,
+          profile: updatedUser.profile,
+          address: updatedUser.address,
+          mobile: updatedUser.mobile,
         });
+      } catch (error) {
+        // Prevent orphaned Cloudinary uploads if MongoDB save fails
+        if (newProfilePublicId) {
+          await deleteProfileImageFromCloudinary(newProfilePublicId);
+        }
+
+        throw error;
       }
-
-      // Log specific profile field changes
-      if (changedFields.length > 0) {
-        const description =
-          changedFields.length === 1
-            ? `${updatedUser.firstName} ${updatedUser.lastName} updated their ${changedFields[0]}`
-            : `${updatedUser.firstName} ${updatedUser.lastName} updated their ${changedFields
-                .slice(0, -1)
-                .join(", ")} and ${changedFields[changedFields.length - 1]}`;
-
-        await logUserActivity({
-          user: updatedUser._id,
-          action: "profile_updated",
-          performedBy: updatedUser._id,
-          description,
-        });
-      }
-
-      res.status(200).json({
-        _id: updatedUser._id,
-        message: "Profile updated successfully",
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
-        email: updatedUser.email,
-        isAdmin: user.isAdmin,
-        emailVerified: user.emailVerified,
-        resetSession: updatedUser.resetSession,
-        username: updatedUser.username,
-        profile: updatedUser.profile,
-        address: updatedUser.address,
-        mobile: updatedUser.mobile,
-      });
     }
   } else {
     res.status(404);
@@ -511,7 +529,11 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
   if (user) {
-    const oldProfilePath = user.profile;
+    // Keep the old Cloudinary public ID so we can delete the old image only after the new profile has been successfully saved.
+    const oldProfilePublicId = user.profilePublicId;
+
+    // Used to clean up a newly uploaded Cloudinary image if something fails before the database save completes.
+    let newProfilePublicId = null;
 
     const isAdminValue =
       req.body.isAdmin !== undefined
@@ -558,7 +580,7 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
 
     if (
       req.body.isAdminCreatingUser !== undefined &&
-      req.body.isAdminCreatingUser !== user.isAdminCreatingUser
+      isAdminCreatingUserValue !== user.isAdminCreatingUser
     ) {
       changedFields.push("registration source");
     }
@@ -575,6 +597,7 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
       changedFields.push("phone number");
     }
 
+    // Update normal profile fields
     user.firstName = req.body.firstName || user.firstName;
     user.lastName = req.body.lastName || user.lastName;
     user.email = req.body.email || user.email;
@@ -586,83 +609,132 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
     user.address = req.body.address || user.address;
     user.mobile = req.body.mobile || user.mobile;
 
-    // Profile image update logic: Now checks req.file (from Multer)
-    if (req.file) {
-      // If a new file was uploaded by Multer
-      const newProfilePath = "/uploads/profiles/" + req.file.filename;
+    try {
+      // ============================================================
+      // PROFILE IMAGE HANDLING
+      // ============================================================
 
-      if (newProfilePath !== oldProfilePath) {
-        user.profile = newProfilePath;
-        removeOldProfileImage(oldProfilePath);
+      if (req.file) {
+        // Upload new image to Cloudinary
+        const uploadedImage = await uploadProfileImageToCloudinary(req.file.buffer);
+
+        // Store permanent Cloudinary URL in MongoDB
+        user.profile = uploadedImage.secure_url;
+
+        // Store Cloudinary public_id for future deletion
+        user.profilePublicId = uploadedImage.public_id;
+
+        // Keep this in case the database save fails
+        newProfilePublicId = uploadedImage.public_id;
+      } else if (req.body.profile === null) {
+        // User/admin explicitly removed the profile picture
+        user.profile = PLACEHOLDER_PROFILE_IMAGE;
+        user.profilePublicId = null;
       }
-    } else if (req.body.profile === null) {
-      // Handle case where frontend explicitly sends null to clear profile (Delete profile picture)
-      user.profile = PLACEHOLDER_PROFILE_IMAGE;
-      removeOldProfileImage(oldProfilePath);
-    }
 
-    const updatedUser = await user.save();
+      // ============================================================
+      // SAVE USER
+      // ============================================================
 
-    // Log profile picture update separately
-    if (req.file || req.body.profile === null) {
-      await logUserActivity({
-        user: updatedUser._id,
-        action: "profile_picture_updated",
-        performedBy: req.user._id,
-        description: `${req.user.firstName} ${req.user.lastName} updated ${updatedUser.firstName} ${updatedUser.lastName}'s profile picture`,
+      const updatedUser = await user.save();
+
+      // ============================================================
+      // DELETE OLD CLOUDINARY IMAGE
+      // ============================================================
+      // This happens ONLY after the new database state has been saved.
+      // Existing legacy users will normally have profilePublicId = null, so nothing will be deleted for their old /uploads/... image.
+      if (oldProfilePublicId && (req.file || req.body.profile === null)) {
+        await deleteProfileImageFromCloudinary(oldProfilePublicId);
+      }
+
+      // ============================================================
+      // PROFILE PICTURE ACTIVITY
+      // ============================================================
+
+      if (req.file || req.body.profile === null) {
+        await logUserActivity({
+          user: updatedUser._id,
+          action: "profile_picture_updated",
+          performedBy: req.user._id,
+          description: `${req.user.firstName} ${req.user.lastName} updated ${updatedUser.firstName} ${updatedUser.lastName}'s profile picture`,
+        });
+      }
+
+      // ============================================================
+      // ADMIN STATUS ACTIVITY
+      // ============================================================
+
+      if (adminStatusChange) {
+        await logUserActivity({
+          user: updatedUser._id,
+          action: "admin_updated",
+          performedBy: req.user._id,
+          description: adminStatusChange,
+        });
+      }
+
+      // ============================================================
+      // OTHER PROFILE FIELD ACTIVITY
+      // ============================================================
+
+      if (changedFields.length > 0) {
+        const description =
+          changedFields.length === 1
+            ? `${req.user.firstName} ${req.user.lastName} updated ${updatedUser.firstName} ${updatedUser.lastName}'s ${changedFields[0]}`
+            : `${req.user.firstName} ${req.user.lastName} updated ${updatedUser.firstName} ${updatedUser.lastName}'s ${changedFields
+                .slice(0, -1)
+                .join(", ")} and ${changedFields[changedFields.length - 1]}`;
+
+        await logUserActivity({
+          user: updatedUser._id,
+          action: "admin_updated",
+          performedBy: req.user._id,
+          description,
+        });
+      }
+
+      // ============================================================
+      // RESPONSE MESSAGE
+      // ============================================================
+
+      let message;
+
+      if (updatedUser.isAdminCreatingUser) {
+        message = `${updatedUser.firstName}'s Profile Created Successfully`;
+      } else {
+        message = `${updatedUser.firstName}'s Profile Updated Successfully`;
+      }
+
+      // ============================================================
+      // RESPONSE
+      // ============================================================
+
+      res.status(200).json({
+        _id: updatedUser._id,
+        message,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        email: updatedUser.email,
+        isAdminCreatingUser: updatedUser.isAdminCreatingUser,
+        isAdmin: updatedUser.isAdmin,
+        emailVerified: updatedUser.emailVerified,
+        resetSession: updatedUser.resetSession,
+        username: updatedUser.username,
+        profile: updatedUser.profile,
+        address: updatedUser.address,
+        mobile: updatedUser.mobile,
       });
+    } catch (error) {
+      // =========================================================================================================
+      // CLEAN UP NEW CLOUDINARY IMAGE IF DATABASE SAVE/PROCESSING FAILS AFTER THE IMAGE HAS ALREADY BEEN UPLOADED
+      // =========================================================================================================
+
+      if (newProfilePublicId) {
+        await deleteProfileImageFromCloudinary(newProfilePublicId);
+      }
+
+      throw error;
     }
-
-    // Log admin status change separately
-    if (adminStatusChange) {
-      await logUserActivity({
-        user: updatedUser._id,
-        action: "admin_updated",
-        performedBy: req.user._id,
-        description: adminStatusChange,
-      });
-    }
-
-    // Log other specific admin profile field changes
-    if (changedFields.length > 0) {
-      const description =
-        changedFields.length === 1
-          ? `${req.user.firstName} ${req.user.lastName} updated ${updatedUser.firstName} ${updatedUser.lastName}'s ${changedFields[0]}`
-          : `${req.user.firstName} ${req.user.lastName} updated ${updatedUser.firstName} ${updatedUser.lastName}'s ${changedFields
-              .slice(0, -1)
-              .join(", ")} and ${changedFields[changedFields.length - 1]}`;
-
-      await logUserActivity({
-        user: updatedUser._id,
-        action: "admin_updated",
-        performedBy: req.user._id,
-        description,
-      });
-    }
-
-    let message;
-
-    if (updatedUser.isAdminCreatingUser) {
-      message = `${updatedUser.firstName}'s Profile Created Successfully`;
-    } else {
-      message = `${updatedUser.firstName}'s Profile Updated Successfully`;
-    }
-
-    res.status(200).json({
-      _id: updatedUser._id,
-      message,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      email: updatedUser.email,
-      isAdminCreatingUser: updatedUser.isAdminCreatingUser,
-      isAdmin: updatedUser.isAdmin,
-      emailVerified: user.emailVerified,
-      resetSession: updatedUser.resetSession,
-      username: updatedUser.username,
-      profile: updatedUser.profile,
-      address: updatedUser.address,
-      mobile: updatedUser.mobile,
-    });
   } else {
     res.status(404);
     throw new Error("User not found");
@@ -684,8 +756,8 @@ const deleteUserByAdmin = asyncHandler(async (req, res) => {
       description: `${req.user.firstName} ${req.user.lastName} deleted ${user.firstName} ${user.lastName}`,
     });
 
-    // Delete their profile image from upload folder
-    removeOldProfileImage(user.profile);
+    // Delete their profile image from Cloudinary
+    await deleteProfileImageFromCloudinary(user.profilePublicId);
 
     // Delete user
     await user.deleteOne();
@@ -701,7 +773,7 @@ const deleteUserByAdmin = asyncHandler(async (req, res) => {
 // @ROUTE       DELETE /api/users
 // @ACCESS      Private/Admin
 const deleteUsersByAdmin = asyncHandler(async (req, res) => {
-  const { userIds } = req.body; // Expect an array of IDs in the request body
+  let { userIds } = req.body; // Expect an array of IDs in the request body
 
   if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
     res.status(400);
@@ -712,12 +784,14 @@ const deleteUsersByAdmin = asyncHandler(async (req, res) => {
   userIds = userIds.filter((id) => mongoose.Types.ObjectId.isValid(id));
 
   // Find users to get their profile paths before deleting them
-  const usersToDelete = await User.find({ _id: { $in: userIds } }).select("profile");
+  const usersToDelete = await User.find({
+    _id: { $in: userIds },
+  }).select("profile profilePublicId");
 
-  // Delete profile images from upload folder for each user
-  usersToDelete.forEach((user) => {
-    removeOldProfileImage(user.profile);
-  });
+  // Delete their profile images from Cloudinary in parallel
+  await Promise.all(
+    usersToDelete.map((user) => deleteProfileImageFromCloudinary(user.profilePublicId)),
+  );
 
   const deleteResult = await User.deleteMany({ _id: { $in: userIds } });
 
