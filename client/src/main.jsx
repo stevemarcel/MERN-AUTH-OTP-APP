@@ -25,7 +25,7 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
 import ProductListPage from "./pages/ProductListPage.jsx";
-import UserEditPage from "./pages/UserEditPage.jsx";
+import EditUserPage from "./pages/EditUserPage.jsx";
 import CreateNewUserPage from "./pages/CreateNewUserPage.jsx";
 import DummyListPage from "./pages/DummyListPage.jsx";
 import FeaturesPage from "./pages/FeaturesPage.jsx";
@@ -63,7 +63,7 @@ const router = createBrowserRouter(
             <Route path="products" element={<ProductListPage />} />
             <Route path="dummyitems" element={<DummyListPage />} />
             <Route path="activities" element={<UserActivityPage />} />
-            <Route path="user/:userId/edit" element={<UserEditPage />} />
+            <Route path="user/:userId/edit" element={<EditUserPage />} />
             <Route path="user/:userId/create" element={<CreateNewUserPage />} />
             <Route path="user/:userId/activities" element={<UserActivityPage />} />
           </Route>

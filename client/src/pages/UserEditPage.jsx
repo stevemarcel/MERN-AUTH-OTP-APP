@@ -16,7 +16,7 @@ import { getProfileImageUrl } from "../utils/profileImageUrl";
 
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
-const UserEditPage = () => {
+const EditUserPage = () => {
   const { userId } = useParams();
 
   // !   --- API CALLS ---
@@ -436,4 +436,4 @@ const UserEditPage = () => {
   );
 };
 
-export default UserEditPage;
+export default EditUserPage;
