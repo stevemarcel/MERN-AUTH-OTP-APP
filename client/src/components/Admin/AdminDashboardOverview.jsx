@@ -52,7 +52,9 @@ const AdminDashboardOverview = () => {
     data: activityData,
     isLoading: isActivitiesLoading,
     isError: isActivitiesError,
-  } = useGetRecentUserActivitiesQuery();
+  } = useGetRecentUserActivitiesQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
 
   if (isUsersLoading) {
     return (
