@@ -27,7 +27,7 @@ import AdminPage from "./pages/AdminPage.jsx";
 import ProductListPage from "./pages/ProductListPage.jsx";
 import EditUserPage from "./pages/EditUserPage.jsx";
 import CreateNewUserPage from "./pages/CreateNewUserPage.jsx";
-import DummyListPage from "./pages/DummyListPage.jsx";
+import InventoryPage from "./pages/InventoryPage.jsx";
 import FeaturesPage from "./pages/FeaturesPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
@@ -61,7 +61,7 @@ const router = createBrowserRouter(
             <Route index element={<AdminDashboardOverview />} />
             <Route path="users" element={<UserListPage />} />
             <Route path="products" element={<ProductListPage />} />
-            <Route path="dummyitems" element={<DummyListPage />} />
+            <Route path="inventory" element={<InventoryPage />} />
             <Route path="activities" element={<UserActivityPage />} />
             <Route path="user/:userId/edit" element={<EditUserPage />} />
             <Route path="user/:userId/create" element={<CreateNewUserPage />} />

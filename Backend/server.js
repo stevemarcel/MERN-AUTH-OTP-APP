@@ -13,6 +13,8 @@ import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 // Routes Import
 import userRoutes from "./routes/userRoutes.js";
 import userActivityRoutes from "./routes/userActivityRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+import inventoryRoutes from "./routes/inventoryRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 
 // dotenv.config();
@@ -40,6 +42,8 @@ app.use("/email-assets", express.static(path.join(__dirname, "email-assets")));
 // API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/user-activities", userActivityRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/inventory", inventoryRoutes);
 app.use("/api/contact", contactRoutes);
 
 if (process.env.NODE_ENV === "production") {
