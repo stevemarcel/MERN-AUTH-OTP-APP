@@ -269,7 +269,9 @@ const UserListPage = () => {
     <div className="mb-5 min-h-[80vh] w-full mx-auto text-shark">
       <div className="flex flex-col mb-4 md:flex-row md:justify-between">
         <div className="flex items-center w-full mb-4 md:mb-0">
-          <BackButton />
+          <div className="hidden md:flex">
+            <BackButton />
+          </div>
 
           <h2 className="text-2xl md:text-3xl font-bold md:mb-0 uppercase flex items-center justify-center w-full">
             Manage Users

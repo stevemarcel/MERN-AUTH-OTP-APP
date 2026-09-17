@@ -130,9 +130,9 @@ const ProductListPage = () => {
     });
   }, [products, searchTerm, statusFilter, categoryFilter]);
 
-  // ============================================================
-  // PAGINATION
-  // ============================================================
+  // *============================================================
+  // *PAGINATION
+  // *============================================================
 
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
@@ -141,9 +141,9 @@ const ProductListPage = () => {
     currentPage * productsPerPage,
   );
 
-  // ============================================================
-  // SELECT ALL
-  // ============================================================
+  // *============================================================
+  // *SELECT ALL
+  // *============================================================
 
   const isAllOnPageSelected =
     productsOnCurrentPage.length > 0 &&
@@ -165,9 +165,9 @@ const ProductListPage = () => {
     setSelectedProductIds(newSelectedProductIds);
   };
 
-  // ============================================================
-  // SELECT SINGLE PRODUCT
-  // ============================================================
+  // *============================================================
+  // *SELECT SINGLE PRODUCT
+  // *============================================================
 
   const handleSelectProduct = (productId) => {
     const newSelectedProductIds = new Set(selectedProductIds);
@@ -181,9 +181,9 @@ const ProductListPage = () => {
     setSelectedProductIds(newSelectedProductIds);
   };
 
-  // ============================================================
-  // FILTER HANDLERS
-  // ============================================================
+  // *============================================================
+  // *FILTER HANDLERS
+  // *============================================================
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -203,9 +203,9 @@ const ProductListPage = () => {
     setSelectedProductIds(new Set());
   };
 
-  // ============================================================
-  // PRODUCT STATUS
-  // ============================================================
+  // *============================================================
+  // *PRODUCT STATUS
+  // *============================================================
 
   const getStockStatus = (product) => {
     if (!product.isActive) {
@@ -235,9 +235,9 @@ const ProductListPage = () => {
     };
   };
 
-  // ============================================================
-  // CURRENCY
-  // ============================================================
+  // *============================================================
+  // *CURRENCY
+  // *============================================================
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat("en-NG", {
@@ -247,9 +247,9 @@ const ProductListPage = () => {
     }).format(Number(value) || 0);
   };
 
-  // ============================================================
-  // ARCHIVE SINGLE PRODUCT
-  // ============================================================
+  // *============================================================
+  // *ARCHIVE SINGLE PRODUCT
+  // *============================================================
 
   const openArchiveConfirm = (productId) => {
     setArchiveProductId(productId);
@@ -282,9 +282,9 @@ const ProductListPage = () => {
     setArchiveProductId(null);
   };
 
-  // ============================================================
-  // BULK ARCHIVE
-  // ============================================================
+  // *============================================================
+  // *BULK ARCHIVE
+  // *============================================================
 
   const openBulkArchiveConfirm = () => {
     if (selectedProductIds.size === 0) {
@@ -314,9 +314,9 @@ const ProductListPage = () => {
     setShowBulkArchiveConfirm(false);
   };
 
-  // ============================================================
-  // RESTORE PRODUCT
-  // ============================================================
+  // *============================================================
+  // *RESTORE PRODUCT
+  // *============================================================
 
   const openRestoreConfirm = (productId) => {
     setRestoreProductId(productId);
@@ -343,19 +343,19 @@ const ProductListPage = () => {
     setRestoreProductId(null);
   };
 
-  // ============================================================
-  // RENDER
-  // ============================================================
+  // *============================================================
+  // *RENDER
+  // *============================================================
 
   return (
     <div className="mb-10 min-h-[80vh] w-full mx-auto text-shark">
-      {/* ========================================================
-          HEADER
-      ======================================================== */}
+      {/* HEADER */}
 
       <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center w-full mb-4 md:mb-0">
-          <BackButton />
+        <div className="flex items-center w-full md:mb-0">
+          <div className="hidden md:flex">
+            <BackButton />
+          </div>
 
           <h2 className="text-2xl md:text-3xl font-bold md:mb-0 uppercase flex items-center justify-center w-full">
             Products
@@ -372,9 +372,7 @@ const ProductListPage = () => {
         </button>
       </div>
 
-      {/* ========================================================
-          TOOLBAR
-      ======================================================== */}
+      {/*  TOOLBAR */}
 
       <div className="bg-white rounded shadow-md p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -421,9 +419,7 @@ const ProductListPage = () => {
         </div>
       </div>
 
-      {/* ========================================================
-          SUMMARY
-      ======================================================== */}
+      {/* SUMMARY */}
 
       {!isGettingProducts && !isProductsError && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
@@ -466,9 +462,7 @@ const ProductListPage = () => {
         </div>
       )}
 
-      {/* ========================================================
-          ERROR
-      ======================================================== */}
+      {/*  ERROR  */}
 
       {isProductsError && (
         <div className="bg-white rounded shadow-md p-8 text-center text-red-600">
@@ -480,9 +474,7 @@ const ProductListPage = () => {
         </div>
       )}
 
-      {/* ========================================================
-          TABLE
-      ======================================================== */}
+      {/* TABLE */}
 
       {!isProductsError && (
         <div className="bg-white rounded shadow-md overflow-hidden">
@@ -715,9 +707,7 @@ const ProductListPage = () => {
         </div>
       )}
 
-      {/* ========================================================
-          ARCHIVE SINGLE PRODUCT MODAL
-      ======================================================== */}
+      {/*  ARCHIVE SINGLE PRODUCT MODAL  */}
 
       <ConfirmationModal
         isOpen={showArchiveConfirm}
@@ -730,9 +720,7 @@ const ProductListPage = () => {
         isConfirming={isArchivingProduct}
       />
 
-      {/* ========================================================
-          BULK ARCHIVE MODAL
-      ======================================================== */}
+      {/*  BULK ARCHIVE MODAL  */}
 
       <ConfirmationModal
         isOpen={showBulkArchiveConfirm}
@@ -749,9 +737,7 @@ const ProductListPage = () => {
         isConfirming={isArchivingMultipleProducts}
       />
 
-      {/* ========================================================
-          RESTORE MODAL
-      ======================================================== */}
+      {/*  RESTORE MODAL  */}
 
       <ConfirmationModal
         isOpen={showRestoreConfirm}
