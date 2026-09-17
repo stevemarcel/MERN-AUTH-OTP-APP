@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
-// --- API SLICE HOOKS ---
+// --- API SLICE HOOKS (Redux) ---
 import {
   useGetUsersQuery,
   useRegisterMutation,
@@ -21,7 +21,7 @@ import {
 
 // --- LOCAL COMPONENTS IMPORTS ---
 import Loader from "../components/Loader";
-// import BackButton from "../components/BackButton";
+import BackButton from "../components/BackButton";
 import SearchFilterDropdown from "../components/SearchFilterDropdown";
 import UserTablePaginationControls from "../components/UserTablePaginationControls";
 import ConfirmationModal from "../components/ConfirmationModal";
@@ -51,7 +51,7 @@ const UserListPage = () => {
   const [showSingleDeleteConfirm, setShowSingleDeleteConfirm] = useState(false);
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
-  const navigate = useNavigate(); //
+  const navigate = useNavigate();
 
   // ! --- EFFECT: Initialize/Update users data when API data changes ---
   useEffect(() => {
@@ -266,11 +266,12 @@ const UserListPage = () => {
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage); //
 
   return (
-    <div className="mb-5 min-h-[80vh] w-full mx-auto">
+    <div className="mb-5 min-h-[80vh] w-full mx-auto text-shark">
       <div className="flex flex-col mb-4 md:flex-row md:justify-between">
         <div className="flex items-center w-full mb-4 md:mb-0">
-          {/* <BackButton />  */}
-          <h2 className="text-3xl font-bold md:mb-0 text-shark uppercase flex justify-center w-full">
+          <BackButton />
+
+          <h2 className="text-2xl md:text-3xl font-bold md:mb-0 uppercase flex items-center justify-center w-full">
             Manage Users
           </h2>
         </div>
