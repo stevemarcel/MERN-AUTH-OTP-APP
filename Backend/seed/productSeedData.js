@@ -1,0 +1,741 @@
+const productSeedData = [
+  // ============================================================
+  // BEVERAGES
+  // ============================================================
+
+  {
+    name: "Coca-Cola 50cl",
+    sku: "COKE-50CL",
+    category: "Beverages",
+    brand: "Coca-Cola",
+    description: "Coca-Cola carbonated soft drink 50cl PET bottle.",
+    price: 700,
+    costPrice: 550,
+    stockQuantity: 48,
+    lowStockThreshold: 10,
+    unit: "bottle",
+  },
+
+  {
+    name: "Fanta Orange 50cl",
+    sku: "FANTA-ORANGE-50CL",
+    category: "Beverages",
+    brand: "Fanta",
+    description: "Fanta Orange carbonated soft drink 50cl PET bottle.",
+    price: 700,
+    costPrice: 550,
+    stockQuantity: 42,
+    lowStockThreshold: 10,
+    unit: "bottle",
+  },
+
+  {
+    name: "Sprite 50cl",
+    sku: "SPRITE-50CL",
+    category: "Beverages",
+    brand: "Sprite",
+    description: "Sprite lemon-lime carbonated soft drink 50cl.",
+    price: 700,
+    costPrice: 550,
+    stockQuantity: 36,
+    lowStockThreshold: 10,
+    unit: "bottle",
+  },
+
+  {
+    name: "Pepsi 60cl",
+    sku: "PEPSI-60CL",
+    category: "Beverages",
+    brand: "Pepsi",
+    description: "Pepsi carbonated soft drink 60cl PET bottle.",
+    price: 750,
+    costPrice: 580,
+    stockQuantity: 30,
+    lowStockThreshold: 8,
+    unit: "bottle",
+  },
+
+  {
+    name: "7UP 50cl",
+    sku: "7UP-50CL",
+    category: "Beverages",
+    brand: "7UP",
+    description: "7UP lemon-lime carbonated soft drink.",
+    price: 700,
+    costPrice: 550,
+    stockQuantity: 27,
+    lowStockThreshold: 8,
+    unit: "bottle",
+  },
+
+  {
+    name: "Teem Bitter Lemon 50cl",
+    sku: "TEEM-BL-50CL",
+    category: "Beverages",
+    brand: "Teem",
+    description: "Teem Bitter Lemon soft drink 50cl.",
+    price: 600,
+    costPrice: 470,
+    stockQuantity: 22,
+    lowStockThreshold: 6,
+    unit: "bottle",
+  },
+
+  {
+    name: "La Casera Apple 35cl",
+    sku: "LACASERA-35CL",
+    category: "Beverages",
+    brand: "La Casera",
+    description: "La Casera apple flavoured soft drink.",
+    price: 600,
+    costPrice: 470,
+    stockQuantity: 18,
+    lowStockThreshold: 5,
+    unit: "bottle",
+  },
+
+  // ============================================================
+  // MALT / ENERGY / JUICE
+  // ============================================================
+
+  {
+    name: "Maltina Classic 33cl",
+    sku: "MALTINA-33CL",
+    category: "Beverages",
+    brand: "Maltina",
+    description: "Maltina classic malt drink 33cl.",
+    price: 800,
+    costPrice: 650,
+    stockQuantity: 25,
+    lowStockThreshold: 8,
+    unit: "can",
+  },
+
+  {
+    name: "Malta Guinness 33cl",
+    sku: "MALTA-GUINNESS-33CL",
+    category: "Beverages",
+    brand: "Malta Guinness",
+    description: "Malta Guinness malt drink 33cl.",
+    price: 800,
+    costPrice: 650,
+    stockQuantity: 31,
+    lowStockThreshold: 8,
+    unit: "can",
+  },
+
+  {
+    name: "Amstel Malta 33cl",
+    sku: "AMSTEL-MALTA-33CL",
+    category: "Beverages",
+    brand: "Amstel Malta",
+    description: "Amstel Malta malt drink 33cl.",
+    price: 800,
+    costPrice: 650,
+    stockQuantity: 12,
+    lowStockThreshold: 8,
+    unit: "can",
+  },
+
+  {
+    name: "5 Alive Pulpy Orange 85cl",
+    sku: "5ALIVE-PULPY-85CL",
+    category: "Beverages",
+    brand: "5 Alive",
+    description: "5 Alive Pulpy Orange fruit drink.",
+    price: 1500,
+    costPrice: 1200,
+    stockQuantity: 15,
+    lowStockThreshold: 5,
+    unit: "bottle",
+  },
+
+  {
+    name: "Chivita Active 100% Apple Juice",
+    sku: "CHIVITA-APPLE",
+    category: "Beverages",
+    brand: "Chivita",
+    description: "Fruit juice drink.",
+    price: 1800,
+    costPrice: 1450,
+    stockQuantity: 9,
+    lowStockThreshold: 5,
+    unit: "bottle",
+  },
+
+  {
+    name: "Monster Energy 40cl",
+    sku: "MONSTER-40CL",
+    category: "Beverages",
+    brand: "Monster",
+    description: "Monster energy drink 40cl.",
+    price: 1600,
+    costPrice: 1300,
+    stockQuantity: 7,
+    lowStockThreshold: 5,
+    unit: "can",
+  },
+
+  // ============================================================
+  // WATER
+  // ============================================================
+
+  {
+    name: "Eva Water 75cl",
+    sku: "EVA-75CL",
+    category: "Beverages",
+    brand: "Eva",
+    description: "Eva bottled water 75cl.",
+    price: 500,
+    costPrice: 380,
+    stockQuantity: 60,
+    lowStockThreshold: 15,
+    unit: "bottle",
+  },
+
+  {
+    name: "Nestle Pure Life Water 75cl",
+    sku: "PURELIFE-75CL",
+    category: "Beverages",
+    brand: "Nestlé Pure Life",
+    description: "Bottled drinking water 75cl.",
+    price: 500,
+    costPrice: 380,
+    stockQuantity: 54,
+    lowStockThreshold: 15,
+    unit: "bottle",
+  },
+
+  // ============================================================
+  // NOODLES / PASTA
+  // ============================================================
+
+  {
+    name: "Indomie Chicken Flavour 70g",
+    sku: "INDOMIE-CHICKEN-70G",
+    category: "Groceries",
+    brand: "Indomie",
+    description: "Instant chicken flavour noodles 70g.",
+    price: 450,
+    costPrice: 340,
+    stockQuantity: 80,
+    lowStockThreshold: 20,
+    unit: "pack",
+  },
+
+  {
+    name: "Indomie Chicken Flavour 120g",
+    sku: "INDOMIE-CHICKEN-120G",
+    category: "Groceries",
+    brand: "Indomie",
+    description: "Instant chicken flavour noodles 120g.",
+    price: 600,
+    costPrice: 470,
+    stockQuantity: 55,
+    lowStockThreshold: 15,
+    unit: "pack",
+  },
+
+  {
+    name: "Indomie Onion Chicken 70g",
+    sku: "INDOMIE-ONION-70G",
+    category: "Groceries",
+    brand: "Indomie",
+    description: "Instant onion chicken flavour noodles 70g.",
+    price: 450,
+    costPrice: 340,
+    stockQuantity: 62,
+    lowStockThreshold: 15,
+    unit: "pack",
+  },
+
+  {
+    name: "Indomie Hungry Man 180g",
+    sku: "INDOMIE-HM-180G",
+    category: "Groceries",
+    brand: "Indomie",
+    description: "Hungry Man instant noodles 180g.",
+    price: 850,
+    costPrice: 680,
+    stockQuantity: 14,
+    lowStockThreshold: 6,
+    unit: "pack",
+  },
+
+  {
+    name: "Golden Penny Instant Noodles 70g",
+    sku: "GP-NOODLES-70G",
+    category: "Groceries",
+    brand: "Golden Penny",
+    description: "Golden Penny instant noodles.",
+    price: 400,
+    costPrice: 320,
+    stockQuantity: 48,
+    lowStockThreshold: 12,
+    unit: "pack",
+  },
+
+  {
+    name: "Golden Penny Spaghetti 500g",
+    sku: "GP-SPAGHETTI-500G",
+    category: "Groceries",
+    brand: "Golden Penny",
+    description: "Golden Penny spaghetti 500g.",
+    price: 1800,
+    costPrice: 1450,
+    stockQuantity: 24,
+    lowStockThreshold: 8,
+    unit: "pack",
+  },
+
+  {
+    name: "Golden Penny Macaroni 500g",
+    sku: "GP-MACARONI-500G",
+    category: "Groceries",
+    brand: "Golden Penny",
+    description: "Golden Penny macaroni 500g.",
+    price: 1800,
+    costPrice: 1450,
+    stockQuantity: 19,
+    lowStockThreshold: 6,
+    unit: "pack",
+  },
+
+  {
+    name: "Honeywell Spaghetti 500g",
+    sku: "HONEYWELL-SPAG-500G",
+    category: "Groceries",
+    brand: "Honeywell",
+    description: "Honeywell spaghetti 500g.",
+    price: 1800,
+    costPrice: 1450,
+    stockQuantity: 6,
+    lowStockThreshold: 8,
+    unit: "pack",
+  },
+
+  // ============================================================
+  // RICE / STAPLES
+  // ============================================================
+
+  {
+    name: "Big Bull Parboiled Rice 5kg",
+    sku: "BIGBULL-RICE-5KG",
+    category: "Groceries",
+    brand: "Big Bull",
+    description: "Parboiled long-grain rice 5kg.",
+    price: 11000,
+    costPrice: 9000,
+    stockQuantity: 12,
+    lowStockThreshold: 5,
+    unit: "bag",
+  },
+
+  {
+    name: "Mama's Pride Rice 5kg",
+    sku: "MAMASPRIDE-RICE-5KG",
+    category: "Groceries",
+    brand: "Mama's Pride",
+    description: "Parboiled rice 5kg.",
+    price: 10500,
+    costPrice: 8500,
+    stockQuantity: 10,
+    lowStockThreshold: 5,
+    unit: "bag",
+  },
+
+  {
+    name: "Golden Penny Semolina 1kg",
+    sku: "GP-SEMOVITA-1KG",
+    category: "Groceries",
+    brand: "Golden Penny",
+    description: "Semolina meal 1kg.",
+    price: 2200,
+    costPrice: 1800,
+    stockQuantity: 17,
+    lowStockThreshold: 5,
+    unit: "pack",
+  },
+
+  {
+    name: "Golden Penny Garri 1kg",
+    sku: "GP-GARRI-1KG",
+    category: "Groceries",
+    brand: "Golden Penny",
+    description: "Garri 1kg.",
+    price: 1600,
+    costPrice: 1250,
+    stockQuantity: 20,
+    lowStockThreshold: 6,
+    unit: "bag",
+  },
+
+  {
+    name: "Honeywell Flour 2kg",
+    sku: "HONEYWELL-FLOUR-2KG",
+    category: "Groceries",
+    brand: "Honeywell",
+    description: "Wheat flour 2kg.",
+    price: 3000,
+    costPrice: 2450,
+    stockQuantity: 8,
+    lowStockThreshold: 5,
+    unit: "bag",
+  },
+
+  // ============================================================
+  // BREAKFAST / CEREALS / MILK
+  // ============================================================
+
+  {
+    name: "Peak Full Cream Milk Powder 360g",
+    sku: "PEAK-MILK-360G",
+    category: "Dairy",
+    brand: "Peak",
+    description: "Full cream milk powder 360g.",
+    price: 5000,
+    costPrice: 4100,
+    stockQuantity: 11,
+    lowStockThreshold: 5,
+    unit: "pack",
+  },
+
+  {
+    name: "Peak Evaporated Milk 160g",
+    sku: "PEAK-EVAP-160G",
+    category: "Dairy",
+    brand: "Peak",
+    description: "Evaporated full cream milk 160g.",
+    price: 900,
+    costPrice: 700,
+    stockQuantity: 30,
+    lowStockThreshold: 8,
+    unit: "can",
+  },
+
+  {
+    name: "Hollandia Full Cream Milk 1L",
+    sku: "HOLLANDIA-MILK-1L",
+    category: "Dairy",
+    brand: "Hollandia",
+    description: "Full cream UHT milk 1 litre.",
+    price: 2500,
+    costPrice: 2050,
+    stockQuantity: 8,
+    lowStockThreshold: 4,
+    unit: "carton",
+  },
+
+  {
+    name: "Milo 400g",
+    sku: "MILO-400G",
+    category: "Groceries",
+    brand: "Milo",
+    description: "Chocolate malt beverage powder 400g.",
+    price: 5000,
+    costPrice: 4100,
+    stockQuantity: 13,
+    lowStockThreshold: 5,
+    unit: "tin",
+  },
+
+  {
+    name: "Golden Morn 500g",
+    sku: "GOLDENMORN-500G",
+    category: "Groceries",
+    brand: "Golden Morn",
+    description: "Maize and soya cereal 500g.",
+    price: 3500,
+    costPrice: 2850,
+    stockQuantity: 15,
+    lowStockThreshold: 5,
+    unit: "pack",
+  },
+
+  {
+    name: "Nescafé Classic 100g",
+    sku: "NESCAFE-CLASSIC-100G",
+    category: "Groceries",
+    brand: "Nescafé",
+    description: "Instant coffee 100g.",
+    price: 4500,
+    costPrice: 3700,
+    stockQuantity: 6,
+    lowStockThreshold: 4,
+    unit: "jar",
+  },
+
+  // ============================================================
+  // COOKING INGREDIENTS
+  // ============================================================
+
+  {
+    name: "Golden Penny Vegetable Oil 1L",
+    sku: "GP-OIL-1L",
+    category: "Groceries",
+    brand: "Golden Penny",
+    description: "Vegetable cooking oil 1 litre.",
+    price: 6500,
+    costPrice: 5400,
+    stockQuantity: 9,
+    lowStockThreshold: 5,
+    unit: "bottle",
+  },
+
+  {
+    name: "Power Oil 1L",
+    sku: "POWER-OIL-1L",
+    category: "Groceries",
+    brand: "Power Oil",
+    description: "Vegetable cooking oil 1 litre.",
+    price: 6500,
+    costPrice: 5400,
+    stockQuantity: 14,
+    lowStockThreshold: 5,
+    unit: "bottle",
+  },
+
+  {
+    name: "Terra Seasoning Cubes",
+    sku: "TERRA-SEASONING",
+    category: "Groceries",
+    brand: "Terra",
+    description: "Seasoning cubes for everyday cooking.",
+    price: 1800,
+    costPrice: 1450,
+    stockQuantity: 21,
+    lowStockThreshold: 6,
+    unit: "pack",
+  },
+
+  {
+    name: "Maggi Star Cubes",
+    sku: "MAGGI-STAR-CUBES",
+    category: "Groceries",
+    brand: "Maggi",
+    description: "Seasoning cubes.",
+    price: 1800,
+    costPrice: 1450,
+    stockQuantity: 28,
+    lowStockThreshold: 8,
+    unit: "pack",
+  },
+
+  {
+    name: "Knorr Chicken Cubes",
+    sku: "KNORR-CHICKEN-CUBES",
+    category: "Groceries",
+    brand: "Knorr",
+    description: "Chicken flavour seasoning cubes.",
+    price: 1800,
+    costPrice: 1450,
+    stockQuantity: 16,
+    lowStockThreshold: 6,
+    unit: "pack",
+  },
+
+  {
+    name: "Bama Mayonnaise 473g",
+    sku: "BAMA-MAYO-473G",
+    category: "Groceries",
+    brand: "Bama",
+    description: "Mayonnaise 473g.",
+    price: 4500,
+    costPrice: 3600,
+    stockQuantity: 5,
+    lowStockThreshold: 4,
+    unit: "jar",
+  },
+
+  // ============================================================
+  // BISCUITS / SNACKS
+  // ============================================================
+
+  {
+    name: "Gala Beef Roll",
+    sku: "GALA-BEEF-ROLL",
+    category: "Snacks",
+    brand: "Gala",
+    description: "Popular Nigerian beef sausage roll snack.",
+    price: 500,
+    costPrice: 380,
+    stockQuantity: 40,
+    lowStockThreshold: 12,
+    unit: "piece",
+  },
+
+  {
+    name: "Gala Chin Chin 45g",
+    sku: "GALA-CHINCHIN-45G",
+    category: "Snacks",
+    brand: "Gala",
+    description: "Chin chin snack 45g.",
+    price: 300,
+    costPrice: 220,
+    stockQuantity: 25,
+    lowStockThreshold: 8,
+    unit: "pack",
+  },
+
+  {
+    name: "Minimie Chin Chin 75g",
+    sku: "MINIMIE-CHINCHIN-75G",
+    category: "Snacks",
+    brand: "Minimie",
+    description: "Chin chin snack 75g.",
+    price: 350,
+    costPrice: 270,
+    stockQuantity: 18,
+    lowStockThreshold: 6,
+    unit: "pack",
+  },
+
+  {
+    name: "Oreo Original 119g",
+    sku: "OREO-ORIGINAL-119G",
+    category: "Snacks",
+    brand: "Oreo",
+    description: "Chocolate sandwich cookies.",
+    price: 1800,
+    costPrice: 1450,
+    stockQuantity: 10,
+    lowStockThreshold: 5,
+    unit: "pack",
+  },
+
+  {
+    name: "McVitie's Digestive 180g",
+    sku: "MCVITIES-DIGESTIVE-180G",
+    category: "Snacks",
+    brand: "McVitie's",
+    description: "Digestive biscuits 180g.",
+    price: 1700,
+    costPrice: 1350,
+    stockQuantity: 13,
+    lowStockThreshold: 5,
+    unit: "pack",
+  },
+
+  {
+    name: "NutriSnax Digestive Biscuit",
+    sku: "NUTRISNAX-DIGESTIVE",
+    category: "Snacks",
+    brand: "NutriSnax",
+    description: "Digestive biscuits.",
+    price: 700,
+    costPrice: 530,
+    stockQuantity: 17,
+    lowStockThreshold: 6,
+    unit: "pack",
+  },
+
+  {
+    name: "Pringles Original 100g",
+    sku: "PRINGLES-ORIGINAL-100G",
+    category: "Snacks",
+    brand: "Pringles",
+    description: "Original potato crisps.",
+    price: 4500,
+    costPrice: 3700,
+    stockQuantity: 4,
+    lowStockThreshold: 4,
+    unit: "can",
+  },
+
+  {
+    name: "Plantain Chips 100g",
+    sku: "PLANTAIN-CHIPS-100G",
+    category: "Snacks",
+    brand: "Local",
+    description: "Salted plantain chips.",
+    price: 1000,
+    costPrice: 700,
+    stockQuantity: 22,
+    lowStockThreshold: 7,
+    unit: "pack",
+  },
+
+  // ============================================================
+  // HOUSEHOLD
+  // ============================================================
+
+  {
+    name: "Morning Fresh Dishwashing Liquid 500ml",
+    sku: "MORNINGFRESH-500ML",
+    category: "Household",
+    brand: "Morning Fresh",
+    description: "Dishwashing liquid 500ml.",
+    price: 2500,
+    costPrice: 2000,
+    stockQuantity: 12,
+    lowStockThreshold: 5,
+    unit: "bottle",
+  },
+
+  {
+    name: "Dettol Liquid Antiseptic 250ml",
+    sku: "DETTOL-250ML",
+    category: "Personal Care",
+    brand: "Dettol",
+    description: "Antiseptic liquid 250ml.",
+    price: 3000,
+    costPrice: 2450,
+    stockQuantity: 9,
+    lowStockThreshold: 4,
+    unit: "bottle",
+  },
+
+  {
+    name: "Harpic Toilet Cleaner 450ml",
+    sku: "HARPIC-450ML",
+    category: "Household",
+    brand: "Harpic",
+    description: "Toilet bowl cleaner 450ml.",
+    price: 2500,
+    costPrice: 2000,
+    stockQuantity: 7,
+    lowStockThreshold: 4,
+    unit: "bottle",
+  },
+
+  {
+    name: "Hypo Bleach 1L",
+    sku: "HYPO-BLEACH-1L",
+    category: "Household",
+    brand: "Hypo",
+    description: "Household bleach 1 litre.",
+    price: 2200,
+    costPrice: 1750,
+    stockQuantity: 11,
+    lowStockThreshold: 4,
+    unit: "bottle",
+  },
+
+  {
+    name: "Closeup Toothpaste 140g",
+    sku: "CLOSEUP-140G",
+    category: "Personal Care",
+    brand: "Closeup",
+    description: "Toothpaste 140g.",
+    price: 2500,
+    costPrice: 2000,
+    stockQuantity: 8,
+    lowStockThreshold: 4,
+    unit: "piece",
+  },
+
+  {
+    name: "Mortein Insecticide 300ml",
+    sku: "MORTEIN-300ML",
+    category: "Household",
+    brand: "Mortein",
+    description: "Household insecticide spray 300ml.",
+    price: 3500,
+    costPrice: 2800,
+    stockQuantity: 6,
+    lowStockThreshold: 4,
+    unit: "can",
+  },
+];
+
+export default productSeedData;

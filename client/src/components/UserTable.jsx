@@ -25,13 +25,13 @@ const UserTable = ({
   BACKEND_BASE_URL,
 }) => {
   return (
-    <div className="text-shark">
-      <div className="w-full p-4 bg-white shadow-md rounded">
-        <table className="w-full table-fixed">
+    <div className="bg-white rounded shadow-md overflow-hidden text-shark">
+      <div id="user-table-wrapper" className="w-full overflow-x-auto">
+        <table id="user-table" className="w-full min-w-[950px]">
           <thead>
-            <tr className="text-left border-b border-shark">
+            <tr className="text-left text-xs uppercase border-b border-shark">
               {/* Checkbox */}
-              <th className="p-2 w-10">
+              <th className="p-4">
                 <input
                   type="checkbox"
                   onChange={handleSelectAll}
@@ -47,24 +47,26 @@ const UserTable = ({
               </th>
 
               {/* S/N */}
-              <th className="p-2 w-11">S/N</th>
+              <th className="px-3 py-4">S/N</th>
 
               {/* Name - takes remaining available space */}
-              <th className="p-2 w-auto">Name</th>
+              <th className="px-3 py-4">Name</th>
 
               {/* Email - hidden on mobile */}
-              <th className="p-2 md:table-cell hidden">Email</th>
+              <th className="px-3 py-4">Email</th>
 
               {/* Member Since - hidden on mobile */}
-              <th className="p-2 md:table-cell hidden">Member Since</th>
+              <th className="px-3 py-4">Member Since</th>
 
               {/* Admin - hidden on mobile */}
-              <th className="p-2 md:table-cell hidden">
+              <th className="px-3 py-4">
                 <div className="flex justify-center">Admin</div>
               </th>
 
-              {/* Options */}
-              <th className="p-2 w-[120px]">Options</th>
+              {/* Actions */}
+              <th className="px-3 py-4">
+                <div className="flex justify-center">Actions</div>
+              </th>
             </tr>
           </thead>
 
@@ -89,14 +91,13 @@ const UserTable = ({
               users.map((user, index) => (
                 <tr
                   key={user._id}
-                  className={`text-left text-xs border-gray-200 transition-all duration-200
-                hover:bg-sharkLight-100/30
+                  className={`text-sm border-b border-gray-200 transition-all duration-200 hover:bg-sharkLight-100/30
                 ${
                   selectedUserIds.has(user._id) ? "bg-sharkLight-100 border-l-4 border-shark" : ""
                 }`}
                 >
                   {/* Checkbox */}
-                  <td className="p-2 w-10">
+                  <td className="p-4">
                     <input
                       type="checkbox"
                       checked={selectedUserIds.has(user._id)}
@@ -105,15 +106,15 @@ const UserTable = ({
                   </td>
 
                   {/* S/N */}
-                  <td className="p-2 w-11 text-center">
+                  <td className="p-3 text-center">
                     {index + 1 + (currentPage - 1) * usersPerPage}
                   </td>
 
                   {/* Name */}
-                  <td className="p-2">
+                  <td className="p-3">
                     <div className="flex gap-2 items-center min-w-0 overflow-hidden">
                       {/* Profile image */}
-                      <div className="hidden md:block w-8 h-8 mr-1 rounded-full overflow-hidden shrink-0">
+                      <div className="w-8 h-8 mr-1 rounded-full overflow-hidden shrink-0">
                         <img
                           src={getProfileImageUrl(user.profile, BACKEND_BASE_URL)}
                           alt="Profile Picture"
@@ -138,12 +139,12 @@ const UserTable = ({
                   </td>
 
                   {/* Email */}
-                  <td className="p-2 md:table-cell hidden">
+                  <td className="p-3">
                     <a href={`mailto:${user.email}`}>{user.email}</a>
                   </td>
 
                   {/* Member Since */}
-                  <td className="p-2 md:table-cell hidden">
+                  <td className="p-3">
                     {new Intl.DateTimeFormat("en-US", {
                       day: "numeric",
                       month: "short",
@@ -155,7 +156,7 @@ const UserTable = ({
                   </td>
 
                   {/* Admin */}
-                  <td className="p-2 md:table-cell hidden">
+                  <td className="p-3">
                     <div
                       className={`flex justify-center ${
                         user.isAdmin ? "text-green-600" : "text-sharkLight-300"
@@ -165,9 +166,9 @@ const UserTable = ({
                     </div>
                   </td>
 
-                  {/* Options */}
-                  <td className="p-2 w-[120px]">
-                    <div className="flex gap-1 justify-center">
+                  {/* Actions */}
+                  <td className="p-3">
+                    <div className="flex justify-center gap-1">
                       {/* View/Edit User Button */}
                       <div className="group relative">
                         <Link
@@ -178,12 +179,7 @@ const UserTable = ({
                         </Link>
 
                         {/* Tooltip for View */}
-                        <span
-                          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2
-                        px-2 py-1 text-xs text-white bg-sharkDark-300 rounded-md
-                        opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                        whitespace-nowrap z-10 pointer-events-none"
-                        >
+                        <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-sm text-white bg-sharkDark-300 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-10 pointer-events-none">
                           {`View ${user.firstName}`}
                         </span>
                       </div>
@@ -198,12 +194,7 @@ const UserTable = ({
                         </Link>
 
                         {/* Tooltip */}
-                        <span
-                          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2
-                        px-2 py-1 text-xs text-white bg-sharkDark-300 rounded-md
-                        opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                        whitespace-nowrap z-10 pointer-events-none"
-                        >
+                        <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-sm text-white bg-sharkDark-300 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-10 pointer-events-none">
                           {`${user.firstName}'s Activity`}
                         </span>
                       </div>
@@ -226,12 +217,7 @@ const UserTable = ({
                         </button>
 
                         {/* Tooltip for Delete */}
-                        <span
-                          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2
-                        px-2 py-1 text-xs text-white bg-red-900 rounded-md
-                        opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                        whitespace-nowrap z-10 pointer-events-none"
-                        >
+                        <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-sm text-white bg-red-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-10 pointer-events-none">
                           {`Delete ${user.firstName}`}
                         </span>
                       </div>
@@ -242,15 +228,15 @@ const UserTable = ({
             )}
           </tbody>
         </table>
+      </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center md:justify-end mt-4">
-          <UserTablePaginationControls
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        </div>
+      {/* Pagination */}
+      <div className="flex justify-center md:justify-end p-4 border-t">
+        <UserTablePaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );

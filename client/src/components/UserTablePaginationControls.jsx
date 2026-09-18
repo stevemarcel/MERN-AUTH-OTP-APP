@@ -1,127 +1,330 @@
 import PropTypes from "prop-types";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { useEffect, useRef, useState } from "react";
+import { FaChevronDown, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const UserTablePaginationControls = ({ currentPage, totalPages, onPageChange }) => {
-  // Don't render pagination controls if there's only one or zero pages
+  const [isPageDropdownOpen, setIsPageDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // ------------------------------------------------------------
+  // Close mobile page dropdown when clicking outside
+  // ------------------------------------------------------------
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsPageDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Don't render pagination controls if there is only one page
   if (totalPages <= 1) return null;
 
+  // ------------------------------------------------------------
+  // Desktop page number generation
+  // ------------------------------------------------------------
   const pageNumbers = [];
-  // Logic to display a limited number of page buttons
-  // This avoids rendering hundreds of page buttons for large datasets
+
   if (totalPages <= 7) {
-    // Show all pages if 7 or less
     for (let i = 1; i <= totalPages; i++) {
       pageNumbers.push(i);
     }
   } else {
-    // Always show first page
     pageNumbers.push(1);
 
-    // Show ellipsis if current page is far from the beginning
     if (currentPage > 3) {
       pageNumbers.push("...");
     }
 
-    // Show current, previous, and next page
     if (currentPage > 1 && currentPage < totalPages) {
       pageNumbers.push(currentPage - 1);
       pageNumbers.push(currentPage);
       pageNumbers.push(currentPage + 1);
     } else if (currentPage === 1) {
-      pageNumbers.push(2, 3);
+      pageNumbers.push(2);
+      pageNumbers.push(3);
     } else if (currentPage === totalPages) {
-      pageNumbers.push(totalPages - 2, totalPages - 1);
+      pageNumbers.push(totalPages - 2);
+      pageNumbers.push(totalPages - 1);
     }
 
-    // Show ellipsis if current page is far from the end
     if (currentPage < totalPages - 2) {
       pageNumbers.push("...");
     }
 
-    // Always show last page (unless already shown)
-    if (totalPages > 1 && !pageNumbers.includes(totalPages)) {
-      pageNumbers.push(totalPages);
-    }
+    pageNumbers.push(totalPages);
 
-    // Filter out duplicates and sort
-    const uniquePageNumbers = [...new Set(pageNumbers)].sort((a, b) => {
-      if (a === "...") return 1; // Ellipsis goes to end for sorting
-      if (b === "...") return -1;
-      return a - b;
-    });
-    // Re-insert ellipsis correctly if needed after sorting
+    // Remove duplicate numbers while preserving order
     const finalPageNumbers = [];
-    for (let i = 0; i < uniquePageNumbers.length; i++) {
-      if (
-        uniquePageNumbers[i] === "..." &&
-        (finalPageNumbers.length === 0 || finalPageNumbers[finalPageNumbers.length - 1] === "...")
-      ) {
-        // Avoid consecutive ellipses or ellipsis at the very beginning
-        continue;
+
+    pageNumbers.forEach((page) => {
+      if (!finalPageNumbers.includes(page) || page === "...") {
+        finalPageNumbers.push(page);
       }
-      finalPageNumbers.push(uniquePageNumbers[i]);
-    }
-    // Ensure ellipsis doesn't appear if adjacent numbers exist
-    if (finalPageNumbers[0] === 1 && finalPageNumbers[1] === "..." && finalPageNumbers[2] === 2) {
-      finalPageNumbers.splice(1, 1); // Remove ellipsis if 1 ... 2
-    }
-    if (
-      finalPageNumbers[finalPageNumbers.length - 1] === totalPages &&
-      finalPageNumbers[finalPageNumbers.length - 2] === "..." &&
-      finalPageNumbers[finalPageNumbers.length - 3] === totalPages - 1
-    ) {
-      finalPageNumbers.splice(finalPageNumbers.length - 2, 1); // Remove ellipsis if N-1 ... N
+    });
+
+    // Remove duplicate / unnecessary ellipses
+    for (let i = finalPageNumbers.length - 1; i >= 0; i--) {
+      if (
+        finalPageNumbers[i] === "..." &&
+        (i === 0 ||
+          i === finalPageNumbers.length - 1 ||
+          finalPageNumbers[i - 1] === "..." ||
+          finalPageNumbers[i + 1] === "...")
+      ) {
+        finalPageNumbers.splice(i, 1);
+      }
     }
 
-    pageNumbers.splice(0, pageNumbers.length, ...finalPageNumbers); // Update pageNumbers with cleaned list
+    pageNumbers.splice(0, pageNumbers.length, ...finalPageNumbers);
   }
 
+  // ------------------------------------------------------------
+  // Mobile page selection
+  // ------------------------------------------------------------
+  const handleMobilePageChange = (page) => {
+    onPageChange(page);
+    setIsPageDropdownOpen(false);
+  };
+
   return (
-    <div className="flex justify-end gap-1 items-center">
-      <button
-        type="button"
-        className="disabled:opacity-30 disabled:hover:font-normal disabled:hover:scale-100 disabled:hover:shadow-none disabled:transition-none
-				hover:font-medium bg-sharkLight-100 px-2 py-1 rounded text-sm transition duration-300 hover:scale-105 hover:shadow-md"
-        disabled={currentPage === 1}
-        onClick={() => onPageChange(currentPage - 1)}
-      >
-        <div className="flex items-center gap-2">
-          <FaChevronLeft />
-          Prev
+    <>
+      {/* ========================================================
+          MOBILE PAGINATION
+          Visible below md breakpoint
+      ======================================================== */}
+      <div className="md:hidden w-full">
+        <div className="flex items-center justify-between gap-2 w-full">
+          {/* Previous */}
+          <button
+            type="button"
+            disabled={currentPage === 1}
+            onClick={() => onPageChange(currentPage - 1)}
+            className="
+              flex-1
+              flex items-center justify-center
+              gap-2
+              px-3 py-2
+              rounded-md
+              bg-sharkLight-100
+              text-shark
+              text-sm
+              font-medium
+              transition duration-300
+              hover:bg-sharkLight-200
+              disabled:opacity-30
+              disabled:cursor-not-allowed
+              disabled:hover:bg-sharkLight-100
+              disabled:hover:scale-100
+              whitespace-nowrap
+            "
+          >
+            <FaChevronLeft className="text-xs" />
+            <span>Prev</span>
+          </button>
+
+          {/* Page Dropdown */}
+          <div ref={dropdownRef} className="relative flex-2">
+            <button
+              type="button"
+              onClick={() => setIsPageDropdownOpen((previous) => !previous)}
+              className="
+                w-full
+                flex items-center justify-center
+                gap-2
+                px-3 py-2
+                rounded-md
+                bg-sharkLight-100
+                text-shark
+                text-sm
+                font-medium
+                transition duration-300
+                hover:bg-sharkLight-200
+              "
+            >
+              <span>Page {currentPage}</span>
+
+              <FaChevronDown
+                className={`text-xs transition-transform duration-200 ${
+                  isPageDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {/* Dropdown List */}
+            {isPageDropdownOpen && (
+              <div
+                className="
+                  absolute
+                  bottom-full
+                  left-0
+                  right-0
+                  mb-2
+                  z-50
+                  rounded-md
+                  overflow-hidden
+                  bg-sharkLight-100
+                  border
+                  border-sharkLight-200
+                  shadow-lg
+                "
+              >
+                <div className="max-h-60 overflow-y-auto py-1">
+                  {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => handleMobilePageChange(page)}
+                      className={`
+                        w-full
+                        px-4 py-2
+                        text-left
+                        text-sm
+                        transition duration-200
+                        ${
+                          currentPage === page
+                            ? "bg-shark text-white font-semibold"
+                            : "text-shark hover:bg-sharkLight-200"
+                        }
+                      `}
+                    >
+                      Page {page}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Next */}
+          <button
+            type="button"
+            disabled={currentPage === totalPages}
+            onClick={() => onPageChange(currentPage + 1)}
+            className="
+              flex-1
+              flex items-center justify-center
+              gap-2
+              px-3 py-2
+              rounded-md
+              bg-sharkLight-100
+              text-shark
+              text-sm
+              font-medium
+              transition duration-300
+              hover:bg-sharkLight-200
+              disabled:opacity-30
+              disabled:cursor-not-allowed
+              disabled:hover:bg-sharkLight-100
+              disabled:hover:scale-100
+              whitespace-nowrap
+            "
+          >
+            <span>Next</span>
+            <FaChevronRight className="text-xs" />
+          </button>
         </div>
-      </button>
-      {pageNumbers.map((pageNumber, index) => (
+      </div>
+
+      {/* ========================================================
+          DESKTOP PAGINATION
+          Visible from md breakpoint
+      ======================================================== */}
+      <div className="hidden md:flex justify-end gap-1 items-center">
+        {/* Previous */}
         <button
           type="button"
-          key={index}
-          className={`px-2 py-1 rounded w-8 text-sm hover:font-semibold ${
-            currentPage === pageNumber
-              ? "bg-shark text-white font-bold hover:font-bold"
-              : "bg-sharkLight-100"
-          } ${pageNumber === "..." ? "cursor-default opacity-50" : ""}`}
-          onClick={() => pageNumber !== "..." && onPageChange(pageNumber)}
-          disabled={pageNumber === "..."} // Disable ellipsis button
+          className="
+            disabled:opacity-30
+            disabled:hover:font-normal
+            disabled:hover:scale-100
+            disabled:hover:shadow-none
+            disabled:transition-none
+            hover:font-medium
+            bg-sharkLight-100
+            px-2 py-1
+            rounded
+            text-sm
+            transition duration-300
+            hover:scale-105
+            hover:shadow-md
+          "
+          disabled={currentPage === 1}
+          onClick={() => onPageChange(currentPage - 1)}
         >
-          {pageNumber}
+          <div className="flex items-center gap-2">
+            <FaChevronLeft />
+            Prev
+          </div>
         </button>
-      ))}
-      <button
-        type="button"
-        className="disabled:opacity-30 disabled:hover:font-normal disabled:hover:scale-100 disabled:hover:shadow-none disabled:transition-none
-				hover:font-medium bg-sharkLight-100 px-2 py-1 rounded text-sm transition duration-300 hover:scale-105 hover:shadow-md"
-        disabled={currentPage === totalPages}
-        onClick={() => onPageChange(currentPage + 1)}
-      >
-        <div className="flex items-center gap-2">
-          Next
-          <FaChevronRight />
-        </div>
-      </button>
-    </div>
+
+        {/* Page Numbers */}
+        {pageNumbers.map((pageNumber, index) => (
+          <button
+            type="button"
+            key={`${pageNumber}-${index}`}
+            className={`
+              px-2
+              py-1
+              rounded
+              w-8
+              text-sm
+              hover:font-semibold
+              ${
+                currentPage === pageNumber
+                  ? "bg-shark text-white font-bold hover:font-bold"
+                  : "bg-sharkLight-100"
+              }
+              ${pageNumber === "..." ? "cursor-default opacity-50" : ""}
+            `}
+            onClick={() => pageNumber !== "..." && onPageChange(pageNumber)}
+            disabled={pageNumber === "..."}
+          >
+            {pageNumber}
+          </button>
+        ))}
+
+        {/* Next */}
+        <button
+          type="button"
+          className="
+            disabled:opacity-30
+            disabled:hover:font-normal
+            disabled:hover:scale-100
+            disabled:hover:shadow-none
+            disabled:transition-none
+            hover:font-medium
+            bg-sharkLight-100
+            px-2 py-1
+            rounded
+            text-sm
+            transition duration-300
+            hover:scale-105
+            hover:shadow-md
+          "
+          disabled={currentPage === totalPages}
+          onClick={() => onPageChange(currentPage + 1)}
+        >
+          <div className="flex items-center gap-2">
+            Next
+            <FaChevronRight />
+          </div>
+        </button>
+      </div>
+    </>
   );
 };
 
-// PropTypes for type checking
+// ============================================================
+// PropTypes
+// ============================================================
+
 UserTablePaginationControls.propTypes = {
   currentPage: PropTypes.number.isRequired,
   totalPages: PropTypes.number.isRequired,

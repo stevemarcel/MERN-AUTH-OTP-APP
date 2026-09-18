@@ -33,6 +33,8 @@ import AboutPage from "./pages/AboutPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
 import UserListPage from "./pages/UserListPage.jsx";
 import UserActivityPage from "./pages/UserActivityPage";
+import CreateProductPage from "./pages/CreateProductPage.jsx";
+import ProductEditPage from "./pages/ProductEditPage.jsx";
 
 // Components Import
 import PrivateRoute from "./components/PrivateRoute.jsx";
@@ -61,6 +63,8 @@ const router = createBrowserRouter(
             <Route index element={<AdminDashboardOverview />} />
             <Route path="users" element={<UserListPage />} />
             <Route path="products" element={<ProductListPage />} />
+            <Route path="products/create" element={<CreateProductPage />} />
+            <Route path="product/:productId/edit" element={<ProductEditPage />} />
             <Route path="inventory" element={<InventoryPage />} />
             <Route path="activities" element={<UserActivityPage />} />
             <Route path="user/:userId/edit" element={<EditUserPage />} />

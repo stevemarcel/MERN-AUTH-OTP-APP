@@ -266,9 +266,11 @@ const UserListPage = () => {
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage); //
 
   return (
-    <div className="mb-5 min-h-[80vh] w-full mx-auto text-shark">
+    <div className="mb-5 min-h-[80vh] w-full text-shark">
+      {/* Page Title + Add and Delete Users Buttons */}
       <div className="flex flex-col mb-4 md:flex-row md:justify-between">
-        <div className="flex items-center w-full mb-4 md:mb-0">
+        {/* Page Title */}
+        <div className="flex items-center w-full md:flex-1 md:min-w-0 mb-4 md:mb-0">
           <div className="hidden md:flex">
             <BackButton />
           </div>
@@ -278,11 +280,11 @@ const UserListPage = () => {
           </h2>
         </div>
 
-        {/* Add and Delete Users Button */}
-        <div className="flex gap-2 w-full md:w-4/5 text-sm">
+        {/* Add and Delete Users Buttons */}
+        <div className="flex gap-2 w-full md:w-2/5 text-sm">
           <button
             type="submit"
-            className="flex col-span-2 w-full items-center justify-center px-3 py-2 bg-green-800 hover:bg-green-900 text-white rounded 
+            className="flex w-full items-center justify-center px-3 py-2 bg-green-800 hover:bg-green-900 text-white rounded 
 						disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none disabled:transition-none
 						transition duration-300 hover:scale-105 hover:shadow-md"
             onClick={addUserHandler}
@@ -303,7 +305,7 @@ const UserListPage = () => {
           </button>
           <button
             type="button"
-            className="flex col-span-2 items-center justify-center px-3 py-2 bg-red-800 hover:bg-red-900 text-white rounded w-full
+            className="flex w-full items-center justify-center px-3 py-2 bg-red-800 hover:bg-red-900 text-white rounded
 						disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none disabled:transition-none
 						disabled:bg-red-800 transition duration-300 hover:scale-105 hover:shadow-md"
             onClick={openBulkDeleteConfirm} // Use new handler

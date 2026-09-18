@@ -3,6 +3,10 @@ import mongoose from "mongoose";
 
 import Product from "../models/productModel.js";
 import InventoryActivity from "../models/inventoryActivityModel.js";
+import {
+  uploadProductImageToCloudinary,
+  deleteProductImageFromCloudinary,
+} from "../utils/cloudinaryUtils.js";
 
 // @DESCRIPTION Get all products
 // @ROUTE       GET /api/products
@@ -51,8 +55,6 @@ const createProduct = asyncHandler(async (req, res) => {
     stockQuantity,
     lowStockThreshold,
     unit,
-    productImage,
-    productImagePublicId,
     isActive,
   } = req.body;
 
@@ -63,87 +65,143 @@ const createProduct = asyncHandler(async (req, res) => {
 
   const normalizedSku = sku.trim().toUpperCase();
 
-  const skuExists = await Product.findOne({
-    sku: normalizedSku,
-  });
+  const parsedPrice = Number(price);
+  const parsedCostPrice = Number(costPrice);
+  const parsedStockQuantity = Number(stockQuantity ?? 0);
+  const parsedLowStockThreshold = Number(lowStockThreshold ?? 10);
 
-  if (skuExists) {
+  if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
     res.status(400);
-    throw new Error("A product with this SKU already exists.");
+    throw new Error("Selling price must be a valid non-negative number.");
   }
 
-  if (barcode) {
-    const barcodeExists = await Product.findOne({
-      barcode: barcode.trim(),
-    });
-
-    if (barcodeExists) {
-      res.status(400);
-      throw new Error("A product with this barcode already exists.");
-    }
+  if (!Number.isFinite(parsedCostPrice) || parsedCostPrice < 0) {
+    res.status(400);
+    throw new Error("Cost price must be a valid non-negative number.");
   }
 
-  const initialStock = Math.max(0, Number(stockQuantity) || 0);
+  if (!Number.isInteger(parsedStockQuantity) || parsedStockQuantity < 0) {
+    res.status(400);
+    throw new Error("Initial stock quantity must be a whole number of 0 or greater.");
+  }
 
-  const session = await mongoose.startSession();
+  if (!Number.isInteger(parsedLowStockThreshold) || parsedLowStockThreshold < 0) {
+    res.status(400);
+    throw new Error("Low stock threshold must be a whole number of 0 or greater.");
+  }
+
+  if (!unit?.trim()) {
+    res.status(400);
+    throw new Error("Product unit is required.");
+  }
+
+  // ============================================================
+  // CLOUDINARY IMAGE UPLOAD
+  // ============================================================
+
+  let uploadedImage = null;
 
   try {
-    let createdProduct;
+    if (req.file) {
+      uploadedImage = await uploadProductImageToCloudinary(req.file.buffer);
+    }
 
-    await session.withTransaction(async () => {
-      const products = await Product.create(
-        [
-          {
-            name: name.trim(),
-            sku: normalizedSku,
-            barcode: barcode?.trim() || undefined,
-            category: category.trim(),
-            brand: brand?.trim() || "",
-            description: description?.trim() || "",
-            price: Number(price),
-            costPrice: Number(costPrice),
-            stockQuantity: initialStock,
-            lowStockThreshold: lowStockThreshold !== undefined ? Number(lowStockThreshold) : 10,
-            unit: unit?.trim() || "piece",
-            productImage: productImage || "",
-            productImagePublicId: productImagePublicId || null,
-            isActive: isActive !== undefined ? isActive === true || isActive === "true" : true,
-            createdBy: req.user._id,
-          },
-        ],
-        { session },
-      );
+    const session = await mongoose.startSession();
 
-      createdProduct = products[0];
+    try {
+      let createdProduct;
 
-      if (initialStock > 0) {
-        await InventoryActivity.create(
+      await session.withTransaction(async () => {
+        // Check SKU inside the transaction
+        const skuExists = await Product.findOne({
+          sku: normalizedSku,
+        }).session(session);
+
+        if (skuExists) {
+          throw new Error("A product with this SKU already exists.");
+        }
+
+        // Check barcode only when provided
+        if (barcode?.trim()) {
+          const barcodeExists = await Product.findOne({
+            barcode: barcode.trim(),
+          }).session(session);
+
+          if (barcodeExists) {
+            throw new Error("A product with this barcode already exists.");
+          }
+        }
+
+        const products = await Product.create(
           [
             {
-              product: createdProduct._id,
-              action: "stock_received",
-              quantity: initialStock,
-              previousStock: 0,
-              newStock: initialStock,
-              reason: "Initial product stock",
-              performedBy: req.user._id,
+              name: name.trim(),
+              sku: normalizedSku,
+              barcode: barcode?.trim() || undefined,
+              category: category.trim(),
+              brand: brand?.trim() || "",
+              description: description?.trim() || "",
+
+              price: parsedPrice,
+              costPrice: parsedCostPrice,
+
+              stockQuantity: parsedStockQuantity,
+              lowStockThreshold: parsedLowStockThreshold,
+
+              unit: unit.trim(),
+
+              productImage: uploadedImage?.optimized_url || "",
+
+              productImagePublicId: uploadedImage?.public_id || null,
+
+              isActive: isActive !== undefined ? isActive === true || isActive === "true" : true,
+
+              createdBy: req.user._id,
             },
           ],
           { session },
         );
-      }
-    });
 
-    const populatedProduct = await Product.findById(createdProduct._id)
-      .populate("createdBy", "firstName lastName username")
-      .populate("updatedBy", "firstName lastName username");
+        createdProduct = products[0];
 
-    res.status(201).json({
-      message: "Product created successfully",
-      product: populatedProduct,
-    });
-  } finally {
-    await session.endSession();
+        // Initial stock creates an inventory history entry
+        if (parsedStockQuantity > 0) {
+          await InventoryActivity.create(
+            [
+              {
+                product: createdProduct._id,
+                action: "stock_received",
+                quantity: parsedStockQuantity,
+                previousStock: 0,
+                newStock: parsedStockQuantity,
+                reason: "Initial product stock",
+                performedBy: req.user._id,
+              },
+            ],
+            { session },
+          );
+        }
+      });
+
+      const populatedProduct = await Product.findById(createdProduct._id)
+        .populate("createdBy", "firstName lastName username")
+        .populate("updatedBy", "firstName lastName username");
+
+      res.status(201).json({
+        message: "Product created successfully",
+        product: populatedProduct,
+      });
+    } finally {
+      await session.endSession();
+    }
+  } catch (error) {
+    // If Cloudinary upload succeeded but database creation
+    // failed, remove the newly uploaded image.
+    if (uploadedImage?.public_id) {
+      await deleteProductImageFromCloudinary(uploadedImage.public_id);
+    }
+
+    throw error;
   }
 });
 
@@ -169,118 +227,192 @@ const updateProduct = asyncHandler(async (req, res) => {
     costPrice,
     lowStockThreshold,
     unit,
-    productImage,
-    productImagePublicId,
     isActive,
+    removeProductImage,
   } = req.body;
 
-  // --------------------------------------------------
-  // SKU uniqueness
-  // --------------------------------------------------
-  if (sku !== undefined) {
-    const normalizedSku = sku.trim().toUpperCase();
+  const oldProductImagePublicId = product.productImagePublicId;
 
-    if (normalizedSku !== product.sku) {
-      const skuExists = await Product.findOne({
-        sku: normalizedSku,
-        _id: { $ne: product._id },
-      });
+  let uploadedImage = null;
 
-      if (skuExists) {
-        res.status(400);
-        throw new Error("A product with this SKU already exists.");
-      }
+  try {
+    // ============================================================
+    // SKU
+    // ============================================================
 
-      product.sku = normalizedSku;
-    }
-  }
+    if (sku !== undefined) {
+      const normalizedSku = sku.trim().toUpperCase();
 
-  // --------------------------------------------------
-  // Barcode uniqueness
-  // --------------------------------------------------
-  if (barcode !== undefined) {
-    const normalizedBarcode = barcode?.trim() || null;
-
-    if (normalizedBarcode !== product.barcode) {
-      if (normalizedBarcode) {
-        const barcodeExists = await Product.findOne({
-          barcode: normalizedBarcode,
+      if (normalizedSku !== product.sku) {
+        const skuExists = await Product.findOne({
+          sku: normalizedSku,
           _id: { $ne: product._id },
         });
 
-        if (barcodeExists) {
+        if (skuExists) {
           res.status(400);
-          throw new Error("A product with this barcode already exists.");
+          throw new Error("A product with this SKU already exists.");
         }
+
+        product.sku = normalizedSku;
+      }
+    }
+
+    // ============================================================
+    // BARCODE
+    // ============================================================
+
+    if (barcode !== undefined) {
+      const normalizedBarcode = barcode?.trim() || null;
+
+      if (normalizedBarcode !== product.barcode) {
+        if (normalizedBarcode) {
+          const barcodeExists = await Product.findOne({
+            barcode: normalizedBarcode,
+            _id: { $ne: product._id },
+          });
+
+          if (barcodeExists) {
+            res.status(400);
+            throw new Error("A product with this barcode already exists.");
+          }
+        }
+
+        product.barcode = normalizedBarcode || undefined;
+      }
+    }
+
+    // ============================================================
+    // PRODUCT INFORMATION
+    // ============================================================
+
+    if (name !== undefined) {
+      if (!name.trim()) {
+        res.status(400);
+        throw new Error("Product name cannot be empty.");
       }
 
-      product.barcode = normalizedBarcode || undefined;
+      product.name = name.trim();
     }
+
+    if (category !== undefined) {
+      if (!category.trim()) {
+        res.status(400);
+        throw new Error("Category cannot be empty.");
+      }
+
+      product.category = category.trim();
+    }
+
+    if (brand !== undefined) {
+      product.brand = brand.trim();
+    }
+
+    if (description !== undefined) {
+      product.description = description.trim();
+    }
+
+    if (price !== undefined) {
+      const parsedPrice = Number(price);
+
+      if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
+        res.status(400);
+        throw new Error("Selling price must be a valid non-negative number.");
+      }
+
+      product.price = parsedPrice;
+    }
+
+    if (costPrice !== undefined) {
+      const parsedCostPrice = Number(costPrice);
+
+      if (!Number.isFinite(parsedCostPrice) || parsedCostPrice < 0) {
+        res.status(400);
+        throw new Error("Cost price must be a valid non-negative number.");
+      }
+
+      product.costPrice = parsedCostPrice;
+    }
+
+    if (lowStockThreshold !== undefined) {
+      const parsedThreshold = Number(lowStockThreshold);
+
+      if (!Number.isInteger(parsedThreshold) || parsedThreshold < 0) {
+        res.status(400);
+        throw new Error("Low stock threshold must be a whole number of 0 or greater.");
+      }
+
+      product.lowStockThreshold = parsedThreshold;
+    }
+
+    if (unit !== undefined) {
+      if (!unit.trim()) {
+        res.status(400);
+        throw new Error("Product unit cannot be empty.");
+      }
+
+      product.unit = unit.trim();
+    }
+
+    if (isActive !== undefined) {
+      product.isActive = isActive === true || isActive === "true";
+    }
+
+    // ============================================================
+    // PRODUCT IMAGE
+    // ============================================================
+
+    if (req.file) {
+      uploadedImage = await uploadProductImageToCloudinary(req.file.buffer);
+
+      product.productImage = uploadedImage.optimized_url;
+
+      product.productImagePublicId = uploadedImage.public_id;
+    } else if (removeProductImage === true || removeProductImage === "true") {
+      product.productImage = "";
+      product.productImagePublicId = null;
+    }
+
+    product.updatedBy = req.user._id;
+
+    // ============================================================
+    // SAVE
+    // ============================================================
+
+    const updatedProduct = await product.save();
+
+    // ============================================================
+    // DELETE OLD CLOUDINARY IMAGE
+    // ============================================================
+
+    const imageWasChanged =
+      Boolean(req.file) || removeProductImage === true || removeProductImage === "true";
+
+    if (
+      imageWasChanged &&
+      oldProductImagePublicId &&
+      oldProductImagePublicId !== updatedProduct.productImagePublicId
+    ) {
+      await deleteProductImageFromCloudinary(oldProductImagePublicId);
+    }
+
+    const populatedProduct = await Product.findById(updatedProduct._id)
+      .populate("createdBy", "firstName lastName username")
+      .populate("updatedBy", "firstName lastName username");
+
+    res.status(200).json({
+      message: "Product updated successfully",
+      product: populatedProduct,
+    });
+  } catch (error) {
+    // Remove newly uploaded Cloudinary image if the
+    // database update fails.
+    if (uploadedImage?.public_id) {
+      await deleteProductImageFromCloudinary(uploadedImage.public_id);
+    }
+
+    throw error;
   }
-
-  // --------------------------------------------------
-  // Product fields
-  // --------------------------------------------------
-
-  if (name !== undefined) {
-    product.name = name.trim();
-  }
-
-  if (category !== undefined) {
-    product.category = category.trim();
-  }
-
-  if (brand !== undefined) {
-    product.brand = brand.trim();
-  }
-
-  if (description !== undefined) {
-    product.description = description.trim();
-  }
-
-  if (price !== undefined) {
-    product.price = Number(price);
-  }
-
-  if (costPrice !== undefined) {
-    product.costPrice = Number(costPrice);
-  }
-
-  if (lowStockThreshold !== undefined) {
-    product.lowStockThreshold = Number(lowStockThreshold);
-  }
-
-  if (unit !== undefined) {
-    product.unit = unit.trim();
-  }
-
-  if (productImage !== undefined) {
-    product.productImage = productImage;
-  }
-
-  if (productImagePublicId !== undefined) {
-    product.productImagePublicId = productImagePublicId;
-  }
-
-  if (isActive !== undefined) {
-    product.isActive = isActive === true || isActive === "true";
-  }
-
-  // Important:
-  // stockQuantity is intentionally NOT updated here.
-  // Inventory routes are responsible for stock changes.
-  product.updatedBy = req.user._id;
-
-  const updatedProduct = await product.save();
-
-  const populatedProduct = await Product.findById(updatedProduct._id)
-    .populate("createdBy", "firstName lastName username")
-    .populate("updatedBy", "firstName lastName username");
-
-  res.status(200).json({
-    message: "Product updated successfully",
-    product: populatedProduct,
-  });
 });
 
 // @DESCRIPTION Archive a product

@@ -6,11 +6,12 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
-  deleteProducts,
   restoreProduct,
+  deleteProducts,
 } from "../controllers/productController.js";
 
 import { protect, isAdmin } from "../middleware/authMiddleware.js";
+import uploadProductImage from "../utils/productImageUpload.js";
 
 const router = express.Router();
 
@@ -18,13 +19,13 @@ const router = express.Router();
 router
   .route("/")
   .get(protect, isAdmin, getProducts)
-  .post(protect, isAdmin, createProduct)
+  .post(protect, isAdmin, uploadProductImage.single("productImage"), createProduct)
   .delete(protect, isAdmin, deleteProducts);
 
 router
   .route("/:id")
   .get(protect, isAdmin, getProductById)
-  .put(protect, isAdmin, updateProduct)
+  .put(protect, isAdmin, uploadProductImage.single("productImage"), updateProduct)
   .delete(protect, isAdmin, deleteProduct);
 
 // Restore an archived product

@@ -10,6 +10,7 @@ import {
   FaTimesCircle,
   FaUndo,
 } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 import { toast } from "react-toastify";
 
 // --- API SLICE HOOKS (Redux) ---
@@ -95,6 +96,17 @@ const ProductListPage = () => {
       }
 
       if (statusFilter === "archived" && product.isActive) {
+        return false;
+      }
+
+      if (
+        statusFilter === "low-stock" &&
+        (product.stockQuantity <= 0 || product.stockQuantity > product.lowStockThreshold)
+      ) {
+        return false;
+      }
+
+      if (statusFilter === "out-of-stock" && product.stockQuantity > 0) {
         return false;
       }
 
@@ -396,8 +408,9 @@ const ProductListPage = () => {
             className="px-3 py-2 rounded border border-sharkLight-100 bg-white focus:outline-none focus:ring-2 focus:ring-sharkLight-400"
           >
             <option value="active">Active Products</option>
-
             <option value="archived">Archived Products</option>
+            <option value="low-stock">Low Stock Products</option>
+            <option value="out-of-stock">Out of Stock Products</option>
 
             <option value="all">All Products</option>
           </select>
@@ -524,6 +537,7 @@ const ProductListPage = () => {
                 <table className="w-full min-w-[950px]">
                   <thead>
                     <tr className="text-left text-xs uppercase border-b border-shark">
+                      {/* Checkbox */}
                       <th className="p-3">
                         <input
                           type="checkbox"
@@ -538,20 +552,28 @@ const ProductListPage = () => {
                         />
                       </th>
 
+                      {/* S/N */}
                       <th className="p-3">S/N</th>
 
+                      {/* Product */}
                       <th className="p-3">Product</th>
 
+                      {/* SKU */}
                       <th className="p-3">SKU</th>
 
+                      {/* Category */}
                       <th className="p-3">Category</th>
 
+                      {/* Price */}
                       <th className="p-3">Price</th>
 
+                      {/* Stock */}
                       <th className="p-3 text-center">Stock</th>
 
+                      {/* Status */}
                       <th className="p-3">Status</th>
 
+                      {/* Actions */}
                       <th className="p-3 text-center">Actions</th>
                     </tr>
                   </thead>
@@ -563,7 +585,7 @@ const ProductListPage = () => {
                       return (
                         <tr
                           key={product._id}
-                          className={`text-sm border-b border-gray-200 transition-colors hover:bg-sharkLight-100/30 ${
+                          className={`text-sm border-b border-gray-200 transition-all duration-200 hover:bg-sharkLight-100/30 ${
                             selectedProductIds.has(product._id)
                               ? "bg-sharkLight-100 border-l-4 border-shark"
                               : ""
@@ -650,29 +672,38 @@ const ProductListPage = () => {
                             <div className="flex justify-center gap-1">
                               {/* Edit */}
                               {product.isActive && (
-                                <button
-                                  type="button"
-                                  title="Edit product"
-                                  onClick={() => navigate(`/admin/product/${product._id}/edit`)}
-                                  className="p-2 bg-shark hover:bg-sharkDark-300 text-white rounded transition"
-                                >
-                                  <FaEdit />
-                                </button>
+                                <div className="group relative">
+                                  <button
+                                    type="button"
+                                    onClick={() => navigate(`/admin/product/${product._id}/edit`)}
+                                    className="p-2 bg-shark hover:bg-sharkDark-300 text-white rounded transition"
+                                  >
+                                    <FaEdit />
+                                  </button>
+
+                                  <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-sm text-white bg-sharkDark-300 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-10 pointer-events-none">
+                                    Edit Product
+                                  </span>
+                                </div>
                               )}
 
                               {/* Archive */}
                               {product.isActive && (
-                                <button
-                                  type="button"
-                                  title="Archive product"
-                                  onClick={() => openArchiveConfirm(product._id)}
-                                  disabled={isArchivingProduct}
-                                  className="p-2 bg-red-800 hover:bg-red-900 text-white rounded transition disabled:opacity-50"
-                                >
-                                  {isArchivingProduct ? <Loader /> : <FaArchive />}
-                                </button>
-                              )}
+                                <div className="group relative">
+                                  <button
+                                    type="button"
+                                    onClick={() => openArchiveConfirm(product._id)}
+                                    disabled={isArchivingProduct}
+                                    className="p-2 bg-red-800 hover:bg-red-900 text-white rounded transition disabled:opacity-50"
+                                  >
+                                    {isArchivingProduct ? <Loader /> : <MdDelete />}
+                                  </button>
 
+                                  <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-sm text-white bg-red-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-10 pointer-events-none">
+                                    Archive Product
+                                  </span>
+                                </div>
+                              )}
                               {/* Restore */}
                               {!product.isActive && (
                                 <button
