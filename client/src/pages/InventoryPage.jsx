@@ -29,6 +29,8 @@ import BackButton from "../components/BackButton";
 import Loader from "../components/Loader";
 import UserTablePaginationControls from "../components/UserTablePaginationControls";
 
+const EMPTY_PRODUCTS = [];
+
 const InventoryPage = () => {
   const navigate = useNavigate();
 
@@ -74,7 +76,7 @@ const InventoryPage = () => {
   // DATA
   // ============================================================
 
-  const products = data?.products || [];
+  const products = data?.products ?? EMPTY_PRODUCTS;
   const summary = data?.summary || {};
 
   // ============================================================
