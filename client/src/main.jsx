@@ -35,6 +35,7 @@ import UserListPage from "./pages/UserListPage.jsx";
 import UserActivityPage from "./pages/UserActivityPage";
 import CreateProductPage from "./pages/CreateProductPage.jsx";
 import ProductEditPage from "./pages/ProductEditPage.jsx";
+import InventoryHistoryPage from "./pages/InventoryHistoryPage.jsx";
 
 // Components Import
 import PrivateRoute from "./components/PrivateRoute.jsx";
@@ -61,15 +62,20 @@ const router = createBrowserRouter(
         <Route element={<AdminRoute />}>
           <Route path="admin" element={<AdminPage />}>
             <Route index element={<AdminDashboardOverview />} />
+
+            {/* USER ROUTES */}
             <Route path="users" element={<UserListPage />} />
-            <Route path="products" element={<ProductListPage />} />
-            <Route path="products/create" element={<CreateProductPage />} />
-            <Route path="product/:productId/edit" element={<ProductEditPage />} />
-            <Route path="inventory" element={<InventoryPage />} />
             <Route path="activities" element={<UserActivityPage />} />
             <Route path="user/:userId/edit" element={<EditUserPage />} />
             <Route path="user/:userId/create" element={<CreateNewUserPage />} />
             <Route path="user/:userId/activities" element={<UserActivityPage />} />
+
+            {/* PRODUCT ROUTES */}
+            <Route path="products" element={<ProductListPage />} />
+            <Route path="products/create" element={<CreateProductPage />} />
+            <Route path="product/:productId/edit" element={<ProductEditPage />} />
+            <Route path="inventory" element={<InventoryPage />} />
+            <Route path="inventory/:productId" element={<InventoryHistoryPage />} />
           </Route>
         </Route>
       </Route>

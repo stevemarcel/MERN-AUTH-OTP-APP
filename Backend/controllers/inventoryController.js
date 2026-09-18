@@ -266,6 +266,38 @@ const getInventory = asyncHandler(async (req, res) => {
             },
           },
 
+          // Determine stock status for each product
+          {
+            $set: {
+              stockStatus: {
+                $switch: {
+                  branches: [
+                    {
+                      case: {
+                        $eq: ["$isActive", false],
+                      },
+                      then: "archived",
+                    },
+                    {
+                      case: {
+                        $eq: ["$stockQuantity", 0],
+                      },
+                      then: "out_of_stock",
+                    },
+                    {
+                      case: {
+                        $lte: ["$stockQuantity", "$lowStockThreshold"],
+                      },
+                      then: "low_stock",
+                    },
+                  ],
+                  default: "in_stock",
+                },
+              },
+            },
+          },
+
+          // Final projection of product fields
           {
             $project: {
               _id: 1,
@@ -288,6 +320,7 @@ const getInventory = asyncHandler(async (req, res) => {
               productImagePublicId: 1,
 
               isActive: 1,
+              stockStatus: 1,
 
               // Return creator information instead of only ObjectId
               createdBy: {

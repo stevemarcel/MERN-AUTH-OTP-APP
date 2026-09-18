@@ -87,7 +87,7 @@ const AdminSidebar = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
                       }
                     }}
                     className={({ isActive }) =>
-                      `flex items-center w-full px-6 py-3 text-left text-lg rounded-md transition duration-200
+                      `flex items-center w-full px-6 py-3 text-left text-lg transition duration-200
 											${isActive ? "bg-shark text-white font-semibold shadow-md" : "hover:bg-sharkDark-300"}`
                     }
                   >

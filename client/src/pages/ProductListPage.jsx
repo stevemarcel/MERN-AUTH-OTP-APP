@@ -681,6 +681,7 @@ const ProductListPage = () => {
                                     <FaEdit />
                                   </button>
 
+                                  {/* Edit Product ToolTip */}
                                   <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-sm text-white bg-sharkDark-300 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-10 pointer-events-none">
                                     Edit Product
                                   </span>
@@ -699,6 +700,7 @@ const ProductListPage = () => {
                                     {isArchivingProduct ? <Loader /> : <MdDelete />}
                                   </button>
 
+                                  {/* Archive Product ToolTip */}
                                   <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-sm text-white bg-red-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-10 pointer-events-none">
                                     Archive Product
                                   </span>
