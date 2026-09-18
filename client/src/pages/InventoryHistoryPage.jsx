@@ -112,13 +112,16 @@ const InventoryHistoryPage = () => {
       {/* Header */}
       <div className="flex items-center mb-6">
         <BackButton />
+        <div className="flex flex-col items-center justify-center w-full">
+          <div className="flex items-center justify-center w-full min-w-0">
+            <FaExchangeAlt className="mr-2 flex-shrink-0" />
 
-        <div className="flex items-center justify-center w-full min-w-0">
-          <FaExchangeAlt className="mr-2 flex-shrink-0" />
-
-          <h2 className="text-xl md:text-2xl font-bold uppercase truncate">
-            {product.name} - Inventory History
-          </h2>
+            <h2 className="text-xl md:text-2xl font-bold uppercase truncate">
+              {/* {product.name} - Inventory History */}
+              {product.name}
+            </h2>
+          </div>
+          <p className="text-xs md:text-sm text-sharkLight-300 uppercase">Inventory History</p>
         </div>
       </div>
 
@@ -128,7 +131,7 @@ const InventoryHistoryPage = () => {
           <div>
             <p className="text-xs uppercase text-sharkLight-300">SKU</p>
 
-            <p className="font-mono font-semibold mt-1">{product.sku}</p>
+            <p className="font-mono font-bold mt-1">{product.sku}</p>
           </div>
 
           <div>
