@@ -147,9 +147,28 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         method: "DELETE",
         body: { userIds }, // Send the array of IDs in the request body
       }),
-      // Invalidate the 'User' tag. This will trigger a re-fetch of 'getUsers'
-      // to update the list of users after a bulk delete.
+      // Invalidate the 'User' tag. This will trigger a re-fetch of 'getUsers' to update the list of users after a bulk delete.
       invalidatesTags: ["User", "Dashboard"],
+    }),
+
+    // * 6. Restore a Deleted User by Admin Mutation
+    restoreUser: builder.mutation({
+      query: (userId) => ({
+        url: `${USERS_URL}/${userId}/restore`,
+        method: "PATCH",
+      }),
+
+      invalidatesTags: ["User", "UserActivity", "Dashboard", "Notification"],
+    }),
+
+    // * 7. Permanently Delete a User by Admin Mutation
+    permanentlyDeleteUser: builder.mutation({
+      query: (userId) => ({
+        url: `${USERS_URL}/${userId}/permanent`,
+        method: "DELETE",
+      }),
+
+      invalidatesTags: ["User", "UserActivity", "Dashboard", "Notification"],
     }),
   }),
 });

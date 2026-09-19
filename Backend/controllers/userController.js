@@ -948,6 +948,80 @@ const restoreUserByAdmin = asyncHandler(async (req, res) => {
   }
 });
 
+// @DESCRIPTION Permanently delete user
+// @ROUTE       DELETE /api/users/:id/permanent
+// @ACCESS      Private/Admin
+const permanentlyDeleteUserByAdmin = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.status(400);
+    throw new Error("Invalid user ID.");
+  }
+
+  if (String(req.user._id) === String(id)) {
+    res.status(400);
+    throw new Error("You cannot permanently delete your own account.");
+  }
+
+  const session = await mongoose.startSession();
+
+  try {
+    let user;
+
+    await session.withTransaction(async () => {
+      user = await User.findById(id).session(session);
+
+      if (!user) {
+        throw new Error("User not found.");
+      }
+
+      if (user.accountStatus !== "removed") {
+        throw new Error("Only removed users can be permanently deleted.");
+      }
+
+      await EmailVerifyToken.deleteMany(
+        {
+          userId: user._id,
+        },
+        { session },
+      );
+
+      await Notification.deleteMany(
+        {
+          recipient: user._id,
+        },
+        { session },
+      );
+
+      // Remove activity records where this user
+      // is the subject of the user activity history.
+      await UserActivity.deleteMany(
+        {
+          user: user._id,
+        },
+        { session },
+      );
+
+      await user.deleteOne({
+        session,
+      });
+    });
+
+    // Cloudinary deletion occurs only after MongoDB
+    // permanently removes the account successfully.
+    if (user?.profilePublicId) {
+      await deleteProfileImageFromCloudinary(user.profilePublicId);
+    }
+
+    res.status(200).json({
+      message: `${user.firstName} ${user.lastName} was permanently deleted`,
+    });
+  } finally {
+    await session.endSession();
+  }
+});
+
 // @DESCRIPTION Logout currently logged in user
 // @ROUTE       POST /api/users/logout
 // @ACCESS      Public
@@ -974,6 +1048,7 @@ export {
   updateUserByAdmin,
   deleteUserByAdmin,
   deleteUsersByAdmin,
+  permanentlyDeleteUserByAdmin,
   restoreUserByAdmin,
   logoutUser,
 };

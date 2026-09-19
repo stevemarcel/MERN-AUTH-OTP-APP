@@ -18,6 +18,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLogoutMutation } from "../slices/usersApiSlice";
 import { deleteCredentials } from "../slices/authSlice";
 import { apiSlice } from "../slices/apiSlice";
+import { useGetUnreadNotificationCountQuery } from "../slices/notificationApiSlice";
 
 import { getProfileImageUrl } from "../utils/profileImageUrl";
 
@@ -30,6 +31,12 @@ const Navbar = () => {
 
   // ! --- GET USER ---
   const { userInfo } = useSelector((state) => state.auth);
+
+  // ! --- GET UNREAD NOTIFICATION COUNT ---
+  const { data: unreadNotificationData } = useGetUnreadNotificationCountQuery(undefined, {
+    skip: !userInfo,
+  });
+  const unreadNotificationCount = unreadNotificationData?.unreadCount ?? 0;
 
   // ! --- NAVIGATION ITEMS ---
   const navItems = [
@@ -164,7 +171,8 @@ const Navbar = () => {
             "
           >
             <span className="text-base">{item.icon}</span>
-            <span>{item.text}</span>
+
+            <span className="text-base">{item.text}</span>
           </button>
         </li>
       );
@@ -192,7 +200,14 @@ const Navbar = () => {
           "
         >
           <span className="text-base">{item.icon}</span>
-          <span>{item.text}</span>
+
+          <span className="flex-1">{item.text}</span>
+
+          {item.text === "Notifications" && unreadNotificationCount > 0 && (
+            <span className="min-w-5 h-5 px-1.5 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
+              {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
+            </span>
+          )}
         </Link>
       </li>
     );

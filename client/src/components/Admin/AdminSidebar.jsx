@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
-import { FaTachometerAlt, FaUsers, FaBox, FaBoxes } from "react-icons/fa";
+import { FaTachometerAlt, FaUsers, FaBox, FaBoxes, FaHistory } from "react-icons/fa";
 
 const AdminSidebar = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
   const sidebarItems = [
@@ -27,6 +27,12 @@ const AdminSidebar = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
       name: "Inventory",
       icon: <FaBoxes />,
       to: "/admin/inventory",
+    },
+    {
+      id: "activities",
+      name: "Activities",
+      icon: <FaHistory />,
+      to: "/admin/activities",
     },
   ];
 

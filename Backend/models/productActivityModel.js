@@ -42,6 +42,11 @@ productActivitySchema.index({
 });
 
 productActivitySchema.index({
+  performedBy: 1,
+  createdAt: -1,
+});
+
+productActivitySchema.index({
   createdAt: -1,
 });
 

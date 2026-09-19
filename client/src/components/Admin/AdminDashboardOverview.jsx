@@ -576,7 +576,7 @@ const AdminDashboardOverview = () => {
 
           <button
             type="button"
-            onClick={() => navigate("/admin/activities")}
+            onClick={() => navigate("/admin/users/activities")}
             className="text-sm font-semibold hover:underline"
           >
             View All

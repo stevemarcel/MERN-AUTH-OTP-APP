@@ -10,6 +10,7 @@ export const userActivityApiSlice = apiSlice.injectEndpoints({
         url: USER_ACTIVITIES_URL,
         method: "GET",
       }),
+
       providesTags: ["UserActivity"],
     }),
 
@@ -21,6 +22,7 @@ export const userActivityApiSlice = apiSlice.injectEndpoints({
         )}&search=${encodeURIComponent(search)}`,
         method: "GET",
       }),
+
       providesTags: ["UserActivity"],
     }),
 
@@ -32,6 +34,7 @@ export const userActivityApiSlice = apiSlice.injectEndpoints({
         )}&search=${encodeURIComponent(search)}`,
         method: "GET",
       }),
+
       providesTags: (result, error, userId) => [{ type: "UserActivity", id: userId }],
     }),
   }),

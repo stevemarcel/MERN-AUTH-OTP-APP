@@ -15,20 +15,22 @@ import uploadProductImage from "../utils/productImageUpload.js";
 
 const router = express.Router();
 
-// All product routes are Admin-only
+// ! === ADMIN ONLY ROUTES ===
+// * 1. Get all products, create a new product, or delete all products
 router
   .route("/")
-  .get(protect, isAdmin, getProducts)
-  .post(protect, isAdmin, uploadProductImage.single("productImage"), createProduct)
-  .delete(protect, isAdmin, deleteProducts);
+  .get(protect, isAdmin, getProducts) // GET /api/products - Retrieve all products
+  .post(protect, isAdmin, uploadProductImage.single("productImage"), createProduct) // POST /api/products - Create a new product
+  .delete(protect, isAdmin, deleteProducts); // DELETE /api/products - Delete all products
 
+// * 2. Get, update, or delete a specific product by ID
 router
   .route("/:id")
-  .get(protect, isAdmin, getProductById)
-  .put(protect, isAdmin, uploadProductImage.single("productImage"), updateProduct)
-  .delete(protect, isAdmin, deleteProduct);
+  .get(protect, isAdmin, getProductById) // GET /api/products/:id - Retrieve a specific product by ID
+  .put(protect, isAdmin, uploadProductImage.single("productImage"), updateProduct) // PUT /api/products/:id - Update a specific product by ID
+  .delete(protect, isAdmin, deleteProduct); // DELETE /api/products/:id - Delete a specific product by ID
 
-// Restore an archived product
-router.patch("/:id/restore", protect, isAdmin, restoreProduct);
+// * 3. Restore an archived product
+router.patch("/:id/restore", protect, isAdmin, restoreProduct); // PATCH /api/products/:id/restore - Restore an archived product
 
 export default router;

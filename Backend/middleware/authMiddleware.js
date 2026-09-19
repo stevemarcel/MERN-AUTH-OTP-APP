@@ -3,41 +3,48 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModels.js";
 
 const protect = asyncHandler(async (req, res, next) => {
-  let token;
+  const token = req.cookies?.jwt;
 
-  token = req.cookies.jwt;
-
-  if (token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      const user = await User.findById(decoded.id).select("-password");
-
-      if (!user) {
-        res.status(401);
-        throw new Error("Not authorized.");
-      }
-
-      if (user.accountStatus !== "active") {
-        res.status(401);
-        throw new Error("Your account is no longer active.");
-      }
-
-      req.user = user;
-
-      next();
-    } catch (error) {
-      res.status(401);
-      throw new Error("Not authorized, Invalid token");
-    }
-  } else {
+  if (!token) {
     res.status(401);
     throw new Error("Not authorized, no token");
   }
+
+  let decoded;
+
+  // Only JWT verification belongs inside this try/catch.
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    console.error("JWT verification failed:", error.message);
+
+    res.status(401);
+    throw new Error("Not authorized, Invalid token");
+  }
+
+  const user = await User.findById(decoded.userId).select("-password");
+
+  if (!user) {
+    console.error("JWT user not found:", decoded.userId);
+
+    res.status(401);
+    throw new Error("Not authorized, user not found");
+  }
+
+  if (user.accountStatus !== "active") {
+    console.error(`User ${user._id} is not active. Status: ${user.accountStatus}`);
+
+    res.status(401);
+    throw new Error("Your account is no longer active.");
+  }
+
+  req.user = user;
+
+  next();
 });
 
 const isAdmin = asyncHandler(async (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
+  if (req.user?.isAdmin) {
     next();
   } else {
     res.status(401);

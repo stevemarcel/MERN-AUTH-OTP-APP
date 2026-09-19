@@ -37,6 +37,9 @@ import CreateProductPage from "./pages/CreateProductPage.jsx";
 import EditProductPage from "./pages/EditProductPage.jsx";
 import InventoryHistoryPage from "./pages/InventoryHistoryPage.jsx";
 import InventoryActivitiesPage from "./pages/InventoryActivitiesPage.jsx";
+import AdminActivityPage from "./pages/AdminActivityPage.jsx";
+import ProductActivityPage from "./pages/ProductActivityPage.jsx";
+import NotificationPage from "./pages/NotificationsPage.jsx";
 
 // Components Import
 import PrivateRoute from "./components/PrivateRoute.jsx";
@@ -58,6 +61,7 @@ const router = createBrowserRouter(
       <Route element={<PrivateRoute />}>
         <Route path="profile" element={<ProfilePage />} />
         <Route path="resetPassword" element={<ResetPasswordPage />} />
+        <Route path="notification" element={<NotificationPage />} />
 
         {/* ==================== ADMIN ROUTES ==================== */}
         <Route element={<AdminRoute />}>
@@ -66,15 +70,19 @@ const router = createBrowserRouter(
 
             {/* USER ROUTES */}
             <Route path="users" element={<UserListPage />} />
-            <Route path="activities" element={<UserActivityPage />} />
+            <Route path="activities" element={<AdminActivityPage />} />
             <Route path="user/:userId/edit" element={<EditUserPage />} />
             <Route path="user/:userId/create" element={<CreateNewUserPage />} />
+            <Route path="users/activities" element={<UserActivityPage />} />
             <Route path="user/:userId/activities" element={<UserActivityPage />} />
 
             {/* PRODUCT ROUTES */}
             <Route path="products" element={<ProductListPage />} />
             <Route path="products/create" element={<CreateProductPage />} />
             <Route path="product/:productId/edit" element={<EditProductPage />} />
+            <Route path="products/activities" element={<ProductActivityPage />} />
+
+            {/* INVENTORY ROUTES */}
             <Route path="inventory" element={<InventoryPage />} />
             <Route path="inventory/activities" element={<InventoryActivitiesPage />} />
             <Route path="inventory/:productId" element={<InventoryHistoryPage />} />

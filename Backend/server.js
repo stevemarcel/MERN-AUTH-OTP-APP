@@ -17,6 +17,9 @@ import productRoutes from "./routes/productRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
+import productActivityRoutes from "./routes/productActivityRoutes.js";
+import adminActivityRoutes from "./routes/adminActivityRoutes.js";
 
 // dotenv.config();
 
@@ -47,7 +50,11 @@ app.use("/api/products", productRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/product-activities", productActivityRoutes);
+app.use("/api/admin-activities", adminActivityRoutes);
 
+// Serve frontend in production
 if (process.env.NODE_ENV === "production") {
   const __dirname = path.resolve();
   app.use(express.static(path.join(__dirname, "client/dist")));
@@ -57,7 +64,9 @@ if (process.env.NODE_ENV === "production") {
   app.get("/", (req, res) => res.send("server is ready"));
 }
 
+// Error Handling Middleware
 app.use(notFound);
 app.use(errorHandler);
 
+// Start the server
 app.listen(port, () => console.log(`Server started on port ${port}`.yellow.bold));

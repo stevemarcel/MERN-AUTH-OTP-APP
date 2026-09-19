@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import dns from "node:dns/promises";
 
+// Set DNS servers to Cloudflare's public DNS servers for development environment
 if (process.env.NODE_ENV === "development") {
   dns.setServers(["1.1.1.1", "1.0.0.1"]);
 }
