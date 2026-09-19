@@ -40,8 +40,8 @@ const AdminSidebar = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
     <>
       {/* Mobile navigation */}
       <div className="md:hidden bg-sharkLight-100 fixed z-[80] w-full">
-        <nav className="flex justify-between">
-          <ul className="md:hidden flex gap-x-1 items-center">
+        <nav className="flex">
+          <ul className="md:hidden flex gap-x-1 items-center justify-center w-full">
             {sidebarItems.map((item) => (
               <li key={item.id} className="mb-2">
                 <NavLink
@@ -53,7 +53,7 @@ const AdminSidebar = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
                     }
                   }}
                   className={({ isActive }) =>
-                    `flex items-center w-full px-6 py-3 text-left text-lg transition duration-200
+                    `flex items-center justify-center w-full px-5 py-3 text-left text-lg transition duration-200
 										${
                       isActive
                         ? "font-semibold border-t-4 border-shark bg-sharkLight-100/30 text-shark"
