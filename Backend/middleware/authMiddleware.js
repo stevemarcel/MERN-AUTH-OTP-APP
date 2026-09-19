@@ -11,7 +11,19 @@ const protect = asyncHandler(async (req, res, next) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      req.user = await User.findById(decoded.userId).select("-password");
+      const user = await User.findById(decoded.id).select("-password");
+
+      if (!user) {
+        res.status(401);
+        throw new Error("Not authorized.");
+      }
+
+      if (user.accountStatus !== "active") {
+        res.status(401);
+        throw new Error("Your account is no longer active.");
+      }
+
+      req.user = user;
 
       next();
     } catch (error) {

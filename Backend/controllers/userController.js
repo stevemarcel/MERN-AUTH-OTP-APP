@@ -3,13 +3,13 @@ import asyncHandler from "express-async-handler";
 // Import necessary models
 import User from "../models/userModels.js";
 import EmailVerifyToken from "../models/emailVerifyTokenModel.js";
-import UserActivity from "../models/userActivityModel.js";
+// import UserActivity from "../models/userActivityModel.js";
 
 // Import utility functions
 import { PLACEHOLDER_PROFILE_IMAGE } from "../utils/fileUpload.js";
 import genToken from "../utils/genToken.js";
 import sendEmail from "../utils/sendEmail.js";
-import { createUserActivityAndNotification } from "../utils/userActivityLogger.js";
+import logUserActivity from "../utils/userActivityLogger.js";
 import {
   uploadProfileImageToCloudinary,
   deleteProfileImageFromCloudinary,
@@ -42,16 +42,20 @@ const registerUser = asyncHandler(async (req, res) => {
   if (user) {
     const isAdminCreatingUser = user.isAdminCreatingUser;
 
-    // Log user registration activity
+    // * 1. Log user registration activity
     await logUserActivity({
       user: user._id,
       action: "registered",
       performedBy: isAdminCreatingUser ? req.user?._id : null,
-      description: isAdminCreatingUser
-        ? `${user.firstName} ${user.lastName} was created by an admin`
-        : `${user.firstName} ${user.lastName} registered`,
-    });
 
+      description: isAdminCreatingUser
+        ? `${user.firstName} ${user.lastName} was created by`
+        : `${user.firstName} ${user.lastName} registered`,
+
+      notificationMessage: isAdminCreatingUser
+        ? "Your account was created by an administrator"
+        : "Your account was created",
+    });
     let message;
 
     if (isAdminCreatingUser) {
@@ -158,14 +162,14 @@ const verifyUserEmail = asyncHandler(async (req, res) => {
     user.emailVerified = true;
     await user.save();
 
-    // Log user activity for email verification
+    // * 2. Log user activity for email verification
     await logUserActivity({
       user: user._id,
       action: "email_verified",
       performedBy: user._id,
       description: `${user.firstName} ${user.lastName} verified their email`,
+      notificationMessage: "Your email address was verified",
     });
-
     if (process.env.NODE_ENV === "development") {
       console.log("Email Verified", user.emailVerified);
     }
@@ -193,8 +197,10 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email });
 
-  if (user && (await user.matchPassword(password))) {
-    genToken(res, user._id); // Generate JWT token and set as cookie
+  if (user && user.accountStatus === "active" && (await user.matchPassword(password))) {
+    // Generate JWT token and set as cookie
+    genToken(res, user._id);
+
     res.status(201).json({
       message: "Login successful",
       _id: user._id,
@@ -208,6 +214,7 @@ const loginUser = asyncHandler(async (req, res) => {
       profile: user.profile,
       address: user.address,
       mobile: user.mobile,
+      accountStatus: user.accountStatus,
     });
   } else {
     res.status(401);
@@ -353,12 +360,13 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
       const updatedUser = await user.save();
 
-      // Log user activity for password change
+      // * 3. Log user activity for password change
       await logUserActivity({
         user: updatedUser._id,
         action: "password_changed",
         performedBy: updatedUser._id,
         description: `${updatedUser.firstName} ${updatedUser.lastName} changed their password`,
+        notificationMessage: "Your password was changed",
       });
 
       res.status(200).json({
@@ -440,15 +448,18 @@ const updateUserProfile = asyncHandler(async (req, res) => {
           await deleteProfileImageFromCloudinary(oldProfilePublicId);
         }
 
+        // * 4. Log user activity for profile picture update
         if (req.file || req.body.profile === null) {
           await logUserActivity({
             user: updatedUser._id,
             action: "profile_picture_updated",
             performedBy: updatedUser._id,
             description: `${updatedUser.firstName} ${updatedUser.lastName} updated their profile picture`,
+            notificationMessage: "Your profile picture was updated",
           });
         }
 
+        // * 5. Log user activity for other profile field updates
         if (changedFields.length > 0) {
           const description =
             changedFields.length === 1
@@ -457,11 +468,17 @@ const updateUserProfile = asyncHandler(async (req, res) => {
                   .slice(0, -1)
                   .join(", ")} and ${changedFields[changedFields.length - 1]}`;
 
+          const notificationMessage =
+            changedFields.length === 1
+              ? `Your ${changedFields[0]} was updated`
+              : "Your profile information was updated";
+
           await logUserActivity({
             user: updatedUser._id,
             action: "profile_updated",
             performedBy: updatedUser._id,
             description,
+            notificationMessage,
           });
         }
 
@@ -529,8 +546,8 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
 
     if (req.body.isAdmin !== undefined && isAdminValue !== user.isAdmin) {
       adminStatusChange = isAdminValue
-        ? `${req.user.firstName} ${req.user.lastName} made ${user.firstName} ${user.lastName} an admin user`
-        : `${req.user.firstName} ${req.user.lastName} made ${user.firstName} ${user.lastName} a regular user`;
+        ? `${req.user.firstName} ${req.user.lastName} made ${user.firstName} ${user.lastName} an admin`
+        : `${req.user.firstName} ${req.user.lastName} removed administrator access from ${user.firstName} ${user.lastName}`;
     }
 
     // Track other changed fields
@@ -619,36 +636,31 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
         await deleteProfileImageFromCloudinary(oldProfilePublicId);
       }
 
-      // ============================================================
-      // PROFILE PICTURE ACTIVITY
-      // ============================================================
-
+      // * 6. Log user activity for profile picture update by ADMIN
       if (req.file || req.body.profile === null) {
         await logUserActivity({
           user: updatedUser._id,
           action: "profile_picture_updated",
           performedBy: req.user._id,
           description: `${req.user.firstName} ${req.user.lastName} updated ${updatedUser.firstName} ${updatedUser.lastName}'s profile picture`,
+          notificationMessage: `${req.user.firstName} ${req.user.lastName} updated your profile picture`,
         });
       }
 
-      // ============================================================
-      // ADMIN STATUS ACTIVITY
-      // ============================================================
-
+      // * 7. Log user activity for admin status change made by ADMIN
       if (adminStatusChange) {
         await logUserActivity({
           user: updatedUser._id,
           action: "admin_updated",
           performedBy: req.user._id,
           description: adminStatusChange,
+          notificationMessage: isAdminValue
+            ? `${req.user.firstName} ${req.user.lastName} made you an admin`
+            : `${req.user.firstName} ${req.user.lastName} removed your administrator access`,
         });
       }
 
-      // ============================================================
-      // OTHER PROFILE FIELD ACTIVITY
-      // ============================================================
-
+      // * 8. Log user activity for other profile field updates made by ADMIN
       if (changedFields.length > 0) {
         const description =
           changedFields.length === 1
@@ -657,18 +669,21 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
                 .slice(0, -1)
                 .join(", ")} and ${changedFields[changedFields.length - 1]}`;
 
+        const notificationMessage =
+          changedFields.length === 1
+            ? `${req.user.firstName} ${req.user.lastName} updated your ${changedFields[0]}`
+            : `${req.user.firstName} ${req.user.lastName} updated your profile information`;
+
         await logUserActivity({
           user: updatedUser._id,
           action: "admin_updated",
           performedBy: req.user._id,
           description,
+          notificationMessage,
         });
       }
 
-      // ============================================================
       // RESPONSE MESSAGE
-      // ============================================================
-
       let message;
 
       if (updatedUser.isAdminCreatingUser) {
@@ -677,10 +692,7 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
         message = `${updatedUser.firstName}'s Profile Updated Successfully`;
       }
 
-      // ============================================================
       // RESPONSE
-      // ============================================================
-
       res.status(200).json({
         _id: updatedUser._id,
         message,
@@ -700,7 +712,6 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
       // =========================================================================================================
       // CLEAN UP NEW CLOUDINARY IMAGE IF DATABASE SAVE/PROCESSING FAILS AFTER THE IMAGE HAS ALREADY BEEN UPLOADED
       // =========================================================================================================
-
       if (newProfilePublicId) {
         await deleteProfileImageFromCloudinary(newProfilePublicId);
       }
@@ -713,65 +724,227 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
   }
 });
 
-// @DESCRIPTION Delete user as ADMIN
+// @DESCRIPTION Remove Single User as ADMIN
 // @ROUTE       DELETE /api/users/:id
 // @ACCESS      Private/Admin
 const deleteUserByAdmin = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.params.id);
+  const { id } = req.params;
 
-  if (user) {
-    // Create activity BEFORE deleting the user
-    await createUserActivityAndNotification({
-      user: user._id,
-      action: "deleted",
-      performedBy: req.user._id,
-      description: `${req.user.firstName} ${req.user.lastName} deleted ${user.firstName} ${user.lastName}`,
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.status(400);
+    throw new Error("Invalid user ID.");
+  }
+
+  if (String(req.user._id) === String(id)) {
+    res.status(400);
+    throw new Error("You cannot remove your own account.");
+  }
+
+  const session = await mongoose.startSession();
+
+  try {
+    let removedUser;
+
+    await session.withTransaction(async () => {
+      const user = await User.findById(id).session(session);
+
+      if (!user) {
+        throw new Error("User not found.");
+      }
+
+      if (user.accountStatus === "removed") {
+        throw new Error("User has already been removed.");
+      }
+
+      user.accountStatus = "removed";
+      user.removedAt = new Date();
+      user.removedBy = req.user._id;
+      user.removalReason = "Removed by administrator";
+
+      // Ensure an abandoned password-reset session cannot be reused.
+      user.resetSession = false;
+
+      removedUser = await user.save({ session });
+
+      // Invalidate any outstanding email/OTP token.
+      await EmailVerifyToken.deleteMany(
+        {
+          userId: user._id,
+        },
+        { session },
+      );
+
+      // * 9. Log user activity for single account removal by ADMIN
+      await logUserActivity({
+        user: user._id,
+        action: "removed",
+        performedBy: req.user._id,
+        description: `${req.user.firstName} ${req.user.lastName} removed ${user.firstName} ${user.lastName} from the system`,
+        notify: false,
+        session,
+      });
     });
 
-    // Delete their profile image from Cloudinary
-    await deleteProfileImageFromCloudinary(user.profilePublicId);
+    res.status(200).json({
+      message: `${removedUser.firstName} ${removedUser.lastName} was removed from the system`,
 
-    // Delete user
-    await user.deleteOne();
-
-    res.json({ message: `${user.firstName}'s profile deleted` });
-  } else {
-    res.status(404);
-    throw new Error("User not found");
+      user: {
+        _id: removedUser._id,
+        firstName: removedUser.firstName,
+        lastName: removedUser.lastName,
+        accountStatus: removedUser.accountStatus,
+        removedAt: removedUser.removedAt,
+      },
+    });
+  } finally {
+    await session.endSession();
   }
 });
 
-// @DESCRIPTION Delete multiple users as ADMIN
+// @DESCRIPTION Remove multiple users as ADMIN
 // @ROUTE       DELETE /api/users
 // @ACCESS      Private/Admin
 const deleteUsersByAdmin = asyncHandler(async (req, res) => {
-  let { userIds } = req.body; // Expect an array of IDs in the request body
+  let { userIds } = req.body;
 
-  if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+  if (!Array.isArray(userIds) || userIds.length === 0) {
     res.status(400);
-    throw new Error("Please provide an array of user IDs to delete.");
+    throw new Error("Please provide an array of user IDs to remove.");
   }
 
-  // Filter out any invalid ObjectIDs to prevent database errors and ensure valid IDs are processed
-  userIds = userIds.filter((id) => mongoose.Types.ObjectId.isValid(id));
+  userIds = [...new Set(userIds.filter((id) => mongoose.Types.ObjectId.isValid(id)))];
 
-  // Find users to get their profile paths before deleting them
-  const usersToDelete = await User.find({
-    _id: { $in: userIds },
-  }).select("profile profilePublicId");
+  // An administrator can not remove themselves through bulk selection.
+  userIds = userIds.filter((id) => String(id) !== String(req.user._id));
 
-  // Delete their profile images from Cloudinary in parallel
-  await Promise.all(
-    usersToDelete.map((user) => deleteProfileImageFromCloudinary(user.profilePublicId)),
-  );
+  if (userIds.length === 0) {
+    res.status(400);
+    throw new Error("No valid users were selected for removal.");
+  }
 
-  const deleteResult = await User.deleteMany({ _id: { $in: userIds } });
+  const session = await mongoose.startSession();
 
-  if (deleteResult.deletedCount > 0) {
-    res.json({ message: `${deleteResult.deletedCount} users deleted successfully` });
-  } else {
-    res.status(404);
-    throw new Error("No users found or have already been deleted.");
+  try {
+    let removedCount = 0;
+
+    await session.withTransaction(async () => {
+      const users = await User.find({
+        _id: {
+          $in: userIds,
+        },
+
+        accountStatus: "active",
+      }).session(session);
+
+      for (const user of users) {
+        user.accountStatus = "removed";
+        user.removedAt = new Date();
+        user.removedBy = req.user._id;
+        user.removalReason = "Removed by administrator";
+        user.resetSession = false;
+
+        await user.save({
+          session,
+        });
+
+        await EmailVerifyToken.deleteMany(
+          {
+            userId: user._id,
+          },
+          { session },
+        );
+
+        // * 10. Log user activity for bulk account removal by ADMIN
+        await logUserActivity({
+          user: user._id,
+          action: "removed",
+          performedBy: req.user._id,
+          description: `${req.user.firstName} ${req.user.lastName} removed ${user.firstName} ${user.lastName} from the system`,
+          notify: false,
+          session,
+        });
+
+        removedCount += 1;
+      }
+    });
+
+    if (removedCount === 0) {
+      res.status(404);
+      throw new Error("No active users were found for removal.");
+    }
+
+    res.status(200).json({
+      message: `${removedCount} user${
+        removedCount === 1 ? "" : "s"
+      } removed from the system successfully`,
+
+      removedCount,
+    });
+  } finally {
+    await session.endSession();
+  }
+});
+
+// @DESCRIPTION Restore a removed user
+// @ROUTE       PATCH /api/users/:id/restore
+// @ACCESS      Private/Admin
+const restoreUserByAdmin = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.status(400);
+    throw new Error("Invalid user ID.");
+  }
+
+  const session = await mongoose.startSession();
+
+  try {
+    let restoredUser;
+
+    await session.withTransaction(async () => {
+      const user = await User.findById(id).session(session);
+
+      if (!user) {
+        throw new Error("User not found.");
+      }
+
+      if (user.accountStatus === "active") {
+        throw new Error("User is already active.");
+      }
+
+      user.accountStatus = "active";
+      user.removedAt = null;
+      user.removedBy = null;
+      user.removalReason = "";
+
+      restoredUser = await user.save({
+        session,
+      });
+
+      // * 11. Log user activity for account restoration by ADMIN
+      await logUserActivity({
+        user: restoredUser._id,
+        action: "restored",
+        performedBy: req.user._id,
+        description: `${req.user.firstName} ${req.user.lastName} restored ${restoredUser.firstName} ${restoredUser.lastName}'s account`,
+        notificationMessage: `${req.user.firstName} ${req.user.lastName} restored your account`,
+        session,
+      });
+    });
+
+    res.status(200).json({
+      message: `${restoredUser.firstName} ${restoredUser.lastName}'s account was restored`,
+
+      user: {
+        _id: restoredUser._id,
+        firstName: restoredUser.firstName,
+        lastName: restoredUser.lastName,
+        email: restoredUser.email,
+        accountStatus: restoredUser.accountStatus,
+      },
+    });
+  } finally {
+    await session.endSession();
   }
 });
 
@@ -801,5 +974,6 @@ export {
   updateUserByAdmin,
   deleteUserByAdmin,
   deleteUsersByAdmin,
+  restoreUserByAdmin,
   logoutUser,
 };

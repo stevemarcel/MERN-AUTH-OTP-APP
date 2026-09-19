@@ -10,15 +10,15 @@ import { protect, isAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Get recent activities
+// * 1. Get recent activities
 // GET /api/user-activities
 router.route("/").get(protect, isAdmin, getRecentUserActivities);
 
-// Get all activities
+// * 2. Get all activities
 // GET /api/user-activities/all
 router.route("/all").get(protect, isAdmin, getAllUserActivities);
 
-// Get activities for a specific user
+// * 3. Get activities for a specific user
 // GET /api/user-activities/:userId
 router.route("/:userId").get(protect, isAdmin, getUserActivities);
 

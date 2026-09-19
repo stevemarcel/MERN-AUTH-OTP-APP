@@ -56,6 +56,29 @@ const userSchema = mongoose.Schema(
       type: Number,
       default: 8011111111,
     },
+    accountStatus: {
+      type: String,
+      enum: ["active", "removed"],
+      default: "active",
+      index: true,
+    },
+
+    removedAt: {
+      type: Date,
+      default: null,
+    },
+
+    removedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    removalReason: {
+      type: String,
+      trim: true,
+      default: "",
+    },
   },
   {
     timestamps: true,

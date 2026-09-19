@@ -19,6 +19,8 @@ const userActivitySchema = mongoose.Schema(
         "admin_updated",
         "profile_picture_updated",
         "deleted",
+        "removed",
+        "restored",
       ],
     },
 
