@@ -417,6 +417,158 @@ const getInventoryActivity = asyncHandler(async (req, res) => {
   });
 });
 
+// @DESCRIPTION Get paginated inventory activities
+// @ROUTE       GET /api/inventory/activities
+// @ACCESS      Private/Admin
+const getInventoryActivities = asyncHandler(async (req, res) => {
+  const page = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
+
+  const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 20, 1), 100);
+
+  const action = req.query.action?.trim();
+  const search = req.query.search?.trim();
+
+  const matchStage = {};
+
+  if (action && action !== "all") {
+    matchStage.action = action;
+  }
+
+  const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const pipeline = [
+    {
+      $match: matchStage,
+    },
+
+    {
+      $lookup: {
+        from: Product.collection.name,
+        localField: "product",
+        foreignField: "_id",
+        as: "productData",
+      },
+    },
+
+    {
+      $unwind: {
+        path: "$productData",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+
+    {
+      $lookup: {
+        from: User.collection.name,
+        localField: "performedBy",
+        foreignField: "_id",
+        as: "performedByData",
+      },
+    },
+
+    {
+      $unwind: {
+        path: "$performedByData",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+  ];
+
+  if (search) {
+    const regex = new RegExp(escapeRegex(search), "i");
+
+    pipeline.push({
+      $match: {
+        $or: [
+          { "productData.name": regex },
+          { "productData.sku": regex },
+          { "productData.category": regex },
+          {
+            "performedByData.firstName": regex,
+          },
+          {
+            "performedByData.lastName": regex,
+          },
+          { reason: regex },
+        ],
+      },
+    });
+  }
+
+  pipeline.push({
+    $facet: {
+      activities: [
+        {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+
+        {
+          $skip: (page - 1) * limit,
+        },
+
+        {
+          $limit: limit,
+        },
+
+        {
+          $project: {
+            _id: 1,
+
+            action: 1,
+            quantity: 1,
+            previousStock: 1,
+            newStock: 1,
+            reason: 1,
+
+            createdAt: 1,
+            updatedAt: 1,
+
+            product: {
+              _id: "$productData._id",
+              name: "$productData.name",
+              sku: "$productData.sku",
+              category: "$productData.category",
+              unit: "$productData.unit",
+            },
+
+            performedBy: {
+              _id: "$performedByData._id",
+              firstName: "$performedByData.firstName",
+              lastName: "$performedByData.lastName",
+              username: "$performedByData.username",
+            },
+          },
+        },
+      ],
+
+      totalCount: [
+        {
+          $count: "count",
+        },
+      ],
+    },
+  });
+
+  const [result] = await InventoryActivity.aggregate(pipeline);
+
+  const total = result?.totalCount?.[0]?.count || 0;
+
+  const activities = result?.activities || [];
+
+  res.status(200).json({
+    activities,
+
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  });
+});
+
 // @DESCRIPTION Add stock to inventory
 // @ROUTE       POST /api/inventory/:productId/add
 // @ACCESS      Private/Admin
@@ -806,6 +958,7 @@ const getRecentInventoryActivity = asyncHandler(async (req, res) => {
 export {
   getInventory,
   getInventoryActivity,
+  getInventoryActivities,
   addStock,
   removeStock,
   adjustStock,

@@ -377,14 +377,34 @@ const InventoryPage = () => {
           </h2>
         </div>
 
-        <button
+        {/* <button
           type="button"
           onClick={() => navigate("/admin/products")}
           className="flex items-center justify-center md:w-1/5 gap-2 px-4 py-2 bg-shark text-white rounded hover:bg-sharkDark-300 transition"
         >
           <FaBoxOpen />
           View Products
-        </button>
+        </button> */}
+
+        <div className="flex flex-col sm:flex-row md:w-full gap-2 md:justify-end">
+          <button
+            type="button"
+            onClick={() => navigate("/admin/inventory/activities")}
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-shark hover:bg-sharkDark-300 text-white rounded transition"
+          >
+            <FaHistory />
+            View Activities
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate("/admin/products")}
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-sharkLight-400 hover:bg-sharkLight-500 text-white rounded transition"
+          >
+            <FaBoxOpen />
+            View Products
+          </button>
+        </div>
       </div>
 
       {/* ========================================================

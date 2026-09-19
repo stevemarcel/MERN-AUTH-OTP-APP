@@ -1,6 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FaEdit } from "react-icons/fa";
 
 import BackButton from "../components/BackButton";
 import ProductForm from "../components/ProductForm";
@@ -8,7 +7,7 @@ import Loader from "../components/Loader";
 
 import { useGetProductByIdQuery, useUpdateProductMutation } from "../slices/productApiSlice";
 
-const ProductEditPage = () => {
+const EditProductPage = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
 
@@ -63,8 +62,6 @@ const ProductEditPage = () => {
         <BackButton />
 
         <div className="flex items-center justify-center w-full min-w-0">
-          <FaEdit className="mr-2 flex-shrink-0" />
-
           <h2 className="text-2xl md:text-3xl font-bold uppercase truncate">
             Edit {productData.name}
           </h2>
@@ -88,4 +85,4 @@ const ProductEditPage = () => {
   );
 };
 
-export default ProductEditPage;
+export default EditProductPage;

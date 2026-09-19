@@ -17,7 +17,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
       // When a new user is registered, it might affect the list of users,
       // so we can invalidate the 'User' tag to trigger a re-fetch of getUsers.
-      invalidatesTags: ["User"],
+      invalidatesTags: ["User", "Dashboard"],
     }),
 
     // * 2. Send Verification Email Mutation
@@ -80,7 +80,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
       // This is for specific user invalidation
-      invalidatesTags: ["User"],
+      invalidatesTags: ["User", "Dashboard"],
     }),
 
     // * 9. Logout User Mutation
@@ -136,7 +136,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         method: "DELETE",
       }),
       // Invalidate the 'User' tag. This will trigger a re-fetch of 'getUsers'.
-      invalidatesTags: (result, error, id) => ["User", { type: "User", id }],
+      invalidatesTags: (result, error, id) => ["User", "Dashboard", { type: "User", id }],
     }),
 
     // * 5. Delete Multiple Users by Admin Mutation
@@ -149,7 +149,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
       // Invalidate the 'User' tag. This will trigger a re-fetch of 'getUsers'
       // to update the list of users after a bulk delete.
-      invalidatesTags: ["User"],
+      invalidatesTags: ["User", "Dashboard"],
     }),
   }),
 });

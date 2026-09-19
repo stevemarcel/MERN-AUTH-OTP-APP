@@ -148,7 +148,7 @@ const UserActivityPage = () => {
 
         <div className="w-full text-center">
           <h1 className="text-xl md:text-2xl font-bold text-shark uppercase">
-            {userId ? "User Activity" : "Recent User Activity"}
+            {userId ? "User Activities" : "All Users Activities"}
           </h1>
         </div>
       </div>

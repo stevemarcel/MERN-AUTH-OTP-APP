@@ -7,9 +7,7 @@ const INVENTORY_URL = "/api/inventory";
 
 export const inventoryApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // ============================================================
-    // GET INVENTORY OVERVIEW
-    // ============================================================
+    // * 1. GET INVENTORY OVERVIEW
     getInventory: builder.query({
       query: () => ({
         url: INVENTORY_URL,
@@ -19,9 +17,7 @@ export const inventoryApiSlice = apiSlice.injectEndpoints({
       providesTags: [{ type: "Inventory", id: "LIST" }, "Product"],
     }),
 
-    // ============================================================
-    // GET INVENTORY ACTIVITY FOR ONE PRODUCT
-    // ============================================================
+    // * 2. GET INVENTORY ACTIVITY FOR ONE PRODUCT
     getInventoryActivity: builder.query({
       query: (productId) => ({
         url: `${INVENTORY_URL}/${productId}`,
@@ -36,9 +32,28 @@ export const inventoryApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ============================================================
-    // GET RECENT INVENTORY ACTIVITY
-    // ============================================================
+    // * 3. GET INVENTORY ACTIVITIES FOR ALL PRODUCTS
+    getInventoryActivities: builder.query({
+      query: ({ page = 1, limit = 20, action = "all", search = "" } = {}) => ({
+        url: `${INVENTORY_URL}/activities`,
+        method: "GET",
+        params: {
+          page,
+          limit,
+          action,
+          search,
+        },
+      }),
+
+      providesTags: [
+        {
+          type: "InventoryActivity",
+          id: "LIST",
+        },
+      ],
+    }),
+
+    // * 4. GET RECENT INVENTORY ACTIVITY
     getRecentInventoryActivity: builder.query({
       query: () => ({
         url: `${INVENTORY_URL}/activity/recent`,
@@ -48,9 +63,7 @@ export const inventoryApiSlice = apiSlice.injectEndpoints({
       providesTags: [{ type: "InventoryActivity", id: "RECENT" }],
     }),
 
-    // ============================================================
-    // ADD STOCK
-    // ============================================================
+    // * 5. ADD STOCK
     addStock: builder.mutation({
       query: ({ productId, quantity, reason }) => ({
         url: `${INVENTORY_URL}/${productId}/add`,
@@ -64,14 +77,13 @@ export const inventoryApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { productId }) => [
         "Inventory",
         "Product",
+        "Dashboard",
         { type: "InventoryActivity", id: productId },
         { type: "InventoryActivity", id: "RECENT" },
       ],
     }),
 
-    // ============================================================
-    // REMOVE STOCK
-    // ============================================================
+    // * 6. REMOVE STOCK
     removeStock: builder.mutation({
       query: ({ productId, quantity, reason }) => ({
         url: `${INVENTORY_URL}/${productId}/remove`,
@@ -85,14 +97,13 @@ export const inventoryApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { productId }) => [
         "Inventory",
         "Product",
+        "Dashboard",
         { type: "InventoryActivity", id: productId },
         { type: "InventoryActivity", id: "RECENT" },
       ],
     }),
 
-    // ============================================================
-    // ADJUST STOCK
-    // ============================================================
+    // * 7. ADJUST STOCK
     adjustStock: builder.mutation({
       query: ({ productId, newQuantity, reason }) => ({
         url: `${INVENTORY_URL}/${productId}/adjust`,
@@ -106,14 +117,13 @@ export const inventoryApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { productId }) => [
         "Inventory",
         "Product",
+        "Dashboard",
         { type: "InventoryActivity", id: productId },
         { type: "InventoryActivity", id: "RECENT" },
       ],
     }),
 
-    // ============================================================
-    // RECORD DAMAGED STOCK
-    // ============================================================
+    // * 8. RECORD DAMAGED STOCK
     damageStock: builder.mutation({
       query: ({ productId, quantity, reason }) => ({
         url: `${INVENTORY_URL}/${productId}/damage`,
@@ -127,14 +137,13 @@ export const inventoryApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { productId }) => [
         "Inventory",
         "Product",
+        "Dashboard",
         { type: "InventoryActivity", id: productId },
         { type: "InventoryActivity", id: "RECENT" },
       ],
     }),
 
-    // ============================================================
-    // RECORD RETURNED STOCK
-    // ============================================================
+    // * 9. RECORD RETURNED STOCK
     returnStock: builder.mutation({
       query: ({ productId, quantity, reason }) => ({
         url: `${INVENTORY_URL}/${productId}/return`,
@@ -148,6 +157,7 @@ export const inventoryApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { productId }) => [
         "Inventory",
         "Product",
+        "Dashboard",
         { type: "InventoryActivity", id: productId },
         { type: "InventoryActivity", id: "RECENT" },
       ],
@@ -160,6 +170,7 @@ export const inventoryApiSlice = apiSlice.injectEndpoints({
 export const {
   useGetInventoryQuery,
   useGetInventoryActivityQuery,
+  useGetInventoryActivitiesQuery,
   useGetRecentInventoryActivityQuery,
   useAddStockMutation,
   useRemoveStockMutation,

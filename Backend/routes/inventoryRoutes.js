@@ -9,22 +9,26 @@ import {
   damageStock,
   returnStock,
   getRecentInventoryActivity,
+  getInventoryActivities,
 } from "../controllers/inventoryController.js";
 
 import { protect, isAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Inventory overview
+// * 1. Inventory overview
 router.route("/").get(protect, isAdmin, getInventory);
 
-// Recent inventory activity
+// * 2. Recent inventory activity
 router.route("/activity/recent").get(protect, isAdmin, getRecentInventoryActivity);
 
-// Individual product inventory history
+// * 3. Inventory activities for all products
+router.get("/activities", protect, isAdmin, getInventoryActivities);
+
+// * 4. Individual product inventory history
 router.route("/:productId").get(protect, isAdmin, getInventoryActivity);
 
-// Inventory operations
+// * 5. Inventory operations
 router.post("/:productId/add", protect, isAdmin, addStock); // Add stock to a product
 
 router.post("/:productId/remove", protect, isAdmin, removeStock); // Remove stock from a product

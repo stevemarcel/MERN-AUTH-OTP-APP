@@ -16,6 +16,7 @@ import userActivityRoutes from "./routes/userActivityRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
+import dashboardRoutes from "./routes/dashboardRoutes.js";
 
 // dotenv.config();
 
@@ -45,6 +46,7 @@ app.use("/api/user-activities", userActivityRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 if (process.env.NODE_ENV === "production") {
   const __dirname = path.resolve();

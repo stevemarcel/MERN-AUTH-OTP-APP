@@ -4,7 +4,7 @@ const USER_ACTIVITIES_URL = "/api/user-activities";
 
 export const userActivityApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // Get recent user activities
+    // * 1. GET RECENT USER ACTIVITIES
     getRecentUserActivities: builder.query({
       query: () => ({
         url: USER_ACTIVITIES_URL,
@@ -13,7 +13,7 @@ export const userActivityApiSlice = apiSlice.injectEndpoints({
       providesTags: ["UserActivity"],
     }),
 
-    // Get all user activities
+    // * 2. GET ALL USER ACTIVITIES
     getAllUserActivities: builder.query({
       query: () => ({
         url: `${USER_ACTIVITIES_URL}/all`,
@@ -22,7 +22,7 @@ export const userActivityApiSlice = apiSlice.injectEndpoints({
       providesTags: ["UserActivity"],
     }),
 
-    // Get activities for a specific user
+    // * 3. GET USER ACTIVITIES FOR A SPECIFIC USER
     getUserActivities: builder.query({
       query: (userId) => ({
         url: `${USER_ACTIVITIES_URL}/${userId}`,

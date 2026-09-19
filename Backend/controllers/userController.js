@@ -9,41 +9,13 @@ import UserActivity from "../models/userActivityModel.js";
 import { PLACEHOLDER_PROFILE_IMAGE } from "../utils/fileUpload.js";
 import genToken from "../utils/genToken.js";
 import sendEmail from "../utils/sendEmail.js";
-import logUserActivity from "../utils/userActivityLogger.js";
+import { createUserActivityAndNotification } from "../utils/userActivityLogger.js";
 import {
   uploadProfileImageToCloudinary,
   deleteProfileImageFromCloudinary,
 } from "../utils/cloudinaryUtils.js";
 
-import bcrypt from "bcryptjs";
-// import fs from "fs";
-// import path from "path";
-// import { fileURLToPath } from "url";
 import mongoose from "mongoose";
-
-// Define __filename and __dirname
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-
-// Function to remove old profile image from the file system
-// const removeOldProfileImage = (oldImagePath) => {
-//   if (oldImagePath && oldImagePath !== PLACEHOLDER_PROFILE_IMAGE) {
-//     const fullPathToDelete = path.join(__dirname, "..", oldImagePath);
-
-//     // Check if the file actually exists on the disk before attempting to delete
-//     if (fs.existsSync(fullPathToDelete)) {
-//       fs.unlink(fullPathToDelete, (err) => {
-//         if (err) {
-//           console.error(`Error deleting old profile image '${fullPathToDelete}':`, err);
-//         } else {
-//           console.log(`Successfully deleted old profile image: ${fullPathToDelete}`);
-//         }
-//       });
-//     } else {
-//       console.log(`Old profile image not found on disk, skipping deletion: ${fullPathToDelete}`);
-//     }
-//   }
-// };
 
 // @DESCRIPTION Register new user
 // @ROUTE       POST /api/users
@@ -749,7 +721,7 @@ const deleteUserByAdmin = asyncHandler(async (req, res) => {
 
   if (user) {
     // Create activity BEFORE deleting the user
-    await UserActivity.create({
+    await createUserActivityAndNotification({
       user: user._id,
       action: "deleted",
       performedBy: req.user._id,

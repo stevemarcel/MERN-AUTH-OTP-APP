@@ -34,8 +34,9 @@ import ContactPage from "./pages/ContactPage.jsx";
 import UserListPage from "./pages/UserListPage.jsx";
 import UserActivityPage from "./pages/UserActivityPage";
 import CreateProductPage from "./pages/CreateProductPage.jsx";
-import ProductEditPage from "./pages/ProductEditPage.jsx";
+import EditProductPage from "./pages/EditProductPage.jsx";
 import InventoryHistoryPage from "./pages/InventoryHistoryPage.jsx";
+import InventoryActivitiesPage from "./pages/InventoryActivitiesPage.jsx";
 
 // Components Import
 import PrivateRoute from "./components/PrivateRoute.jsx";
@@ -73,8 +74,9 @@ const router = createBrowserRouter(
             {/* PRODUCT ROUTES */}
             <Route path="products" element={<ProductListPage />} />
             <Route path="products/create" element={<CreateProductPage />} />
-            <Route path="product/:productId/edit" element={<ProductEditPage />} />
+            <Route path="product/:productId/edit" element={<EditProductPage />} />
             <Route path="inventory" element={<InventoryPage />} />
+            <Route path="inventory/activities" element={<InventoryActivitiesPage />} />
             <Route path="inventory/:productId" element={<InventoryHistoryPage />} />
           </Route>
         </Route>

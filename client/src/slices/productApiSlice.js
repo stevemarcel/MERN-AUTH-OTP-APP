@@ -7,9 +7,7 @@ const PRODUCTS_URL = "/api/products";
 
 export const productApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // ============================================================
-    // GET ALL PRODUCTS
-    // ============================================================
+    // * 1. GET ALL PRODUCTS
     getProducts: builder.query({
       query: () => ({
         url: PRODUCTS_URL,
@@ -28,9 +26,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
           : [{ type: "Product", id: "LIST" }],
     }),
 
-    // ============================================================
-    // GET PRODUCT BY ID
-    // ============================================================
+    // * 2. GET PRODUCT BY ID
     getProductById: builder.query({
       query: (id) => ({
         url: `${PRODUCTS_URL}/${id}`,
@@ -40,9 +36,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
       providesTags: (result, error, id) => [{ type: "Product", id }],
     }),
 
-    // ============================================================
-    // CREATE PRODUCT
-    // ============================================================
+    // * 3. CREATE PRODUCT
     createProduct: builder.mutation({
       query: (data) => ({
         url: PRODUCTS_URL,
@@ -50,12 +44,10 @@ export const productApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
 
-      invalidatesTags: [{ type: "Product", id: "LIST" }, "Inventory"],
+      invalidatesTags: [{ type: "Product", id: "LIST" }, "Inventory", "Dashboard"],
     }),
 
-    // ============================================================
-    // UPDATE PRODUCT
-    // ============================================================
+    // * 4. UPDATE PRODUCT
     updateProduct: builder.mutation({
       query: ({ productId, data }) => ({
         url: `${PRODUCTS_URL}/${productId}`,
@@ -67,13 +59,12 @@ export const productApiSlice = apiSlice.injectEndpoints({
         { type: "Product", id: productId },
         { type: "Product", id: "LIST" },
         "Inventory",
+        "Dashboard",
       ],
     }),
 
-    // ============================================================
-    // ARCHIVE PRODUCT
-    // DELETE = ARCHIVE
-    // ============================================================
+    // * 5. ARCHIVE PRODUCT
+    // * DELETE = ARCHIVE
     deleteProduct: builder.mutation({
       query: (productId) => ({
         url: `${PRODUCTS_URL}/${productId}`,
@@ -84,12 +75,11 @@ export const productApiSlice = apiSlice.injectEndpoints({
         { type: "Product", id: productId },
         { type: "Product", id: "LIST" },
         "Inventory",
+        "Dashboard",
       ],
     }),
 
-    // ============================================================
-    // BULK ARCHIVE PRODUCTS
-    // ============================================================
+    // * 6. BULK ARCHIVE PRODUCTS
     deleteProducts: builder.mutation({
       query: (productIds) => ({
         url: PRODUCTS_URL,
@@ -99,12 +89,10 @@ export const productApiSlice = apiSlice.injectEndpoints({
         },
       }),
 
-      invalidatesTags: [{ type: "Product", id: "LIST" }, "Inventory"],
+      invalidatesTags: [{ type: "Product", id: "LIST" }, "Inventory", "Dashboard"],
     }),
 
-    // ============================================================
-    // RESTORE PRODUCT
-    // ============================================================
+    // * 7. RESTORE PRODUCT
     restoreProduct: builder.mutation({
       query: (productId) => ({
         url: `${PRODUCTS_URL}/${productId}/restore`,
@@ -115,6 +103,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
         { type: "Product", id: productId },
         { type: "Product", id: "LIST" },
         "Inventory",
+        "Dashboard",
       ],
     }),
   }),
