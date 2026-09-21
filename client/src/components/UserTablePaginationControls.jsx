@@ -140,12 +140,11 @@ const UserTablePaginationControls = ({ currentPage, totalPages, onPageChange }) 
                 gap-2
                 px-3 py-2
                 rounded-md
-                bg-sharkLight-100
-                text-shark
+                bg-shark
+                text-light
                 text-sm
                 font-medium
                 transition duration-300
-                hover:bg-sharkLight-200
               "
             >
               <span>Page {currentPage}</span>
@@ -169,7 +168,7 @@ const UserTablePaginationControls = ({ currentPage, totalPages, onPageChange }) 
                   z-50
                   rounded-md
                   overflow-hidden
-                  bg-sharkLight-100
+                  bg-light
                   border
                   border-sharkLight-200
                   shadow-lg
@@ -187,11 +186,7 @@ const UserTablePaginationControls = ({ currentPage, totalPages, onPageChange }) 
                         text-left
                         text-sm
                         transition duration-200
-                        ${
-                          currentPage === page
-                            ? "bg-shark text-white font-semibold"
-                            : "text-shark hover:bg-sharkLight-200"
-                        }
+                        ${currentPage === page ? "bg-shark text-white font-semibold" : "text-shark"}
                       `}
                     >
                       Page {page}
