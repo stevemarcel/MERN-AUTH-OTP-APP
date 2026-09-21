@@ -121,7 +121,7 @@ const AdminActivityPage = () => {
       <div className="flex gap-0 md:gap-3 w-full mb-5">
         <BackButton />
         <div className="text-center md:text-left">
-          <h1 className="text-xl md:text-2xl font-bold text-shark uppercase">Admin Activity</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-shark uppercase">Activities History</h1>
 
           <p className="text-xs md:text-sm text-sharkLight-300 mt-1">
             History across users, products and inventory

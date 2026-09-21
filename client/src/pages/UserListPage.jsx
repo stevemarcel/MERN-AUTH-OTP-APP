@@ -265,6 +265,25 @@ const UserListPage = () => {
   // Calculate total pages for pagination
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage); //
 
+  // ! --- SUMMARY / KEY METRICS ---
+  const currentDate = new Date();
+  const totalUsers = allUsersData.length;
+  const adminUsers = allUsersData.filter((user) => user.isAdmin).length;
+  const regularUsers = totalUsers - adminUsers;
+  const verifiedEmails = allUsersData.filter((user) => user.emailVerified).length;
+  const unverifiedEmails = totalUsers - verifiedEmails;
+  const usersJoinedThisMonth = allUsersData.filter((user) => {
+    if (!user.createdAt) return false;
+
+    const joinedDate = new Date(user.createdAt);
+
+    return (
+      !Number.isNaN(joinedDate.getTime()) &&
+      joinedDate.getMonth() === currentDate.getMonth() &&
+      joinedDate.getFullYear() === currentDate.getFullYear()
+    );
+  }).length;
+
   return (
     <div className="mb-5 min-h-[80vh] w-full text-shark">
       {/* Page Title + Add and Delete Users Buttons */}
@@ -275,13 +294,13 @@ const UserListPage = () => {
             <BackButton />
           </div>
 
-          <h2 className="text-2xl md:text-3xl font-bold md:mb-0 uppercase flex items-center justify-center w-full">
+          <h2 className="md:text-xl lg:text-3xl font-bold md:mb-0 uppercase flex items-center justify-center w-full">
             Manage Users
           </h2>
         </div>
 
         {/* Add and Delete Users Buttons */}
-        <div className="flex gap-2 w-full md:w-2/5 text-sm">
+        <div className="flex gap-2 w-full md:w-3/5 lg:w-2/5 text-xs lg:text-sm">
           <button
             type="submit"
             className="flex w-full items-center justify-center px-3 py-2 bg-green-800 hover:bg-green-900 text-white rounded 
@@ -316,6 +335,47 @@ const UserListPage = () => {
           </button>
         </div>
       </div>
+
+      {/* SUMMARY / KEY METRICS */}
+      {!isGettingUsers && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+          <div className="bg-white rounded shadow-sm p-4">
+            <p className="text-xs text-sharkLight-300 uppercase">Total Users</p>
+
+            <p className="text-2xl font-bold mt-1">{totalUsers}</p>
+          </div>
+
+          <div className="bg-white rounded shadow-sm p-4">
+            <p className="text-xs text-sharkLight-300 uppercase">Joined This Month</p>
+
+            <p className="text-2xl font-bold text-blue-700 mt-1">{usersJoinedThisMonth}</p>
+          </div>
+
+          <div className="bg-white rounded shadow-sm p-4">
+            <p className="text-xs text-sharkLight-300 uppercase">Administrators</p>
+
+            <p className="text-2xl font-bold text-purple-700 mt-1">{adminUsers}</p>
+          </div>
+
+          <div className="bg-white rounded shadow-sm p-4">
+            <p className="text-xs text-sharkLight-300 uppercase">Regular Users</p>
+
+            <p className="text-2xl font-bold text-sharkLight-500 mt-1">{regularUsers}</p>
+          </div>
+
+          <div className="bg-white rounded shadow-sm p-4">
+            <p className="text-xs text-sharkLight-300 uppercase">Verified Emails</p>
+
+            <p className="text-2xl font-bold text-green-700 mt-1">{verifiedEmails}</p>
+          </div>
+
+          <div className="bg-white rounded shadow-sm p-4">
+            <p className="text-xs text-sharkLight-300 uppercase">Unverified Emails</p>
+
+            <p className="text-2xl font-bold text-red-700 mt-1">{unverifiedEmails}</p>
+          </div>
+        </div>
+      )}
 
       {/* Search Bar and Pagination */}
       <div className="flex flex-col gap-2 mb-4 md:flex-row md:items-center">

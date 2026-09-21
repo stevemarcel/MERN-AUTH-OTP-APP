@@ -1,40 +1,55 @@
-import { FaShieldAlt, FaUsers, FaUserCog, FaHistory, FaEnvelope, FaLock } from "react-icons/fa";
+import {
+  FaBoxOpen,
+  FaChartLine,
+  FaHistory,
+  FaLock,
+  FaShieldAlt,
+  FaUsers,
+  FaWarehouse,
+} from "react-icons/fa";
 
 const capabilities = [
   {
     icon: <FaShieldAlt />,
     title: "Secure Authentication",
     description:
-      "JWT authentication with HTTP-only cookies, protected routes, and secure account sessions.",
+      "JWT sessions in HTTP-only cookies, protected routes, role-aware access, and secure sign-in.",
   },
   {
     icon: <FaUsers />,
-    title: "User Management",
+    title: "User Lifecycle Management",
     description:
-      "Create, view, update, search, filter, and manage user accounts from a centralized interface.",
+      "Create, search, update, and manage user accounts, roles, profiles, and email-verification status.",
   },
   {
-    icon: <FaUserCog />,
-    title: "Administration",
-    description: "Powerful administrative controls for managing users individually or in batches.",
+    icon: <FaBoxOpen />,
+    title: "Product Catalogue",
+    description:
+      "Create and maintain products with SKUs, barcodes, categories, pricing, images, and archive controls.",
+  },
+  {
+    icon: <FaWarehouse />,
+    title: "Inventory Control",
+    description:
+      "Track stock movements, adjustments, returns, damage, low-stock thresholds, and inventory value.",
+  },
+  {
+    icon: <FaChartLine />,
+    title: "Operational Dashboard",
+    description:
+      "Monitor user, product, and inventory key metrics, registration trends, stock status, and alerts.",
   },
   {
     icon: <FaHistory />,
-    title: "Activity Tracking",
+    title: "Activity History",
     description:
-      "Important account actions are recorded so administrators can understand what happened and when.",
+      "Review user, product, and inventory events in a clear audit trail of operational activity.",
   },
   {
     icon: <FaLock />,
-    title: "Password Security",
+    title: "Account Recovery",
     description:
-      "Password validation, strength feedback, secure hashing, and password recovery workflows.",
-  },
-  {
-    icon: <FaEnvelope />,
-    title: "Email Workflows",
-    description:
-      "Verification emails and password recovery workflows are integrated directly into the authentication system.",
+      "Email verification and OTP password-reset workflows help keep account recovery secure.",
   },
 ];
 
@@ -49,12 +64,12 @@ const FunctionalitiesSection = () => {
           </p>
 
           <h2 className="text-2xl md:text-4xl font-bold text-shark leading-tight">
-            Built around the essentials of modern user management.
+            One workspace for secure account and stock operations.
           </h2>
 
           <p className="mt-4 text-sharkLight-300 leading-relaxed">
-            Every part of the platform is designed to make authentication, administration, and
-            account management more secure and easier to understand.
+            The platform connects authentication, user administration, product management,
+            inventory control, reporting, and activity history in one application.
           </p>
         </div>
 

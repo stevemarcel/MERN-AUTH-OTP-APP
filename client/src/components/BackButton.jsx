@@ -23,7 +23,7 @@ const BackButton = ({ icon }) => {
         onClick={() => navigate(-1)}
       >
         <div className="md:mr-1">{BtnIcon}</div>
-        <div className="hidden md:flex">{BtnText}</div>
+        <div className="hidden lg:flex">{BtnText}</div>
       </button>
     </div>
   );
