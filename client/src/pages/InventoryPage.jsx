@@ -28,6 +28,7 @@ import {
 import BackButton from "../components/BackButton";
 import Loader from "../components/Loader";
 import UserTablePaginationControls from "../components/UserTablePaginationControls";
+import FilterDropdown from "../components/FilterDropdown";
 
 const EMPTY_PRODUCTS = [];
 
@@ -176,6 +177,16 @@ const InventoryPage = () => {
       );
     });
   }, [products, searchTerm, stockFilter, categoryFilter]);
+
+  const handleStockFilterChange = (value) => {
+    setStockFilter(value);
+    setCurrentPage(1);
+  };
+
+  const handleCategoryFilterChange = (value) => {
+    setCategoryFilter(value);
+    setCurrentPage(1);
+  };
 
   // ============================================================
   // PAGINATION
@@ -362,6 +373,22 @@ const InventoryPage = () => {
     );
   }
 
+  const stockFilterOptions = [
+    { value: "all", label: "All Active Inventory" },
+    { value: "in_stock", label: "In Stock" },
+    { value: "low_stock", label: "Low Stock" },
+    { value: "out_of_stock", label: "Out of Stock" },
+    { value: "archived", label: "Archived Products" },
+  ];
+
+  const categoryFilterOptions = [
+    { value: "all", label: "All Categories" },
+    ...categories.map((category) => ({
+      value: category,
+      label: category,
+    })),
+  ];
+
   return (
     <div className="mb-10 min-h-[80vh] w-full mx-auto text-shark">
       {/*  HEADER  */}
@@ -376,15 +403,6 @@ const InventoryPage = () => {
             Inventory
           </h2>
         </div>
-
-        {/* <button
-          type="button"
-          onClick={() => navigate("/admin/products")}
-          className="flex items-center justify-center md:w-1/5 gap-2 px-4 py-2 bg-shark text-white rounded hover:bg-sharkDark-300 transition"
-        >
-          <FaBoxOpen />
-          View Products
-        </button> */}
 
         <div className="flex flex-col sm:flex-row md:w-full gap-2 md:justify-end">
           <button
@@ -488,42 +506,18 @@ const InventoryPage = () => {
           </div>
 
           {/* Stock filter */}
-          <select
+          <FilterDropdown
             value={stockFilter}
-            onChange={(e) => {
-              setStockFilter(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="px-3 py-2 rounded border border-sharkLight-100 bg-white focus:outline-none focus:ring-2 focus:ring-sharkLight-400"
-          >
-            <option value="all">All Active Inventory</option>
-
-            <option value="in_stock">In Stock</option>
-
-            <option value="low_stock">Low Stock</option>
-
-            <option value="out_of_stock">Out of Stock</option>
-
-            <option value="archived">Archived Products</option>
-          </select>
+            onChange={handleStockFilterChange}
+            options={stockFilterOptions}
+          />
 
           {/* Category */}
-          <select
+          <FilterDropdown
             value={categoryFilter}
-            onChange={(e) => {
-              setCategoryFilter(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="px-3 py-2 rounded border border-sharkLight-100 bg-white focus:outline-none focus:ring-2 focus:ring-sharkLight-400"
-          >
-            <option value="all">All Categories</option>
-
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+            onChange={handleCategoryFilterChange}
+            options={categoryFilterOptions}
+          />
         </div>
       </div>
 

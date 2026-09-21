@@ -26,8 +26,10 @@ import Loader from "../components/Loader";
 import BackButton from "../components/BackButton";
 import ConfirmationModal from "../components/ConfirmationModal";
 import UserTablePaginationControls from "../components/UserTablePaginationControls";
+import FilterDropdown from "../components/FilterDropdown";
 
 const EMPTY_PRODUCTS = [];
+
 const ProductListPage = () => {
   const navigate = useNavigate();
   // ! --- REACT QUERY API CALLS ---
@@ -203,14 +205,14 @@ const ProductListPage = () => {
     setSelectedProductIds(new Set());
   };
 
-  const handleStatusFilterChange = (e) => {
-    setStatusFilter(e.target.value);
+  const handleStatusFilterChange = (value) => {
+    setStatusFilter(value);
     setCurrentPage(1);
     setSelectedProductIds(new Set());
   };
 
-  const handleCategoryFilterChange = (e) => {
-    setCategoryFilter(e.target.value);
+  const handleCategoryFilterChange = (value) => {
+    setCategoryFilter(value);
     setCurrentPage(1);
     setSelectedProductIds(new Set());
   };
@@ -355,6 +357,22 @@ const ProductListPage = () => {
     setRestoreProductId(null);
   };
 
+  const statusFilterOptions = [
+    { value: "active", label: "Active Products" },
+    { value: "archived", label: "Archived Products" },
+    { value: "low-stock", label: "Low Stock Products" },
+    { value: "out-of-stock", label: "Out of Stock Products" },
+    { value: "all", label: "All Products" },
+  ];
+
+  const categoryFilterOptions = [
+    { value: "all", label: "All Categories" },
+    ...categories.map((category) => ({
+      value: category,
+      label: category,
+    })),
+  ];
+
   // *============================================================
   // *RENDER
   // *============================================================
@@ -385,7 +403,6 @@ const ProductListPage = () => {
       </div>
 
       {/*  TOOLBAR */}
-
       <div className="bg-white rounded shadow-md p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {/* Search */}
@@ -402,38 +419,22 @@ const ProductListPage = () => {
           </div>
 
           {/* Status */}
-          <select
+          <FilterDropdown
             value={statusFilter}
             onChange={handleStatusFilterChange}
-            className="px-3 py-2 rounded border border-sharkLight-100 bg-white focus:outline-none focus:ring-2 focus:ring-sharkLight-400"
-          >
-            <option value="active">Active Products</option>
-            <option value="archived">Archived Products</option>
-            <option value="low-stock">Low Stock Products</option>
-            <option value="out-of-stock">Out of Stock Products</option>
-
-            <option value="all">All Products</option>
-          </select>
+            options={statusFilterOptions}
+          />
 
           {/* Category */}
-          <select
+          <FilterDropdown
             value={categoryFilter}
             onChange={handleCategoryFilterChange}
-            className="px-3 py-2 rounded border border-sharkLight-100 bg-white focus:outline-none focus:ring-2 focus:ring-sharkLight-400"
-          >
-            <option value="all">All Categories</option>
-
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+            options={categoryFilterOptions}
+          />
         </div>
       </div>
 
       {/* SUMMARY */}
-
       {!isGettingProducts && !isProductsError && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <div className="bg-white rounded shadow-sm p-4">

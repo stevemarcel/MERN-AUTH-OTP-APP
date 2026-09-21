@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { FaCaretDown } from "react-icons/fa";
 
-const SearchFilterDropdown = ({ searchFilter, setSearchFilter, options }) => {
+const FilterDropdown = ({ value, onChange, options }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -21,39 +21,33 @@ const SearchFilterDropdown = ({ searchFilter, setSearchFilter, options }) => {
     };
   }, []);
 
-  const handleOptionClick = (value) => {
-    setSearchFilter(value);
+  const selectedOption = options.find((option) => option.value === value);
+
+  const currentLabel = selectedOption?.label || "Select";
+
+  const handleOptionClick = (optionValue) => {
+    onChange(optionValue);
     setIsOpen(false);
   };
 
-  // Selected option
-  const selectedOption = options.find((option) => option.value === searchFilter);
-
-  const currentLabel = selectedOption?.label || "Select Filter";
-  const currentIcon = selectedOption?.icon;
-
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative w-full" ref={dropdownRef}>
       {/* Trigger */}
       <button
         type="button"
         className="
           flex
           items-center
-          justify-center
-          md:justify-between
+          justify-between
           gap-2
-          w-16
-          md:w-40
+          w-full
           px-3
-          md:px-4
-          py-3
-          md:py-2.5
+          py-2.5
           bg-shark
           text-light
           text-sm
           font-medium
-          rounded
+          rounded-md
           shadow-sm
           hover:bg-sharkDark-100
           hover:shadow-md
@@ -68,18 +62,13 @@ const SearchFilterDropdown = ({ searchFilter, setSearchFilter, options }) => {
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
-        <div className="flex items-center gap-3 truncate">
-          {/* Icon */}
-          {currentIcon && <span className="text-base flex-shrink-0">{currentIcon}</span>}
+        <span className="truncate">{currentLabel}</span>
 
-          {/* Label - hidden on mobile */}
-          <span className="hidden md:inline-block truncate">{currentLabel}</span>
-        </div>
-        {/* Caret */}
         <FaCaretDown
           className={`
             ml-1
             text-xs
+            flex-shrink-0
             transition-transform
             duration-200
             ${isOpen ? "rotate-180" : "rotate-0"}
@@ -94,14 +83,13 @@ const SearchFilterDropdown = ({ searchFilter, setSearchFilter, options }) => {
             absolute
             top-full
             left-0
-            md:left-0
-            mt-1
-            w-40
+            mt-3
+            w-full
             z-[110]
             bg-light
             border
             border-sharkLight-200
-            rounded
+            rounded-md
             shadow-xl
             overflow-hidden
             py-1
@@ -109,7 +97,7 @@ const SearchFilterDropdown = ({ searchFilter, setSearchFilter, options }) => {
         >
           <ul role="listbox">
             {options.map((option) => {
-              const isSelected = searchFilter === option.value;
+              const isSelected = value === option.value;
 
               return (
                 <li
@@ -121,22 +109,17 @@ const SearchFilterDropdown = ({ searchFilter, setSearchFilter, options }) => {
                     px-4
                     py-2.5
                     cursor-pointer
-                    flex
-                    items-center
-                    gap-3
                     text-sm
                     transition-colors
                     duration-150
                     ${
                       isSelected
-                        ? "pl-6 font-medium bg-shark text-light"
-                        : "text-shark hover:bg-sharkLight-100 hover:text-shark"
+                        ? "bg-sharkLight-100 border-l-4 border-shark font-medium text-shark"
+                        : "text-shark hover:bg-sharkLight-100"
                     }
                   `}
                 >
-                  {option.icon && <span className="text-base flex-shrink-0">{option.icon}</span>}
-
-                  <span>{option.label}</span>
+                  {option.label}
                 </li>
               );
             })}
@@ -147,16 +130,17 @@ const SearchFilterDropdown = ({ searchFilter, setSearchFilter, options }) => {
   );
 };
 
-SearchFilterDropdown.propTypes = {
-  searchFilter: PropTypes.string.isRequired,
-  setSearchFilter: PropTypes.func.isRequired,
+FilterDropdown.propTypes = {
+  value: PropTypes.string.isRequired,
+
+  onChange: PropTypes.func.isRequired,
+
   options: PropTypes.arrayOf(
     PropTypes.shape({
       value: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
-      icon: PropTypes.element,
     }),
   ).isRequired,
 };
 
-export default SearchFilterDropdown;
+export default FilterDropdown;
