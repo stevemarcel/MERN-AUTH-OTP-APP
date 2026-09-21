@@ -5,7 +5,7 @@ import { setCredentials, setOTPData } from "../slices/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../components/Loader";
 import ConfirmEmailPageImg from "../assets/svg/confirmEmailPageImg.svg";
-import { FaCheckCircle, FaLock } from "react-icons/fa";
+import { FaCheckCircle, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "react-toastify";
 import CountdownTimer from "../components/CountdownTimer";
 
@@ -15,6 +15,10 @@ const ResetPasswordPage = () => {
 
   const [OTP, setOTP] = useState("");
   const [mode, setMode] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showOTP, setShowOTP] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -84,6 +88,9 @@ const ResetPasswordPage = () => {
 
         setPassword("");
         setConfirmPassword("");
+        setShowPassword(false);
+        setShowConfirmPassword(false);
+        setShowOTP(false);
         setMode("");
 
         navigate("/profile");
@@ -118,26 +125,148 @@ const ResetPasswordPage = () => {
                 <label htmlFor="password" className="font-medium text-xs">
                   New Password
                 </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 rounded-md border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="
+                      w-full
+                      px-3
+                      py-2
+                      pr-10
+                      rounded-md
+                      border
+                      border-sharkLight-100
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-sharkLight-400
+                      focus:ring-opacity-50
+                    "
+                  />
+
+                  {/* Show / Hide New Password Control */}
+                  <div className="group absolute right-3 top-1/2 -translate-y-1/2">
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="
+                        flex
+                        items-center
+                        justify-center
+                        text-sharkLight-300
+                        hover:text-shark
+                        transition-colors
+                        duration-200
+                        focus:outline-none
+                      "
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+
+                    {/* Tooltip for new password visibility control */}
+                    <span
+                      className="
+                        absolute
+                        bottom-full
+                        right-0
+                        mb-2
+                        px-2
+                        py-1
+                        text-xs
+                        text-white
+                        bg-sharkDark-300
+                        rounded-md
+                        opacity-0
+                        group-hover:opacity-100
+                        transition-opacity
+                        duration-300
+                        whitespace-nowrap
+                        z-10
+                        pointer-events-none
+                      "
+                    >
+                      {showPassword ? "Hide password" : "Show password"}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <div className=" flex flex-col gap-1 mb-5 md:mb-3">
                 <label htmlFor="confirmPassword" className="font-medium text-xs">
                   Confirm New Password
                 </label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-3 py-2 rounded-md border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
-                />
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="
+                      w-full
+                      px-3
+                      py-2
+                      pr-10
+                      rounded-md
+                      border
+                      border-sharkLight-100
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-sharkLight-400
+                      focus:ring-opacity-50
+                    "
+                  />
+
+                  {/* Show / Hide Confirm New Password Control */}
+                  <div className="group absolute right-3 top-1/2 -translate-y-1/2">
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      className="
+                        flex
+                        items-center
+                        justify-center
+                        text-sharkLight-300
+                        hover:text-shark
+                        transition-colors
+                        duration-200
+                        focus:outline-none
+                      "
+                      aria-label={
+                        showConfirmPassword ? "Hide confirm password" : "Show confirm password"
+                      }
+                    >
+                      {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+
+                    {/* Tooltip for confirm new password visibility control */}
+                    <span
+                      className="
+                        absolute
+                        bottom-full
+                        right-0
+                        mb-2
+                        px-2
+                        py-1
+                        text-xs
+                        text-white
+                        bg-sharkDark-300
+                        rounded-md
+                        opacity-0
+                        group-hover:opacity-100
+                        transition-opacity
+                        duration-300
+                        whitespace-nowrap
+                        z-10
+                        pointer-events-none
+                      "
+                    >
+                      {showConfirmPassword ? "Hide password" : "Show password"}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
@@ -155,14 +284,75 @@ const ResetPasswordPage = () => {
               </div>
               <div className="flex justify-center">
                 <div className="flex flex-col gap-1 mb-2 md:mb-3 w-full">
-                  <input
-                    type="password"
-                    name="OTP"
-                    value={OTP}
-                    placeholder="Enter 4 digit OTP"
-                    onChange={(e) => setOTP(e.target.value)}
-                    className="max-w-48 px-3 py-2 rounded-md bg-sharkLight-100/50 border border-sharkLight-100 focus:outline-none focus:ring-2 focus:ring-sharkLight-400 focus:ring-opacity-50"
-                  />
+                  <div className="relative w-full max-w-48">
+                    <input
+                      type={showOTP ? "text" : "password"}
+                      name="OTP"
+                      value={OTP}
+                      placeholder="Enter 4 digit OTP"
+                      onChange={(e) => setOTP(e.target.value)}
+                      className="
+                        w-full
+                        px-3
+                        py-2
+                        pr-10
+                        rounded-md
+                        bg-sharkLight-100/50
+                        border
+                        border-sharkLight-100
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-sharkLight-400
+                        focus:ring-opacity-50
+                      "
+                    />
+
+                    {/* Show / Hide OTP Control */}
+                    <div className="group absolute right-3 top-1/2 -translate-y-1/2">
+                      <button
+                        type="button"
+                        onClick={() => setShowOTP((prev) => !prev)}
+                        className="
+                          flex
+                          items-center
+                          justify-center
+                          text-sharkLight-300
+                          hover:text-shark
+                          transition-colors
+                          duration-200
+                          focus:outline-none
+                        "
+                        aria-label={showOTP ? "Hide OTP" : "Show OTP"}
+                      >
+                        {showOTP ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+
+                      {/* Tooltip for OTP visibility control */}
+                      <span
+                        className="
+                          absolute
+                          bottom-full
+                          right-0
+                          mb-2
+                          px-2
+                          py-1
+                          text-xs
+                          text-white
+                          bg-sharkDark-300
+                          rounded-md
+                          opacity-0
+                          group-hover:opacity-100
+                          transition-opacity
+                          duration-300
+                          whitespace-nowrap
+                          z-10
+                          pointer-events-none
+                        "
+                      >
+                        {showOTP ? "Hide OTP" : "Show OTP"}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </>

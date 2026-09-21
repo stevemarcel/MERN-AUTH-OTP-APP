@@ -18,12 +18,21 @@ import {
 import {
   FaUsers,
   FaCheckCircle,
-  FaUserShield,
+  // FaUserShield,
   FaUserPlus,
   FaBoxOpen,
   FaExclamationTriangle,
-  FaTimesCircle,
+  // FaTimesCircle,
   FaBoxes,
+  FaArrowUp,
+  FaArrowDown,
+  FaExchangeAlt,
+  FaPlus,
+  FaEdit,
+  FaArchive,
+  FaUndo,
+  FaUserCog,
+  FaShieldAlt,
 } from "react-icons/fa";
 
 import Loader from "../Loader";
@@ -34,7 +43,10 @@ import { getProfileImageUrl } from "../../utils/profileImageUrl";
 
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "";
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AF19FF", "#FF1942"];
+/* ================================================================
+  CHART COLOURS
+================================================================ */
+// const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AF19FF", "#FF1942"];
 
 const INVENTORY_STATUS_CONFIG = {
   in_stock: {
@@ -53,11 +65,16 @@ const INVENTORY_STATUS_CONFIG = {
   },
 };
 
+/* ================================================================
+  SHARED CHART TOOLTIP
+================================================================ */
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="p-2 bg-white border border-gray-300 rounded shadow-md text-shark text-sm">
-        <p className="font-semibold">{`${payload[0].name}: ${payload[0].value}`}</p>
+      <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-lg">
+        <p className="text-sm font-semibold text-slate-800">
+          {payload[0].name}: {payload[0].value}
+        </p>
       </div>
     );
   }
@@ -70,6 +87,226 @@ CustomTooltip.propTypes = {
   payload: PropTypes.array,
 };
 
+/* ================================================================
+  ACTIVITY CONFIGURATION
+  Keeping the visual treatment in one place makes the activity
+  sections easier to maintain and extend.
+================================================================ */
+
+/* ---------------------------
+  USER ACTIVITY
+---------------------------- */
+const USER_ACTIVITY_CONFIG = {
+  registered: {
+    label: "Registered",
+    icon: FaUserPlus,
+    iconClass: "bg-blue-50 text-blue-600",
+    badgeClass: "bg-blue-50 text-blue-700",
+  },
+
+  profile_updated: {
+    label: "Profile Updated",
+    icon: FaEdit,
+    iconClass: "bg-slate-100 text-slate-600",
+    badgeClass: "bg-slate-100 text-slate-700",
+  },
+
+  profile_picture_updated: {
+    label: "Photo Updated",
+    icon: FaEdit,
+    iconClass: "bg-purple-50 text-purple-600",
+    badgeClass: "bg-purple-50 text-purple-700",
+  },
+
+  email_verified: {
+    label: "Email Verified",
+    icon: FaCheckCircle,
+    iconClass: "bg-green-50 text-green-600",
+    badgeClass: "bg-green-50 text-green-700",
+  },
+
+  password_changed: {
+    label: "Password Changed",
+    icon: FaShieldAlt,
+    iconClass: "bg-orange-50 text-orange-600",
+    badgeClass: "bg-orange-50 text-orange-700",
+  },
+
+  admin_updated: {
+    label: "Access Updated",
+    icon: FaUserCog,
+    iconClass: "bg-indigo-50 text-indigo-600",
+    badgeClass: "bg-indigo-50 text-indigo-700",
+  },
+
+  removed: {
+    label: "User Removed",
+    icon: FaArchive,
+    iconClass: "bg-red-50 text-red-600",
+    badgeClass: "bg-red-50 text-red-700",
+  },
+
+  restored: {
+    label: "User Restored",
+    icon: FaUndo,
+    iconClass: "bg-green-50 text-green-600",
+    badgeClass: "bg-green-50 text-green-700",
+  },
+
+  deleted: {
+    label: "User Deleted",
+    icon: FaArchive,
+    iconClass: "bg-red-50 text-red-600",
+    badgeClass: "bg-red-50 text-red-700",
+  },
+};
+
+/* ---------------------------
+  PRODUCT ACTIVITY
+---------------------------- */
+const PRODUCT_ACTIVITY_CONFIG = {
+  product_created: {
+    label: "Product Created",
+    icon: FaPlus,
+    iconClass: "bg-blue-50 text-blue-600",
+    badgeClass: "bg-blue-50 text-blue-700",
+  },
+
+  product_updated: {
+    label: "Product Updated",
+    icon: FaEdit,
+    iconClass: "bg-slate-100 text-slate-600",
+    badgeClass: "bg-slate-100 text-slate-700",
+  },
+
+  product_archived: {
+    label: "Product Archived",
+    icon: FaArchive,
+    iconClass: "bg-red-50 text-red-600",
+    badgeClass: "bg-red-50 text-red-700",
+  },
+
+  product_restored: {
+    label: "Product Restored",
+    icon: FaUndo,
+    iconClass: "bg-green-50 text-green-600",
+    badgeClass: "bg-green-50 text-green-700",
+  },
+};
+
+/* ---------------------------
+  INVENTORY ACTIVITY
+---------------------------- */
+const INVENTORY_ACTIVITY_CONFIG = {
+  stock_received: {
+    label: "Stock Received",
+    icon: FaArrowUp,
+    iconClass: "bg-green-50 text-green-600",
+    badgeClass: "bg-green-50 text-green-700",
+    quantityPrefix: "+",
+  },
+
+  stock_added: {
+    label: "Stock Added",
+    icon: FaArrowUp,
+    iconClass: "bg-green-50 text-green-600",
+    badgeClass: "bg-green-50 text-green-700",
+    quantityPrefix: "+",
+  },
+
+  stock_removed: {
+    label: "Stock Removed",
+    icon: FaArrowDown,
+    iconClass: "bg-red-50 text-red-600",
+    badgeClass: "bg-red-50 text-red-700",
+    quantityPrefix: "-",
+  },
+
+  stock_adjusted: {
+    label: "Stock Adjusted",
+    icon: FaExchangeAlt,
+    iconClass: "bg-orange-50 text-orange-600",
+    badgeClass: "bg-orange-50 text-orange-700",
+    quantityPrefix: "±",
+  },
+
+  stock_damaged: {
+    label: "Stock Damaged",
+    icon: FaArrowDown,
+    iconClass: "bg-red-50 text-red-600",
+    badgeClass: "bg-red-50 text-red-700",
+    quantityPrefix: "-",
+  },
+
+  stock_returned: {
+    label: "Stock Returned",
+    icon: FaArrowUp,
+    iconClass: "bg-green-50 text-green-600",
+    badgeClass: "bg-green-50 text-green-700",
+    quantityPrefix: "+",
+  },
+};
+
+/* ================================================================
+  HELPER COMPONENTS
+================================================================ */
+
+/* ---------------------------
+  SECTION HEADER
+---------------------------- */
+const SectionHeader = ({ eyebrow, title, actionText, onAction }) => (
+  <div className="flex items-end justify-between gap-4 mb-4">
+    <div>
+      {eyebrow && (
+        <p className="text-[11px] uppercase tracking-wider font-semibold text-slate-400">
+          {eyebrow}
+        </p>
+      )}
+
+      <h3 className="text-lg sm:text-xl font-bold text-slate-900 mt-0.5">{title}</h3>
+    </div>
+
+    {actionText && (
+      <button
+        type="button"
+        onClick={onAction}
+        className="text-xs sm:text-sm font-semibold text-shark hover:text-sharkDark-300 hover:underline whitespace-nowrap"
+      >
+        {actionText}
+      </button>
+    )}
+  </div>
+);
+
+SectionHeader.propTypes = {
+  eyebrow: PropTypes.string,
+  title: PropTypes.string.isRequired,
+  actionText: PropTypes.string,
+  onAction: PropTypes.func,
+};
+
+/* ---------------------------
+  ACTIVITY EMPTY STATE
+---------------------------- */
+const ActivityEmptyState = ({ message }) => (
+  <div className="flex flex-col items-center justify-center min-h-[250px] text-center px-4">
+    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+      <FaBoxes className="text-slate-300 text-xl" />
+    </div>
+
+    <p className="text-sm font-medium text-slate-600">{message}</p>
+
+    <p className="text-xs text-slate-400 mt-1">New activity will appear here.</p>
+  </div>
+);
+
+ActivityEmptyState.propTypes = {
+  message: PropTypes.string.isRequired,
+};
+
+/* ================================================================
+  MAIN DASHBOARD
+================================================================ */
 const AdminDashboardOverview = () => {
   const navigate = useNavigate();
 
@@ -77,6 +314,9 @@ const AdminDashboardOverview = () => {
     refetchOnMountOrArgChange: true,
   });
 
+  /* ================================================================
+    LOADING STATE
+  ================================================================ */
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -87,47 +327,66 @@ const AdminDashboardOverview = () => {
     );
   }
 
+  /* ================================================================
+    ERROR STATE
+  ================================================================ */
   if (isError) {
     return (
-      <div className="text-center text-red-600 p-4">
-        <p className="font-semibold">Error loading dashboard data.</p>
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="w-full max-w-md rounded-xl border border-red-200 bg-red-50 p-6 text-center">
+          <p className="font-semibold text-red-700">Error loading dashboard data.</p>
 
-        <p className="text-sm mt-2">
-          {error?.data?.message || error?.error || "Please try again."}
-        </p>
+          <p className="text-sm text-red-600 mt-2">
+            {error?.data?.message || error?.error || "Please try again."}
+          </p>
+        </div>
       </div>
     );
   }
 
+  /* ================================================================
+    API DATA
+  ================================================================ */
   const users = data?.users || {};
   const products = data?.products || {};
   const inventory = data?.inventory || {};
 
   const registrationTrend = data?.registrationTrend || [];
-
-  const verificationStatus = data?.verificationStatus || [];
-
-  const registrationSource = data?.registrationSource || [];
-
+  // const verificationStatus = data?.verificationStatus || [];
+  // const registrationSource = data?.registrationSource || [];
   const stockStatus = data?.stockStatus || [];
 
   const lowStockProducts = data?.lowStockProducts || [];
 
   const recentUserActivities = data?.recentUserActivities || [];
 
+  // The dashboard API should expose this array for the new
+  // Product Activity section.
+  const recentProductActivities = data?.recentProductActivities || [];
+
   const recentInventoryActivities = data?.recentInventoryActivities || [];
 
-  const inventoryStatusChartData = Object.entries(INVENTORY_STATUS_CONFIG).map(([key, config]) => {
-    const item = stockStatus.find((entry) => entry.status === key);
+  /* ================================================================
+    INVENTORY CHART DATA
+    Zero-value categories are removed from the actual pie so the
+    chart doesn't render empty slices or labels.
+  ================================================================ */
+  const inventoryStatusChartData = Object.entries(INVENTORY_STATUS_CONFIG)
+    .map(([key, config]) => {
+      const item = stockStatus.find((entry) => entry.status === key);
 
-    return {
-      key,
-      name: config.name,
-      count: item?.count || 0,
-      fill: config.color,
-    };
-  });
+      return {
+        key,
+        name: config.name,
+        count: item?.count || 0,
+        fill: config.color,
+      };
+    })
+    .filter((entry) => entry.count > 0);
 
+  /* ================================================================
+    FORMATTERS
+  ================================================================ */
   const formatCurrency = (value) => {
     return new Intl.NumberFormat("en-NG", {
       style: "currency",
@@ -147,479 +406,648 @@ const AdminDashboardOverview = () => {
     }).format(new Date(date));
   };
 
-  const getInventoryActivityLabel = (action) => {
-    const labels = {
-      stock_received: "Stock Received",
-      stock_added: "Stock Added",
-      stock_removed: "Stock Removed",
-      stock_adjusted: "Stock Adjusted",
-      stock_damaged: "Stock Damaged",
-      stock_returned: "Stock Returned",
-    };
+  /* ================================================================
+    ACTIVITY HELPERS
+  ================================================================ */
 
-    return labels[action] || action;
+  const getUserActivityConfig = (action) => {
+    return (
+      USER_ACTIVITY_CONFIG[action] || {
+        label: action?.replaceAll("_", " ") || "Activity",
+        icon: FaUsers,
+        iconClass: "bg-slate-100 text-slate-600",
+        badgeClass: "bg-slate-100 text-slate-700",
+      }
+    );
   };
 
-  const getInventoryActivityClass = (action) => {
-    if (action === "stock_added" || action === "stock_received" || action === "stock_returned") {
-      return "text-green-700";
-    }
+  const getProductActivityConfig = (action) => {
+    return (
+      PRODUCT_ACTIVITY_CONFIG[action] || {
+        label: action?.replaceAll("_", " ") || "Activity",
+        icon: FaBoxOpen,
+        iconClass: "bg-slate-100 text-slate-600",
+        badgeClass: "bg-slate-100 text-slate-700",
+      }
+    );
+  };
 
-    if (action === "stock_removed" || action === "stock_damaged") {
-      return "text-red-700";
-    }
-
-    return "text-shark";
+  const getInventoryActivityConfig = (action) => {
+    return (
+      INVENTORY_ACTIVITY_CONFIG[action] || {
+        label: action?.replaceAll("_", " ") || "Activity",
+        icon: FaBoxes,
+        iconClass: "bg-slate-100 text-slate-600",
+        badgeClass: "bg-slate-100 text-slate-700",
+        quantityPrefix: "±",
+      }
+    );
   };
 
   return (
-    <div className="p-4 bg-white rounded shadow-md text-shark">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Dashboard Overview</h2>
-      </div>
-
-      {/* ======================================================
-          USER SUMMARY
-      ======================================================= */}
-
-      <h3 className="text-sm uppercase font-semibold text-sharkLight-300 mb-3">Users</h3>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {/* Total Users */}
-        <div className="bg-blue-100 p-5 rounded-lg shadow-sm flex items-center justify-between">
+    <div className="min-h-full bg-slate-50 text-slate-900">
+      <div className="p-4 sm:p-5 lg:p-6 max-w-[1600px] mx-auto">
+        {/* ==========================================================
+            PAGE HEADER
+        =========================================================== */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
           <div>
-            <h4 className="text-sm font-semibold text-blue-800">Total Users</h4>
+            <p className="text-xs uppercase tracking-widest font-semibold text-slate-400">
+              Administration
+            </p>
 
-            <p className="text-3xl font-bold text-blue-900">{users.totalUsers || 0}</p>
-          </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">
+              Dashboard Overview
+            </h2>
 
-          <FaUsers className="text-blue-600 text-4xl" />
-        </div>
-
-        {/* New This Month */}
-        <div className="bg-orange-100 p-5 rounded-lg shadow-sm flex items-center justify-between">
-          <div>
-            <h4 className="text-sm font-semibold text-orange-800">New This Month</h4>
-
-            <p className="text-3xl font-bold text-orange-900">{users.newUsersThisMonth || 0}</p>
-          </div>
-
-          <FaUserPlus className="text-orange-600 text-4xl" />
-        </div>
-
-        {/* Verified */}
-        <div className="bg-green-100 p-5 rounded-lg shadow-sm flex items-center justify-between">
-          <div>
-            <h4 className="text-sm font-semibold text-green-800">Verified Users</h4>
-
-            <p className="text-3xl font-bold text-green-900">{users.verifiedUsers || 0}</p>
-          </div>
-
-          <FaCheckCircle className="text-green-600 text-4xl" />
-        </div>
-
-        {/* Admin */}
-        <div className="bg-purple-100 p-5 rounded-lg shadow-sm flex items-center justify-between">
-          <div>
-            <h4 className="text-sm font-semibold text-purple-800">Admin Users</h4>
-
-            <p className="text-3xl font-bold text-purple-900">{users.adminUsers || 0}</p>
-          </div>
-
-          <FaUserShield className="text-purple-600 text-4xl" />
-        </div>
-      </div>
-
-      {/* ======================================================
-          PRODUCT / INVENTORY SUMMARY
-      ======================================================= */}
-
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm uppercase font-semibold text-sharkLight-300">
-          Products & Inventory
-        </h3>
-
-        <button
-          type="button"
-          onClick={() => navigate("/admin/inventory")}
-          className="text-sm font-semibold text-shark hover:underline"
-        >
-          View Inventory
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {/* Active Products */}
-        <div className="bg-sharkLight-100 p-5 rounded-lg shadow-sm flex items-center justify-between">
-          <div>
-            <h4 className="text-sm font-semibold">Active Products</h4>
-
-            <p className="text-3xl font-bold mt-1">{products.active || 0}</p>
-          </div>
-
-          <FaBoxOpen className="text-4xl" />
-        </div>
-
-        {/* Low Stock */}
-        <div className="bg-orange-100 p-5 rounded-lg shadow-sm flex items-center justify-between">
-          <div>
-            <h4 className="text-sm font-semibold text-orange-800">Low Stock</h4>
-
-            <p className="text-3xl font-bold text-orange-900">{products.lowStock || 0}</p>
-          </div>
-
-          <FaExclamationTriangle className="text-orange-600 text-4xl" />
-        </div>
-
-        {/* Out of Stock */}
-        <div className="bg-red-100 p-5 rounded-lg shadow-sm flex items-center justify-between">
-          <div>
-            <h4 className="text-sm font-semibold text-red-800">Out of Stock</h4>
-
-            <p className="text-3xl font-bold text-red-900">{products.outOfStock || 0}</p>
-          </div>
-
-          <FaTimesCircle className="text-red-600 text-4xl" />
-        </div>
-
-        {/* Inventory Value */}
-        <div className="bg-green-100 p-5 rounded-lg shadow-sm flex items-center justify-between">
-          <div>
-            <h4 className="text-sm font-semibold text-green-800">Inventory Value</h4>
-
-            <p className="text-xl font-bold text-green-900 mt-1">
-              {formatCurrency(inventory.totalInventoryValue)}
+            <p className="text-sm text-slate-500 mt-1">
+              Monitor your users, products and inventory from one place.
             </p>
           </div>
-
-          <FaBoxes className="text-green-600 text-4xl" />
-        </div>
-      </div>
-
-      {/* ======================================================
-          REGISTRATION TREND
-      ======================================================= */}
-
-      <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm mb-6">
-        <h3 className="text-xl font-semibold mb-4">User Registration Trend</h3>
-
-        <div className="w-full h-[280px] sm:h-[350px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={registrationTrend}>
-              <CartesianGrid strokeDasharray="3 3" />
-
-              <XAxis dataKey="month" />
-
-              <YAxis allowDecimals={false} />
-
-              <Tooltip />
-
-              <Line
-                type="monotone"
-                dataKey="users"
-                stroke="#0088FE"
-                strokeWidth={3}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* ======================================================
-          USER CHARTS
-      ======================================================= */}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {verificationStatus.length > 0 && (
-          <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm">
-            <h3 className="text-xl font-semibold mb-4 text-center">User Verification Status</h3>
-
-            <div className="w-full h-[260px] sm:h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={verificationStatus}
-                    cx="50%"
-                    cy="45%"
-                    outerRadius="65%"
-                    dataKey="value"
-                    labelLine={false}
-                  >
-                    {verificationStatus.map((entry, index) => (
-                      <Cell key={`verification-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-
-                  <Tooltip content={<CustomTooltip />} />
-
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        )}
-
-        {registrationSource.length > 0 && (
-          <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm">
-            <h3 className="text-xl font-semibold mb-4 text-center">Registration Source</h3>
-
-            <div className="w-full h-[260px] sm:h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={registrationSource}
-                    cx="50%"
-                    cy="45%"
-                    outerRadius="65%"
-                    dataKey="value"
-                  >
-                    {registrationSource.map((entry, index) => (
-                      <Cell key={`source-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
-                    ))}
-                  </Pie>
-
-                  <Tooltip content={<CustomTooltip />} />
-
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ======================================================
-          INVENTORY STATUS + LOW STOCK
-      ======================================================= */}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Stock Status */}
-        <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Inventory Status</h3>
-
-            <button
-              type="button"
-              onClick={() => navigate("/admin/inventory")}
-              className="text-sm font-semibold hover:underline"
-            >
-              Manage
-            </button>
-          </div>
-
-          {stockStatus.length === 0 ? (
-            <div className="text-center text-sharkLight-300 py-8">No inventory data available.</div>
-          ) : (
-            <div className="w-full h-[280px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={inventoryStatusChartData}
-                    cx="50%"
-                    cy="45%"
-                    outerRadius="65%"
-                    dataKey="count"
-                    nameKey="name"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${Math.round(percent * 100)}%`}
-                  >
-                    {inventoryStatusChartData.map((entry) => (
-                      <Cell key={entry.key} fill={entry.fill} />
-                    ))}
-                  </Pie>
-
-                  <Tooltip formatter={(value, name) => [value, name]} />
-
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          )}
         </div>
 
-        {/* Low Stock Products */}
-        <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Low Stock Products</h3>
+        {/* ==========================================================
+            KEY METRICS
+        =========================================================== */}
+        <section className="mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            {/* Total Users */}
+            <div className="bg-white border border-slate-200 rounded-xl p-5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    Users
+                  </p>
 
-            <button
-              type="button"
-              onClick={() => navigate("/admin/inventory")}
-              className="text-sm font-semibold hover:underline"
-            >
-              View All
-            </button>
-          </div>
+                  <p className="text-3xl font-bold mt-2 text-slate-900">{users.totalUsers || 0}</p>
 
-          {lowStockProducts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 text-center">
-              <FaCheckCircle className="text-4xl text-green-600 mb-3" />
-
-              <p className="font-semibold">No low-stock products</p>
-
-              <p className="text-sm text-sharkLight-300 mt-1">Inventory levels look good.</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-200">
-              {lowStockProducts.map((product) => (
-                <div key={product._id} className="flex items-center justify-between py-3 gap-3">
-                  <div className="flex items-center min-w-0">
-                    <div className="w-10 h-10 rounded-md overflow-hidden bg-sharkLight-100 flex items-center justify-center flex-shrink-0">
-                      {product.productImage ? (
-                        <img
-                          src={product.productImage}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <FaBoxOpen className="text-sharkLight-300" />
-                      )}
-                    </div>
-
-                    <div className="ml-3 min-w-0">
-                      <p className="font-medium truncate">{product.name}</p>
-
-                      <p className="text-xs text-sharkLight-300">{product.sku}</p>
-                    </div>
-                  </div>
-
-                  <div className="text-right flex-shrink-0">
-                    <p className="font-bold text-orange-600">
-                      {product.stockQuantity} {product.unit}
-                    </p>
-
-                    <p className="text-xs text-sharkLight-300">
-                      Alert at {product.lowStockThreshold}
-                    </p>
-                  </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {users.newUsersThisMonth || 0} new this month
+                  </p>
                 </div>
-              ))}
+
+                <div className="w-11 h-11 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <FaUsers className="text-blue-600 text-lg" />
+                </div>
+              </div>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* ======================================================
-          RECENT INVENTORY ACTIVITY
-      ======================================================= */}
+            {/* Active Products */}
+            <div className="bg-white border border-slate-200 rounded-xl p-5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    Active Products
+                  </p>
 
-      <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold">Recent Inventory Activity</h3>
+                  <p className="text-3xl font-bold mt-2 text-slate-900">{products.active || 0}</p>
 
-          <button
-            type="button"
-            onClick={() => navigate("/admin/inventory/activities")}
-            className="text-sm font-semibold hover:underline"
-          >
-            View All
-          </button>
-        </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {products.total || products.active || 0} total products
+                  </p>
+                </div>
 
-        {recentInventoryActivities.length === 0 ? (
-          <div className="text-center text-sharkLight-300 py-6">No recent inventory activity.</div>
-        ) : (
-          <div className="divide-y divide-gray-200">
-            {recentInventoryActivities.map((activity) => (
-              <div
-                key={activity._id}
-                className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 gap-2"
-              >
+                <div className="w-11 h-11 rounded-lg bg-slate-100 flex items-center justify-center">
+                  <FaBoxOpen className="text-slate-700 text-lg" />
+                </div>
+              </div>
+            </div>
+
+            {/* Low Stock */}
+            <div className="bg-white border border-slate-200 rounded-xl p-5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    Low Stock
+                  </p>
+
+                  <p className="text-3xl font-bold mt-2 text-slate-900">{products.lowStock || 0}</p>
+
+                  <p className="text-xs text-slate-500 mt-1">
+                    {products.outOfStock || 0} currently out of stock
+                  </p>
+                </div>
+
+                <div className="w-11 h-11 rounded-lg bg-orange-50 flex items-center justify-center">
+                  <FaExclamationTriangle className="text-orange-600 text-lg" />
+                </div>
+              </div>
+            </div>
+
+            {/* Inventory Value */}
+            <div className="bg-white border border-slate-200 rounded-xl p-5">
+              <div className="flex items-start justify-between">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium">{activity.product?.name || "Product"}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    Inventory Value
+                  </p>
 
-                  <p className="text-xs text-sharkLight-300 mt-1">
-                    <span className={`font-semibold ${getInventoryActivityClass(activity.action)}`}>
-                      {getInventoryActivityLabel(activity.action)}
-                    </span>
+                  <p className="text-2xl font-bold mt-2 text-slate-900 truncate">
+                    {formatCurrency(inventory.totalInventoryValue)}
+                  </p>
 
-                    {" • "}
-
-                    {activity.reason || "No reason provided"}
+                  <p className="text-xs text-slate-500 mt-1">
+                    {inventory.totalUnits || 0} units in inventory
                   </p>
                 </div>
 
-                <div className="text-sm sm:text-right flex-shrink-0">
-                  <p className="font-semibold">
-                    {activity.action === "stock_added" ||
-                    activity.action === "stock_received" ||
-                    activity.action === "stock_returned"
-                      ? "+"
-                      : activity.action === "stock_removed" || activity.action === "stock_damaged"
-                        ? "-"
-                        : "±"}
-                    {activity.quantity}
-                  </p>
-
-                  <p className="text-xs text-sharkLight-300 mt-1">
-                    {activity.performedBy
-                      ? `${activity.performedBy.firstName} ${activity.performedBy.lastName}`
-                      : "Unknown user"}{" "}
-                    • {formatActivityDate(activity.createdAt)}
-                  </p>
+                <div className="w-11 h-11 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+                  <FaBoxes className="text-green-600 text-lg" />
                 </div>
               </div>
-            ))}
+            </div>
           </div>
-        )}
-      </div>
+        </section>
 
-      {/* ======================================================
-          RECENT USER ACTIVITY
-      ======================================================= */}
+        {/* ==========================================================
+            ANALYTICS
+        =========================================================== */}
+        <section className="mb-8">
+          <SectionHeader eyebrow="Analytics" title="Business Overview" />
 
-      <div className="bg-gray-50 p-3 sm:p-6 rounded-lg shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold">Recent User Activity</h3>
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+            {/* Registration Trend */}
+            <div className="xl:col-span-2 bg-white border border-slate-200 rounded-xl p-4 sm:p-5">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h4 className="font-semibold text-slate-900">User Registration Trend</h4>
 
-          <button
-            type="button"
-            onClick={() => navigate("/admin/users/activities")}
-            className="text-sm font-semibold hover:underline"
-          >
-            View All
-          </button>
-        </div>
+                  <p className="text-xs text-slate-400 mt-1">Monthly user registrations</p>
+                </div>
 
-        {recentUserActivities.length === 0 ? (
-          <div className="text-center text-sharkLight-300 py-6">No recent activity found.</div>
-        ) : (
-          <div className="divide-y divide-gray-200">
-            {recentUserActivities.map((activity) => (
-              <div key={activity._id} className="flex items-center justify-between py-3 gap-4">
-                <div className="flex items-center min-w-0">
-                  <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-                    <img
-                      src={getProfileImageUrl(activity.user?.profile, BACKEND_BASE_URL)}
-                      alt={
-                        activity.user
-                          ? `${activity.user.firstName} ${activity.user.lastName}`
-                          : "User"
-                      }
-                      className="w-full h-full object-cover"
+                <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <FaUsers className="text-blue-600 text-sm" />
+                </div>
+              </div>
+
+              <div className="w-full h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={registrationTrend}
+                    margin={{
+                      top: 5,
+                      right: 10,
+                      left: -15,
+                      bottom: 5,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+
+                    <XAxis
+                      dataKey="month"
+                      tick={{
+                        fontSize: 11,
+                        fill: "#94a3b8",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
                     />
-                  </div>
 
-                  <div className="ml-3 min-w-0">
-                    <p className="text-sm font-medium">{activity.description}</p>
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{
+                        fontSize: 11,
+                        fill: "#94a3b8",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
 
-                    <p className="text-xs text-sharkLight-300 mt-1">
-                      {activity.action.replaceAll("_", " ")}
-                    </p>
-                  </div>
-                </div>
+                    <Tooltip />
 
-                <div className="text-right flex-shrink-0">
-                  <p className="text-xs text-sharkLight-300">
-                    {formatActivityDate(activity.createdAt)}
-                  </p>
-                </div>
+                    <Line
+                      type="monotone"
+                      dataKey="users"
+                      stroke="#0088FE"
+                      strokeWidth={3}
+                      dot={{ r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-            ))}
+            </div>
+
+            {/* Inventory Status */}
+            <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h4 className="font-semibold text-slate-900">Inventory Status</h4>
+
+                  <p className="text-xs text-slate-400 mt-1">Current stock distribution</p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => navigate("/admin/inventory")}
+                  className="text-xs font-semibold text-shark hover:underline"
+                >
+                  View
+                </button>
+              </div>
+
+              {inventoryStatusChartData.length === 0 ? (
+                <div className="flex items-center justify-center h-[280px] text-center">
+                  <div>
+                    <FaBoxes className="text-3xl text-slate-200 mx-auto mb-3" />
+
+                    <p className="text-sm font-medium text-slate-500">No inventory data</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full h-[280px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={inventoryStatusChartData}
+                        cx="50%"
+                        cy="45%"
+                        outerRadius="65%"
+                        dataKey="count"
+                        nameKey="name"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name} ${Math.round(percent * 100)}%`}
+                      >
+                        {inventoryStatusChartData.map((entry) => (
+                          <Cell key={entry.key} fill={entry.fill} />
+                        ))}
+                      </Pie>
+
+                      <Tooltip content={<CustomTooltip />} />
+
+                      <Legend
+                        verticalAlign="bottom"
+                        height={36}
+                        wrapperStyle={{
+                          fontSize: "11px",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </section>
+
+        {/* ==========================================================
+            INVENTORY FOCUS
+        =========================================================== */}
+        <section className="mb-8">
+          <SectionHeader
+            eyebrow="Inventory"
+            title="Stock Attention"
+            actionText="Manage Inventory"
+            onAction={() => navigate("/admin/inventory")}
+          />
+
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            {lowStockProducts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-14 text-center">
+                <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mb-3">
+                  <FaCheckCircle className="text-green-600 text-xl" />
+                </div>
+
+                <p className="font-semibold text-slate-700">Inventory levels look good</p>
+
+                <p className="text-sm text-slate-400 mt-1">
+                  There are currently no low-stock products.
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {lowStockProducts.slice(0, 6).map((product) => (
+                  <div
+                    key={product._id}
+                    className="flex items-center justify-between gap-4 px-4 sm:px-5 py-3.5"
+                  >
+                    <div className="flex items-center min-w-0">
+                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center shrink-0">
+                        {product.productImage ? (
+                          <img
+                            src={product.productImage}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <FaBoxOpen className="text-slate-300" />
+                        )}
+                      </div>
+
+                      <div className="ml-3 min-w-0">
+                        <p className="font-medium text-sm text-slate-800 truncate">
+                          {product.name}
+                        </p>
+
+                        <p className="text-xs text-slate-400 truncate">{product.sku}</p>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <p className="font-bold text-sm text-orange-600">
+                        {product.stockQuantity} {product.unit}
+                      </p>
+
+                      <p className="text-[11px] text-slate-400">
+                        Alert at {product.lowStockThreshold}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {lowStockProducts.length > 6 && (
+              <div className="px-5 py-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => navigate("/admin/inventory")}
+                  className="text-xs font-semibold text-shark hover:underline"
+                >
+                  View all {lowStockProducts.length} low-stock products
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ==========================================================
+            ACTIVITY HUB
+            Three dedicated activity streams make it immediately
+            clear whether an event concerns users, products or stock.
+        =========================================================== */}
+        <section>
+          <SectionHeader eyebrow="Activity" title="Recent Activity" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* ======================================================
+                USER ACTIVITY
+            ======================================================= */}
+            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <div className="px-4 sm:px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <FaUsers className="text-blue-600 text-sm" />
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-sm text-slate-900">Users</h4>
+
+                    <p className="text-[11px] text-slate-400">Account activity</p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => navigate("/admin/users/activities")}
+                  className="text-xs font-semibold text-shark hover:underline"
+                >
+                  View all
+                </button>
+              </div>
+
+              {recentUserActivities.length === 0 ? (
+                <ActivityEmptyState message="No user activity yet" />
+              ) : (
+                <div className="divide-y divide-slate-100">
+                  {recentUserActivities.slice(0, 6).map((activity) => {
+                    const config = getUserActivityConfig(activity.action);
+
+                    const Icon = config.icon;
+
+                    return (
+                      <div key={activity._id} className="px-4 sm:px-5 py-4">
+                        <div className="flex gap-3">
+                          <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-100 shrink-0">
+                            <img
+                              src={getProfileImageUrl(activity.user?.profile, BACKEND_BASE_URL)}
+                              alt={
+                                activity.user
+                                  ? `${activity.user.firstName} ${activity.user.lastName}`
+                                  : "User"
+                              }
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <p className="text-sm font-medium text-slate-800 leading-5">
+                                {activity.description}
+                              </p>
+
+                              <div
+                                className={`w-7 h-7 rounded-full ${config.iconClass} flex items-center justify-center shrink-0`}
+                              >
+                                <Icon className="text-[11px]" />
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize ${config.badgeClass}`}
+                              >
+                                {config.label}
+                              </span>
+
+                              <span className="text-[10px] text-slate-400">
+                                {formatActivityDate(activity.createdAt)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* ======================================================
+                PRODUCT ACTIVITY
+            ======================================================= */}
+            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <div className="px-4 sm:px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center">
+                    <FaBoxOpen className="text-purple-600 text-sm" />
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-sm text-slate-900">Products</h4>
+
+                    <p className="text-[11px] text-slate-400">Catalogue activity</p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => navigate("/admin/products/activities")}
+                  className="text-xs font-semibold text-shark hover:underline"
+                >
+                  View all
+                </button>
+              </div>
+
+              {recentProductActivities.length === 0 ? (
+                <ActivityEmptyState message="No product activity yet" />
+              ) : (
+                <div className="divide-y divide-slate-100">
+                  {recentProductActivities.slice(0, 6).map((activity) => {
+                    const config = getProductActivityConfig(activity.action);
+
+                    const Icon = config.icon;
+
+                    return (
+                      <div key={activity._id} className="px-4 sm:px-5 py-4">
+                        <div className="flex gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-lg ${config.iconClass} flex items-center justify-center shrink-0`}
+                          >
+                            <Icon className="text-sm" />
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="text-sm font-semibold text-slate-800 truncate">
+                                  {activity.product?.name || "Product"}
+                                </p>
+
+                                <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+                                  {activity.product?.sku || "No SKU"}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${config.badgeClass}`}
+                              >
+                                {config.label}
+                              </span>
+
+                              {activity.changedFields?.length > 0 && (
+                                <span className="text-[10px] text-slate-400 uppercase truncate">
+                                  {activity.changedFields.slice(0, 2).join(", ")}
+                                  {activity.changedFields.length > 2 ? "..." : ""}
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="text-[10px] text-slate-400 mt-2">
+                              {activity.performedBy
+                                ? `${activity.performedBy.firstName} ${activity.performedBy.lastName}`
+                                : "Unknown user"}{" "}
+                              • {formatActivityDate(activity.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* ======================================================
+                INVENTORY ACTIVITY
+            ======================================================= */}
+            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+              <div className="px-4 sm:px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center">
+                    <FaBoxes className="text-green-600 text-sm" />
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-sm text-slate-900">Inventory</h4>
+
+                    <p className="text-[11px] text-slate-400">Stock activity</p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => navigate("/admin/inventory/activities")}
+                  className="text-xs font-semibold text-shark hover:underline"
+                >
+                  View all
+                </button>
+              </div>
+
+              {recentInventoryActivities.length === 0 ? (
+                <ActivityEmptyState message="No inventory activity yet" />
+              ) : (
+                <div className="divide-y divide-slate-100">
+                  {recentInventoryActivities.slice(0, 6).map((activity) => {
+                    const config = getInventoryActivityConfig(activity.action);
+
+                    const Icon = config.icon;
+
+                    return (
+                      <div key={activity._id} className="px-4 sm:px-5 py-4">
+                        <div className="flex gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-lg ${config.iconClass} flex items-center justify-center shrink-0`}
+                          >
+                            <Icon className="text-sm" />
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="text-sm font-semibold text-slate-800 truncate">
+                                  {activity.product?.name || "Product"}
+                                </p>
+
+                                <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+                                  {activity.reason || "No reason provided"}
+                                </p>
+                              </div>
+
+                              <p
+                                className={`text-sm font-bold shrink-0 ${
+                                  config.quantityPrefix === "-"
+                                    ? "text-red-600"
+                                    : config.quantityPrefix === "+"
+                                      ? "text-green-600"
+                                      : "text-orange-600"
+                                }`}
+                              >
+                                {config.quantityPrefix}
+                                {activity.quantity}
+                              </p>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${config.badgeClass}`}
+                              >
+                                {config.label}
+                              </span>
+
+                              <span className="text-[10px] text-slate-400">
+                                {activity.product?.sku || "No SKU"}
+                              </span>
+                            </div>
+
+                            <p className="text-[10px] text-slate-400 mt-2">
+                              {activity.performedBy
+                                ? `${activity.performedBy.firstName} ${activity.performedBy.lastName}`
+                                : "Unknown user"}{" "}
+                              • {formatActivityDate(activity.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

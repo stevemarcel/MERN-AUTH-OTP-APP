@@ -242,6 +242,30 @@ const Navbar = () => {
             justify-between
           "
         >
+          {/* Mobile Hamburger Menu */}
+          <div className="md:hidden flex items-center">
+            <button
+              type="button"
+              onClick={toggleMobileNav}
+              className="
+                w-10
+                h-10
+                flex
+                items-center
+                justify-center
+                text-xl
+                text-shark
+                rounded-md
+                hover:bg-sharkLight-100
+                transition-colors
+                duration-200
+                "
+              aria-label="Toggle navigation"
+            >
+              {mobileNavOpen ? <FaTimes /> : <FaBars />}
+            </button>
+          </div>
+
           {/* Logo */}
           <Link
             to="/"
@@ -321,18 +345,46 @@ const Navbar = () => {
               >
                 {userInfo ? (
                   <>
-                    <img
-                      src={getProfileImageUrl(userInfo.profile, BACKEND_BASE_URL)}
-                      alt="Profile Picture"
-                      className="
-                        w-7
-                        h-7
-                        rounded-full
-                        object-cover
-                        border-2
-                        border-light/30
-                      "
-                    />
+                    <span className="relative flex-shrink-0">
+                      <img
+                        src={getProfileImageUrl(userInfo.profile, BACKEND_BASE_URL)}
+                        alt="Profile Picture"
+                        className="
+                          w-7
+                          h-7
+                          rounded-full
+                          object-cover
+                          border-2
+                          border-light/30
+                        "
+                      />
+
+                      {unreadNotificationCount > 0 && (
+                        <span
+                          className="
+                            absolute
+                            -top-2
+                            -right-2
+                            min-w-5
+                            h-5
+                            px-1
+                            flex
+                            items-center
+                            justify-center
+                            rounded-full
+                            bg-red-500
+                            text-white
+                            text-[9px]
+                            font-bold
+                            leading-none
+                            border-2
+                            border-shark
+                          "
+                        >
+                          {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
+                        </span>
+                      )}
+                    </span>
 
                     <span>{userInfo.firstName}</span>
                   </>
@@ -378,8 +430,8 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Mobile Account / Menu */}
-            <div className="md:hidden flex items-center gap-2">
+            {/* Mobile Account */}
+            <div className="md:hidden flex items-center">
               {/* User Profile */}
               {userInfo && (
                 <div className="relative">
@@ -387,10 +439,10 @@ const Navbar = () => {
                     type="button"
                     className="
                       rightNavButton
+                      relative
                       w-9
                       h-9
                       rounded-full
-                      overflow-hidden
                       border-2
                       border-shark
                       focus:outline-none
@@ -400,8 +452,34 @@ const Navbar = () => {
                     <img
                       src={getProfileImageUrl(userInfo.profile, BACKEND_BASE_URL)}
                       alt="Profile Picture"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover rounded-full"
                     />
+
+                    {unreadNotificationCount > 0 && (
+                      <span
+                        className="
+                          absolute
+                          -top-2
+                          -right-2
+                          min-w-5
+                          h-5
+                          px-1
+                          flex
+                          items-center
+                          justify-center
+                          rounded-full
+                          bg-red-500
+                          text-white
+                          text-[9px]
+                          font-bold
+                          leading-none
+                          border-2
+                          border-light
+                        "
+                      >
+                        {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
+                      </span>
+                    )}
                   </button>
 
                   {showDropdown && (
@@ -427,28 +505,6 @@ const Navbar = () => {
                   )}
                 </div>
               )}
-
-              {/* Hamburger */}
-              <button
-                type="button"
-                onClick={toggleMobileNav}
-                className="
-                  w-10
-                  h-10
-                  flex
-                  items-center
-                  justify-center
-                  text-xl
-                  text-shark
-                  rounded-md
-                  hover:bg-sharkLight-100
-                  transition-colors
-                  duration-200
-                "
-                aria-label="Toggle navigation"
-              >
-                {mobileNavOpen ? <FaTimes /> : <FaBars />}
-              </button>
             </div>
           </div>
         </nav>

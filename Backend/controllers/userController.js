@@ -201,7 +201,7 @@ const loginUser = asyncHandler(async (req, res) => {
     // Generate JWT token and set as cookie
     genToken(res, user._id);
 
-    res.status(201).json({
+    res.status(200).json({
       message: "Login successful",
       _id: user._id,
       firstName: user.firstName,

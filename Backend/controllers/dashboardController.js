@@ -3,6 +3,7 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModels.js";
 import Product from "../models/productModel.js";
 import UserActivity from "../models/userActivityModel.js";
+import ProductActivity from "../models/productActivityModel.js";
 import InventoryActivity from "../models/inventoryActivityModel.js";
 
 // @DESCRIPTION Get admin dashboard overview
@@ -29,6 +30,7 @@ const getDashboardOverview = asyncHandler(async (req, res) => {
     registrationTrendResult,
     productDashboardResult,
     recentUserActivities,
+    recentProductActivities,
     recentInventoryActivities,
   ] = await Promise.all([
     // ==========================================================
@@ -399,6 +401,16 @@ const getDashboardOverview = asyncHandler(async (req, res) => {
       .limit(8),
 
     // ==========================================================
+    // RECENT PRODUCT ACTIVITIES
+    // ==========================================================
+
+    ProductActivity.find()
+      .populate("product", "name sku unit")
+      .populate("performedBy", "firstName lastName username")
+      .sort({ createdAt: -1 })
+      .limit(8),
+
+    // ==========================================================
     // RECENT INVENTORY ACTIVITIES
     // ==========================================================
 
@@ -516,6 +528,8 @@ const getDashboardOverview = asyncHandler(async (req, res) => {
     lowStockProducts,
 
     recentUserActivities,
+
+    recentProductActivities,
 
     recentInventoryActivities,
   });
