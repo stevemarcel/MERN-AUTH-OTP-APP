@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 
+import { useEffect, useState } from "react";
+
 import {
   PieChart,
   Pie,
@@ -28,7 +30,7 @@ import {
   FaArrowDown,
   FaExchangeAlt,
   FaPlus,
-  FaEdit,
+  FaPencilAlt,
   FaArchive,
   FaUndo,
   FaUserCog,
@@ -106,14 +108,14 @@ const USER_ACTIVITY_CONFIG = {
 
   profile_updated: {
     label: "Profile Updated",
-    icon: FaEdit,
+    icon: FaPencilAlt,
     iconClass: "bg-slate-100 text-slate-600",
     badgeClass: "bg-slate-100 text-slate-700",
   },
 
   profile_picture_updated: {
     label: "Photo Updated",
-    icon: FaEdit,
+    icon: FaPencilAlt,
     iconClass: "bg-purple-50 text-purple-600",
     badgeClass: "bg-purple-50 text-purple-700",
   },
@@ -174,7 +176,7 @@ const PRODUCT_ACTIVITY_CONFIG = {
 
   product_updated: {
     label: "Product Updated",
-    icon: FaEdit,
+    icon: FaPencilAlt,
     iconClass: "bg-slate-100 text-slate-600",
     badgeClass: "bg-slate-100 text-slate-700",
   },
@@ -304,11 +306,37 @@ ActivityEmptyState.propTypes = {
   message: PropTypes.string.isRequired,
 };
 
+/* ---------------------------
+  MOBILE DETECTION HOOK
+---------------------------- */
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+
+    const handleChange = (event) => {
+      setIsMobile(event.matches);
+    };
+
+    setIsMobile(mediaQuery.matches);
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, []);
+
+  return isMobile;
+};
+
 /* ================================================================
   MAIN DASHBOARD
 ================================================================ */
 const AdminDashboardOverview = () => {
   const navigate = useNavigate();
+
+  const isMobile = useIsMobile();
 
   const { data, isLoading, isError, error } = useGetDashboardOverviewQuery(undefined, {
     refetchOnMountOrArgChange: true,
@@ -666,7 +694,11 @@ const AdminDashboardOverview = () => {
                         dataKey="count"
                         nameKey="name"
                         labelLine={false}
-                        label={({ name, percent }) => `${name} ${Math.round(percent * 100)}%`}
+                        label={({ name, percent }) =>
+                          isMobile
+                            ? `${Math.round(percent * 100)}%`
+                            : `${name} ${Math.round(percent * 100)}%`
+                        }
                       >
                         {inventoryStatusChartData.map((entry) => (
                           <Cell key={entry.key} fill={entry.fill} />

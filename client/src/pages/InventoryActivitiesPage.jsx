@@ -168,13 +168,12 @@ const InventoryActivitiesPage = () => {
   return (
     <div className="mb-10 min-h-[80vh] w-full mx-auto text-shark">
       {/* HEADER */}
-      <div className="flex items-center mb-6">
+      <div className="flex mb-6">
         <BackButton />
 
-        <div className="flex items-center justify-center w-full">
-          <FaExchangeAlt className="mr-2" />
-
-          <h2 className="text-2xl md:text-3xl font-bold uppercase">Inventory Activities</h2>
+        <div className="flex flex-col items-center w-full">
+          <h2 className="md:text-2xl font-bold uppercase">Inventory Activities</h2>
+          <p className="text-xs md:text-sm text-sharkLight-300">History of inventory changes</p>
         </div>
       </div>
 

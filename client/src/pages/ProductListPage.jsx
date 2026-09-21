@@ -4,7 +4,7 @@ import {
   FaArchive,
   FaBoxOpen,
   FaCheckCircle,
-  FaEdit,
+  FaPencilAlt,
   FaPlus,
   FaSearch,
   FaTimesCircle,
@@ -678,7 +678,7 @@ const ProductListPage = () => {
                                     onClick={() => navigate(`/admin/product/${product._id}/edit`)}
                                     className="p-2 bg-shark hover:bg-sharkDark-300 text-white rounded transition"
                                   >
-                                    <FaEdit />
+                                    <FaPencilAlt />
                                   </button>
 
                                   {/* Edit Product ToolTip */}

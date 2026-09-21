@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { FaBoxOpen, FaEdit, FaArchive, FaUndo, FaUserShield } from "react-icons/fa";
+import { FaBoxOpen, FaPencilAlt, FaArchive, FaUndo, FaUserShield } from "react-icons/fa";
 
+import BackButton from "../components/BackButton";
 import Loader from "../components/Loader";
 import UserTablePaginationControls from "../components/UserTablePaginationControls";
 
@@ -52,7 +53,7 @@ const ProductActivityPage = () => {
 
       case "product_updated":
         return {
-          icon: <FaEdit />,
+          icon: <FaPencilAlt />,
           bg: "bg-yellow-100",
           color: "text-yellow-700",
           label: "Product Updated",
@@ -131,10 +132,15 @@ const ProductActivityPage = () => {
 
   return (
     <div className="w-[95%] max-w-5xl mx-auto mb-10 min-h-[80vh]">
-      <div className="mb-5">
-        <h1 className="text-xl md:text-2xl font-bold text-shark uppercase">Product Activities</h1>
+      <div className="flex mb-6">
+        <BackButton />
 
-        <p className="text-sm text-sharkLight-300 mt-1">History of product catalogue changes</p>
+        <div className="flex flex-col items-center w-full">
+          <h1 className="md:text-2xl font-bold text-shark uppercase">Product Activities</h1>
+          <p className="text-xs md:text-sm text-sharkLight-300">
+            History of product catalogue changes
+          </p>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-md p-4 mb-5">

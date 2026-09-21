@@ -110,17 +110,10 @@ const InventoryHistoryPage = () => {
   return (
     <div className="mb-10 min-h-[80vh] w-full mx-auto text-shark">
       {/* Header */}
-      <div className="flex items-center mb-6">
+      <div className="flex mb-6">
         <BackButton />
-        <div className="flex flex-col items-center justify-center w-full">
-          <div className="flex items-center justify-center w-full min-w-0">
-            <FaExchangeAlt className="mr-2 flex-shrink-0" />
-
-            <h2 className="text-xl md:text-2xl font-bold uppercase truncate">
-              {/* {product.name} - Inventory History */}
-              {product.name}
-            </h2>
-          </div>
+        <div className="flex flex-col items-center w-full">
+          <h1 className="md:text-2xl font-bold uppercase text-center text-wrap">{product.name}</h1>
           <p className="text-xs md:text-sm text-sharkLight-300 uppercase">Inventory History</p>
         </div>
       </div>
